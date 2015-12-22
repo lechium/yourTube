@@ -4,7 +4,7 @@ native objective-c wrapper for youtube get_video_info
 Instantiate KBYourTube and get video details in 2 lines of code;
 
     KBYourTube *tube = [[KBYourTube alloc] init];
-    NSDictionary *streamArray = [tube getVideoDetailsForID:@"_7nYuyfkjCk"];
+    NSDictionary *streamInfo = [tube getVideoDetailsForID:@"_7nYuyfkjCk"];
     
 Would yield
     
