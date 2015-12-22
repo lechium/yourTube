@@ -46,6 +46,26 @@
 
 @synthesize ytkey, yttimestamp;
 
+#pragma mark convenience methods
+
+//take a url and get its raw body, then return in string format
+
+- (NSString *)stringFromRequest:(NSString *)url
+{
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:url]
+                                                           cachePolicy:NSURLRequestReloadIgnoringCacheData
+                                                       timeoutInterval:10];
+    
+    NSURLResponse *response = nil;
+    
+    [request setHTTPMethod:@"GET"];
+    NSData *data = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:nil];
+    return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    
+}
+
+#pragma mark video details
 
 /* 
  
@@ -88,21 +108,6 @@
     NSDictionary *vars = [self parseFlashVars:body];
     
     //NSLog(@"vars: %@", vars);
-    
-    /*
-     
-     author
-     avg_rating
-     iurlhq
-     iurlmaxres
-     iurlmq
-     iurlsd
-     keywords
-     length_seconds
-     video_id
-     view_count
-     
-     */
     
     if ([[vars allKeys] containsObject:@"status"])
     {
@@ -160,6 +165,51 @@
     return nil;
 }
 
+//get the basic source dictionary and update it with useful format and url info
+//decode the signature if necessary
+
+- (NSDictionary *)processSource:(NSMutableDictionary *)inputSource
+{
+    if ([[inputSource allKeys] containsObject:@"url"])
+    {
+        NSString *signature = nil;
+        int fmt = [[inputSource objectForKey:@"itag"] intValue];
+        
+        //if you want to limit to mp4 only, comment this if back in
+        //  if (fmt == 22 || fmt == 18 || fmt == 37 || fmt == 38)
+        //    {
+        NSString *url = [[inputSource objectForKey:@"url"] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        if ([[inputSource allKeys] containsObject:@"sig"])
+        {
+            signature = [inputSource objectForKey:@"sig"];
+            url = [url stringByAppendingFormat:@"&signature=%@", signature];
+        } else if ([[inputSource allKeys] containsObject:@"s"]) //requires cipher to update the signature
+        {
+            signature = [inputSource objectForKey:@"s"];
+            signature = [self decodeSignature:signature withKey:self.ytkey];
+            url = [url stringByAppendingFormat:@"&signature=%@", signature];
+        }
+        
+        //add more readable format
+        [inputSource addEntriesFromDictionary:[self formatFromTag:fmt]];
+        
+        [inputSource setValue:url forKey:@"url"];
+        
+        url = [url stringByAppendingFormat:@"&title=%@%@%@%@", inputSource[@"title"],@"%20%5B", inputSource[@"height"],  @"p%5D"];
+        
+        [inputSource setValue:url forKey:@"downloadURL"];
+        
+        NSString *type = [[[[inputSource valueForKey:@"type"] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"+" withString:@" "] stringByReplacingOccurrencesOfString:@"\"" withString:@""];
+        [inputSource setValue:type forKey:@"type"];
+        NSString *title = [inputSource[@"title"] stringByReplacingOccurrencesOfString:@"+" withString:@" "];
+        [inputSource setObject:title forKey:@"title"];
+        return inputSource;
+        // }
+    }
+    
+    
+    return nil;
+}
 
 - (NSDictionary *)formatFromTag:(int)tag
 {
@@ -189,192 +239,52 @@
     return dict;
 }
 
-//get the basic source dictionary and update it with useful format and url info
-//decode the signature if necessary
 
-- (NSDictionary *)processSource:(NSMutableDictionary *)inputSource
+#pragma mark Parsing & Regex magic
+
+//change a wall of "body" text into a dictionary like &key=value
+
+- (NSMutableDictionary *)parseFlashVars:(NSString *)vars
 {
-    if ([[inputSource allKeys] containsObject:@"url"])
-    {
-        NSString *signature = nil;
-        int fmt = [[inputSource objectForKey:@"itag"] intValue];
-     
-        //if you want to limit to mp4 only, comment this if back in
-        //  if (fmt == 22 || fmt == 18 || fmt == 37 || fmt == 38)
-    //    {
-            NSString *url = [[inputSource objectForKey:@"url"] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-            if ([[inputSource allKeys] containsObject:@"sig"])
-            {
-                signature = [inputSource objectForKey:@"sig"];
-                url = [url stringByAppendingFormat:@"&signature=%@", signature];
-            } else if ([[inputSource allKeys] containsObject:@"s"]) //requires cipher to update the signature
-            {
-                signature = [inputSource objectForKey:@"s"];
-                signature = [self decodeSignature:signature withKey:self.ytkey];
-                url = [url stringByAppendingFormat:@"&signature=%@", signature];
-            }
-        
-        //add more readable format
-        [inputSource addEntriesFromDictionary:[self formatFromTag:fmt]];
-        
-        [inputSource setValue:url forKey:@"url"];
-        
-        url = [url stringByAppendingFormat:@"&title=%@%@%@%@", inputSource[@"title"],@"%20%5B", inputSource[@"height"],  @"p%5D"];
-        
-        [inputSource setValue:url forKey:@"downloadURL"];
-        
-        NSString *type = [[[[inputSource valueForKey:@"type"] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"+" withString:@" "] stringByReplacingOccurrencesOfString:@"\"" withString:@""];
-        [inputSource setValue:type forKey:@"type"];
-        NSString *title = [inputSource[@"title"] stringByReplacingOccurrencesOfString:@"+" withString:@" "];
-        [inputSource setObject:title forKey:@"title"];
-            return inputSource;
-       // }
-    }
-    
-    
-    return nil;
+    return [self dictionaryFromString:vars withRegex:@"([^&=]*)=([^&]*)"];
 }
 
-//take a url and get its raw body, then return in string format
+//give us the actual matches from a regex, rather then NSTextCheckingResult full of ranges
 
-- (NSString *)stringFromRequest:(NSString *)url
+- (NSArray *)matchesForString:(NSString *)string withRegex:(NSString *)pattern
 {
-    
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:url]
-                                                           cachePolicy:NSURLRequestReloadIgnoringCacheData
-                                                       timeoutInterval:10];
-    
-    NSURLResponse *response = nil;
-    
-    [request setHTTPMethod:@"GET"];
-    NSData *data = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:nil];
-    return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    
-}
-
-/*
- 
- if use_cipher_signature is true the a timestamp and a key are necessary to decipher the signature and re-add it
- to the url for proper playback and download, this method will attempt to grab those values dynamically
- 
- for more details look at https://www.jwz.org/hacks/youtubedown and search for this text
- 
- 24-Jun-2013: When use_cipher_signature=True
- 
- didnt want to plagiarize his whole thesis, and its a good explanation of why this is necessary
- 
- 
- */
-
-
-- (void)getTimeStampAndKey:(NSString *)videoID
-{
-    NSLog(@"### getTS");
-    NSString *url = [NSString stringWithFormat:@"https://www.youtube.com/embed/%@", videoID];
-    NSString *body = [self stringFromRequest:url];
-    
-    //the timestamp that is needed for signature deciphering
-    
-    self.yttimestamp = [[[[self matchesForString:body withRegex:@"\"sts\":(\\d*)"] lastObject] componentsSeparatedByString:@":"] lastObject];
-    
-    //isolate the base.js file that we need to extract the signature from
-    
-    NSString *baseJS = [NSString stringWithFormat:@"https:%@", [[[[[self matchesForString:body withRegex:@"\"js\":\"([^\"]*)\""] lastObject] componentsSeparatedByString:@":"] lastObject] stringByReplacingOccurrencesOfString:@"\\/" withString:@"/"]];
-    
-    //get the raw js source of the decoder file that we need to get the signature cipher from
-    
-    NSString *jsBody = [self stringFromRequest:[baseJS stringByReplacingOccurrencesOfString:@"\"" withString:@""]];
-    
-    //crazy convoluted regex to get a signature section similiar to this
-    //cr.Ww(a,13);cr.W9(a,69);cr.Gz(a,3);cr.Ww(a,2);cr.W9(a,79);cr.Gz(a,3);cr.Ww(a,36);return a.join(
-    
-    //#### IGNORE THE WARNING, if the extra escape is added as expected the regex doesnt work!
-    
-    NSString *keyMatch = [[self matchesForString:jsBody withRegex:@"function[ $_A-Za-z0-9]*\\(a\\)\\{a=a(?:\.split|\\[[$_A-Za-z0-9]+\\])\\(\"\"\\);\\s*([^\"]*)"] lastObject];
-    
-    //the jsbody is trimmed down to a smaller section to optimize the search to deobfuscate the signature function names
-    
-    NSString *fnNameMatch = [NSString stringWithFormat:@";var %@={", [[self matchesForString:keyMatch withRegex:@"^[$_A-Za-z0-9]+"] lastObject]];
-    
-    //the index to start the new string range from for said optimization above
-    
-    NSUInteger index = [jsBody rangeOfString:fnNameMatch].location;
-    
-    //smaller string for searching for reverse / splice function names
-    NSString *x = [jsBody substringFromIndex:index];
-    NSString *a, *tmp, *r, *s = nil;
-    
-    //next baffling regex used to cycle through which functions names from the match above are linked to reversing and splicing
-    NSArray *matches = [self matchesForString:x withRegex:@"([$_A-Za-z0-9]+):|reverse|splice"];
-    int i = 0;
-    
-    /*
-    adopted from the javascript version to identify the functions, probably not the most efficient way, but it works!
-    Loop through the matches and if a != reverse | splice then set the value to tmp, the function names are listed
-    prior to their purpose:
-    
-     ie: [Ww,splice,w9,reverse]
-    
-     splice = Ww; & reverse = W9;
-    
-     */
-    
-    for (i = 0; i < [matches count]; i++)
+    NSMutableArray *array = [NSMutableArray new];
+    NSError *error = NULL;
+    NSRange range = NSMakeRange(0, string.length);
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern options:NSRegularExpressionCaseInsensitive | NSRegularExpressionAnchorsMatchLines error:&error];
+    NSArray *matches = [regex matchesInString:string options:NSMatchingReportProgress range:range];
+    for (NSTextCheckingResult *entry in matches)
     {
-        a = [matches objectAtIndex:i];
-        if (r != nil && s != nil)
-        {
-            break;
-        }
-        if([a isEqualToString:@"reverse"])
-        {
-            r = tmp;
-        } else if ([a isEqualToString:@"splice"])
-        {
-            s = tmp;
-        } else {
-            tmp = [a stringByReplacingOccurrencesOfString:@":" withString:@""];
-        }
+        NSString *text = [string substringWithRange:entry.range];
+        [array addObject:text];
     }
     
-    /*
-     
-     the new signature is made into a key array for easily moving characters around as needed based on the cipher
-     ie cr.Ww(a,13);cr.W9(a,69);cr.Gz(a,3);cr.Ww(a,2);cr.W9(a,79);cr.Gz(a,3);cr.Ww(a,36);return a.join(
-     
-     broken up into chunks like
-     
-     cr.Ww(a,13)
-     
-     this will allow us to take the keyMatch string and actually determine when to reverse, splice or swap
-     
-    */
-    NSMutableArray *keys = [NSMutableArray new];
+    return array;
+}
+
+
+//the actual function that does the &key=value dictionary creation mentioned above
+
+- (NSMutableDictionary *)dictionaryFromString:(NSString *)string withRegex:(NSString *)pattern
+{
+    NSMutableDictionary *dict = [NSMutableDictionary new];
+    NSArray *matches = [self matchesForString:string withRegex:pattern];
     
-    NSArray *keyMatches = [self matchesForString:keyMatch withRegex:@"[$_A-Za-z0-9]+\\.([$_A-Za-z0-9]+)\\(a,(\\d*)\\)"];
-    for (NSString *theMatch in keyMatches)
+    for (NSString *text in matches)
     {
-        //fr.Ww(a,13) split this up into something like Ww and 13
-        NSString *importantSection = [[theMatch componentsSeparatedByString:@"."] lastObject];
-        NSString *numberValue = [[[importantSection componentsSeparatedByString:@","] lastObject] stringByReplacingOccurrencesOfString:@")" withString:@""]; //13
-        NSString *fnName = [[importantSection componentsSeparatedByString:@"("] objectAtIndex:0]; // Ww
-        
-        if ([fnName isEqualToString:r]) //reverse
-        {
-            [keys addObject:@"0"]; //0 in our signature key means reverse the string
-        } else if ([fnName isEqualToString:s]) //if its the splice function store it as a negative value
-        {
-            [keys addObject:[NSString stringWithFormat:@"-%@", numberValue]];
-        } else { //were not splicing or reversing, so its going to be a swap value
-            [keys addObject:numberValue];
-        }
+        NSArray *components = [text componentsSeparatedByString:@"="];
+        [dict setObject:[components objectAtIndex:1] forKey:[components objectAtIndex:0]];
     }
     
-    //take the final key array and make it into something like 13,0,-3,2,0,-3,36
-    
-    self.ytkey = [keys componentsJoinedByString:@","];
-   
+    return dict;
 }
+
+#pragma mark Signature deciphering
 
 /*
  **
@@ -432,6 +342,130 @@
 
 /**
  
+ if use_cipher_signature is true the a timestamp and a key are necessary to decipher the signature and re-add it
+ to the url for proper playback and download, this method will attempt to grab those values dynamically
+ 
+ for more details look at https://www.jwz.org/hacks/youtubedown and search for this text
+ 
+ 24-Jun-2013: When use_cipher_signature=True
+ 
+ didnt want to plagiarize his whole thesis, and its a good explanation of why this is necessary
+ 
+ 
+ */
+
+
+- (void)getTimeStampAndKey:(NSString *)videoID
+{
+    NSString *url = [NSString stringWithFormat:@"https://www.youtube.com/embed/%@", videoID];
+    NSString *body = [self stringFromRequest:url];
+    
+    //the timestamp that is needed for signature deciphering
+    
+    self.yttimestamp = [[[[self matchesForString:body withRegex:@"\"sts\":(\\d*)"] lastObject] componentsSeparatedByString:@":"] lastObject];
+    
+    //isolate the base.js file that we need to extract the signature from
+    
+    NSString *baseJS = [NSString stringWithFormat:@"https:%@", [[[[[self matchesForString:body withRegex:@"\"js\":\"([^\"]*)\""] lastObject] componentsSeparatedByString:@":"] lastObject] stringByReplacingOccurrencesOfString:@"\\/" withString:@"/"]];
+    
+    //get the raw js source of the decoder file that we need to get the signature cipher from
+    
+    NSString *jsBody = [self stringFromRequest:[baseJS stringByReplacingOccurrencesOfString:@"\"" withString:@""]];
+    
+    //crazy convoluted regex to get a signature section similiar to this
+    //cr.Ww(a,13);cr.W9(a,69);cr.Gz(a,3);cr.Ww(a,2);cr.W9(a,79);cr.Gz(a,3);cr.Ww(a,36);return a.join(
+    
+    //#### IGNORE THE WARNING, if the extra escape is added as expected the regex doesnt work!
+    
+    NSString *keyMatch = [[self matchesForString:jsBody withRegex:@"function[ $_A-Za-z0-9]*\\(a\\)\\{a=a(?:\.split|\\[[$_A-Za-z0-9]+\\])\\(\"\"\\);\\s*([^\"]*)"] lastObject];
+    
+    //the jsbody is trimmed down to a smaller section to optimize the search to deobfuscate the signature function names
+    
+    NSString *fnNameMatch = [NSString stringWithFormat:@";var %@={", [[self matchesForString:keyMatch withRegex:@"^[$_A-Za-z0-9]+"] lastObject]];
+    
+    //the index to start the new string range from for said optimization above
+    
+    NSUInteger index = [jsBody rangeOfString:fnNameMatch].location;
+    
+    //smaller string for searching for reverse / splice function names
+    NSString *x = [jsBody substringFromIndex:index];
+    NSString *a, *tmp, *r, *s = nil;
+    
+    //next baffling regex used to cycle through which functions names from the match above are linked to reversing and splicing
+    NSArray *matches = [self matchesForString:x withRegex:@"([$_A-Za-z0-9]+):|reverse|splice"];
+    int i = 0;
+    
+    /*
+     adopted from the javascript version to identify the functions, probably not the most efficient way, but it works!
+     Loop through the matches and if a != reverse | splice then set the value to tmp, the function names are listed
+     prior to their purpose:
+     
+     ie: [Ww,splice,w9,reverse]
+     
+     splice = Ww; & reverse = W9;
+     
+     */
+    
+    for (i = 0; i < [matches count]; i++)
+    {
+        a = [matches objectAtIndex:i];
+        if (r != nil && s != nil)
+        {
+            break;
+        }
+        if([a isEqualToString:@"reverse"])
+        {
+            r = tmp;
+        } else if ([a isEqualToString:@"splice"])
+        {
+            s = tmp;
+        } else {
+            tmp = [a stringByReplacingOccurrencesOfString:@":" withString:@""];
+        }
+    }
+    
+    /*
+     
+     the new signature is made into a key array for easily moving characters around as needed based on the cipher
+     ie cr.Ww(a,13);cr.W9(a,69);cr.Gz(a,3);cr.Ww(a,2);cr.W9(a,79);cr.Gz(a,3);cr.Ww(a,36);return a.join(
+     
+     broken up into chunks like
+     
+     cr.Ww(a,13)
+     
+     this will allow us to take the keyMatch string and actually determine when to reverse, splice or swap
+     
+     */
+    NSMutableArray *keys = [NSMutableArray new];
+    
+    NSArray *keyMatches = [self matchesForString:keyMatch withRegex:@"[$_A-Za-z0-9]+\\.([$_A-Za-z0-9]+)\\(a,(\\d*)\\)"];
+    for (NSString *theMatch in keyMatches)
+    {
+        //fr.Ww(a,13) split this up into something like Ww and 13
+        NSString *importantSection = [[theMatch componentsSeparatedByString:@"."] lastObject];
+        NSString *numberValue = [[[importantSection componentsSeparatedByString:@","] lastObject] stringByReplacingOccurrencesOfString:@")" withString:@""]; //13
+        NSString *fnName = [[importantSection componentsSeparatedByString:@"("] objectAtIndex:0]; // Ww
+        
+        if ([fnName isEqualToString:r]) //reverse
+        {
+            [keys addObject:@"0"]; //0 in our signature key means reverse the string
+        } else if ([fnName isEqualToString:s]) //if its the splice function store it as a negative value
+        {
+            [keys addObject:[NSString stringWithFormat:@"-%@", numberValue]];
+        } else { //were not splicing or reversing, so its going to be a swap value
+            [keys addObject:numberValue];
+        }
+    }
+    
+    //take the final key array and make it into something like 13,0,-3,2,0,-3,36
+    
+    self.ytkey = [keys componentsJoinedByString:@","];
+    
+}
+
+
+/**
+ 
  this function will take the key array and splice it from the starting index to the end of the string with the value 3 
  would change:
  105105282D9AD56125199603D23E2C93F04C9D2237A.B8A82DC92F00EF86757325D88E778BC5D08FC252252 to
@@ -470,58 +504,7 @@
     
 }
 
-/*
- 
- change a wall of body text into a dictionary like &key=value
- 
- */
 
-- (NSMutableDictionary *)parseFlashVars:(NSString *)vars
-{
-    return [self dictionaryFromString:vars withRegex:@"([^&=]*)=([^&]*)"];
-}
-
-/*
- 
- give us the actual matches from a regex, rather then NSTextCheckingResult full of ranges
- 
- */
-
-- (NSArray *)matchesForString:(NSString *)string withRegex:(NSString *)pattern
-{
-    NSMutableArray *array = [NSMutableArray new];
-    NSError *error = NULL;
-    NSRange range = NSMakeRange(0, string.length);
-    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern options:NSRegularExpressionCaseInsensitive | NSRegularExpressionAnchorsMatchLines error:&error];
-    NSArray *matches = [regex matchesInString:string options:NSMatchingReportProgress range:range];
-    for (NSTextCheckingResult *entry in matches)
-    {
-        NSString *text = [string substringWithRange:entry.range];
-        [array addObject:text];
-    }
-    
-    return array;
-}
-
-/*
- 
- the actual function that does the &key=value dictionary creation mentioned above
- 
- */
-
-- (NSMutableDictionary *)dictionaryFromString:(NSString *)string withRegex:(NSString *)pattern
-{
-    NSMutableDictionary *dict = [NSMutableDictionary new];
-    NSArray *matches = [self matchesForString:string withRegex:pattern];
-    
-    for (NSString *text in matches)
-    {
-        NSArray *components = [text componentsSeparatedByString:@"="];
-        [dict setObject:[components objectAtIndex:1] forKey:[components objectAtIndex:0]];
-    }
-    
-    return dict;
-}
 
 /*
  
