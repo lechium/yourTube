@@ -58,7 +58,6 @@
  https://www.youtube.com/watch?v=_7nYuyfkjCk
  
  
- 
  */
 
 - (NSArray *)getVideoStreamsForID:(NSString *)videoID
@@ -181,7 +180,7 @@
         
         [inputSource setValue:url forKey:@"url"];
         
-        //add more readable format informat
+        //add more readable format
         [inputSource setValue:[self formatFromTag:fmt] forKey:@"format"];
             return inputSource;
        // }
@@ -210,7 +209,7 @@
 
 /*
  
- if use signature cipher is true the a timestamp and a key are necessary to decipher the signature and re-add it
+ if use_cipher_signature is true the a timestamp and a key are necessary to decipher the signature and re-add it
  to the url for proper playback and download, this method will attempt to grab those values dynamically
  
  for more details look at https://www.jwz.org/hacks/youtubedown and search for this text
@@ -243,12 +242,11 @@
     //crazy convoluted regex to get a signature section similiar to this
     //cr.Ww(a,13);cr.W9(a,69);cr.Gz(a,3);cr.Ww(a,2);cr.W9(a,79);cr.Gz(a,3);cr.Ww(a,36);return a.join(
     
-    
     //#### IGNORE THE WARNING, if the extra escape is added as expected the regex doesnt work!
     
     NSString *keyMatch = [[self matchesForString:jsBody withRegex:@"function[ $_A-Za-z0-9]*\\(a\\)\\{a=a(?:\.split|\\[[$_A-Za-z0-9]+\\])\\(\"\"\\);\\s*([^\"]*)"] lastObject];
     
-    //the jsbody is trimmed down to a smaller section to optimize the search to decipher the signature functions
+    //the jsbody is trimmed down to a smaller section to optimize the search to deobfuscate the signature function names
     
     NSString *fnNameMatch = [NSString stringWithFormat:@";var %@={", [[self matchesForString:keyMatch withRegex:@"^[$_A-Za-z0-9]+"] lastObject]];
     
@@ -260,20 +258,21 @@
     NSString *x = [jsBody substringFromIndex:index];
     NSString *a, *tmp, *r, *s = nil;
     
-    //next baffling regex used to cycle through for which functions are linked to reversing and splicing
+    //next baffling regex used to cycle through which functions names from the match above are linked to reversing and splicing
     NSArray *matches = [self matchesForString:x withRegex:@"([$_A-Za-z0-9]+):|reverse|splice"];
     int i = 0;
     
     /*
-    adopted from the javascript version to identify the functions, probably not the most efficient way
-    loop through the matches above and set the tmp value if it isnt equal the value splice or reverse
-    the function names are the match above their counterpart
+    adopted from the javascript version to identify the functions, probably not the most efficient way, but it works!
+    Loop through the matches and if a != reverse | splice then set the value to tmp, the function names are listed
+    prior to their purpose:
     
-     ie Ww,splice,w9,reverse
+     ie: [Ww,splice,w9,reverse]
     
-     s = Ww; & r = W9;
+     splice = Ww; & reverse = W9;
     
      */
+    
     for (i = 0; i < [matches count]; i++)
     {
         a = [matches objectAtIndex:i];
@@ -300,6 +299,8 @@
      broken up into chunks like
      
      cr.Ww(a,13)
+     
+     this will allow us to take the keyMatch string and actually determine when to reverse, splice or swap
      
     */
     NSMutableArray *keys = [NSMutableArray new];
@@ -339,9 +340,9 @@
  
  they store their key a little differently then the clicktoplugin scripts this code was based on
  
- but our their  w13 r s3 w2 r s3 w36 is the equivalent to our 13,0,-3,2,0,-3,36
+ but our their w13 r s3 w2 r s3 w36 is the equivalent to our 13,0,-3,2,0,-3,36
  
- the functions below take care of all of these steps as quickly & easily as i could think of to
+ the functions below take care of all of these steps as quickly & easily as i could initially determine
  
  */
 
