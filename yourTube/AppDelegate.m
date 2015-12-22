@@ -20,8 +20,8 @@
     // Insert code here to initialize your application
     
     KBYourTube *tube = [[KBYourTube alloc] init];
-    NSArray *streamArray = [tube getVideoStreamsForID:@"_7nYuyfkjCk"];
-    NSLog(@"streamArray: %@", streamArray);
+    NSDictionary *streamInfo = [tube getVideoDetailsForID:@"_7nYuyfkjCk"];
+    NSLog(@"streamInfo: %@", streamInfo);
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {

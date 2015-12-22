@@ -13,6 +13,5 @@
 @property (nonatomic, strong) NSString *yttimestamp;
 @property (nonatomic, strong) NSString *ytkey;
 
-- (NSArray *)getVideoStreamsForID:(NSString *)videoID;
-
+- (NSDictionary *)getVideoDetailsForID:(NSString *)videoID;
 @end

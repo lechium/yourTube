@@ -24,6 +24,7 @@
 		89A0EB7C1C28CF0F00255773 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		89A0EB821C28CF3C00255773 /* KBYourTube.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KBYourTube.h; sourceTree = "<group>"; };
 		89A0EB831C28CF3C00255773 /* KBYourTube.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KBYourTube.m; sourceTree = "<group>"; };
+		89A0EB851C29D17100255773 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,6 +57,7 @@
 		89A0EB701C28CF0F00255773 /* yourTube */ = {
 			isa = PBXGroup;
 			children = (
+				89A0EB851C29D17100255773 /* README.md */,
 				89A0EB711C28CF0F00255773 /* AppDelegate.h */,
 				89A0EB721C28CF0F00255773 /* AppDelegate.m */,
 				89A0EB821C28CF3C00255773 /* KBYourTube.h */,
@@ -287,6 +289,7 @@
 				89A0EB811C28CF0F00255773 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

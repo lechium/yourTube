@@ -60,7 +60,7 @@
  
  */
 
-- (NSArray *)getVideoStreamsForID:(NSString *)videoID
+- (NSDictionary *)getVideoDetailsForID:(NSString *)videoID
 {
     //get the time stamp and cipher key in case we need to decode the signature.
     [self getTimeStampAndKey:videoID];
@@ -82,13 +82,53 @@
     
     //turn all of these variables into an nsdictionary by separating elements by =
     NSDictionary *vars = [self parseFlashVars:body];
+    
+    //NSLog(@"vars: %@", vars);
+    
+    /*
+     
+     author
+     avg_rating
+     iurlhq
+     iurlmaxres
+     iurlmq
+     iurlsd
+     keywords
+     length_seconds
+     video_id
+     view_count
+     
+     */
+    
     if ([[vars allKeys] containsObject:@"status"])
     {
         if ([[vars objectForKey:@"status"] isEqualToString:@"ok"])
         {
             //grab the raw streams string that is available for the video
             NSString *streamMap = [vars objectForKey:@"url_encoded_fmt_stream_map"];
-            NSString *title = [vars objectForKey:@"title"];
+            
+            //grab a few extra variables from the vars
+            
+            NSString *title = [vars[@"title"] stringByReplacingOccurrencesOfString:@"+" withString:@" "];
+            NSString *author = vars[@"author"];
+            NSString *iurlhq = [vars[@"iurlhq"] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+            NSString *iurlmq = [vars[@"iurlmq"] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+            NSString *iurlsd = [vars[@"iurlsd"] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+            NSString *keywords = [vars[@"keywords"] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+            int duration = [vars[@"length_seconds"] intValue];
+            NSString *videoID = vars[@"video_id"];
+            int view_count = [vars[@"view_count"] intValue];
+            
+            NSMutableDictionary *rootInfo = [NSMutableDictionary new];
+            rootInfo[@"title"] = title;
+            rootInfo[@"author"] = author;
+            rootInfo[@"imageURLHQ"] = iurlhq;
+            rootInfo[@"imageURLMQ"] = iurlmq;
+            rootInfo[@"imageURLSD"] = iurlsd;
+            rootInfo[@"keywords"] = keywords;
+            rootInfo[@"duration"] = [NSNumber numberWithInt:duration];
+            rootInfo[@"videoID"] = videoID;
+            rootInfo[@"views"] = [NSNumber numberWithInt:view_count];
             
             //separate the streams into their initial array
             
@@ -108,7 +148,8 @@
                     [videoArray addObject:processed];
                 }
             }
-            return videoArray;
+            [rootInfo setObject:videoArray forKey:@"streams"];
+            return rootInfo;
         }
     }
     
