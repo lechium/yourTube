@@ -325,11 +325,16 @@
     }
     
     //take the final key array and make it into something like 13,0,-3,2,0,-3,36
+    
     self.ytkey = [keys componentsJoinedByString:@","];
    
 }
 
 /*
+ **
+ ***
+ 
+ Signature cipher notes
  
  the youtube signature cipher has 3 basic steps (for now) swapping, splicing and reversing
  the notes from youtubedown put it better than i can think to
@@ -338,22 +343,55 @@
  # - sN = slice from character N to the end;
  # - wN = swap 0th and Nth character.
  
- they store their key a little differently then the clicktoplugin scripts this code was based on
+ they store their key a little differently then the clicktoplugin scripts yourTube code was based on
  
- but our their w13 r s3 w2 r s3 w36 is the equivalent to our 13,0,-3,2,0,-3,36
+ their "w13 r s3 w2 r s3 w36" is the equivalent to our "13,0,-3,2,0,-3,36"
  
- the functions below take care of all of these steps as quickly & easily as i could initially determine
+ the functions below take care of all of these steps.
+ 
+ Processing a key example:
+ 
+ 13,0,-3,2,0,-3,36 would be processed the following way
+ 
+ 13: swap 13 character with character at 0
+ 0: reverse
+ -3: splice from 3 to the end
+ 2: swap 2nd character with character at 0
+ 0: reverse
+ -3: splice from 3 to the end
+ 36: swap 36 character with chracter at 0
+ 
+ old sig: B52252CF80D5C2877E88D52375768FE00F29CD28A8B.A7322D9C40F39C2E32D30699152165DA9D282501501
+ 
+ swap 13: B with 2
+ swapped: 252252CF80D5CB877E88D52375768FE00F29CD28A8B.A7322D9C40F39C2E32D30699152165DA9D282501501
+ 
+ reversed: 105105282D9AD56125199603D23E2C93F04C9D2237A.B8A82DC92F00EF86757325D88E778BC5D08FC252252
+ 
+ sliced at 3: 105282D9AD56125199603D23E2C93F04C9D2237A.B8A82DC92F00EF86757325D88E778BC5D08FC252252
+ 
+ swap 2: 1 with 5
+ swapped: 501282D9AD56125199603D23E2C93F04C9D2237A.B8A82DC92F00EF86757325D88E778BC5D08FC252252
+
+ reversed: 252252CF80D5CB877E88D52375768FE00F29CD28A8B.A7322D9C40F39C2E32D30699152165DA9D282105
+ 
+ sliced 3: 252CF80D5CB877E88D52375768FE00F29CD28A8B.A7322D9C40F39C2E32D30699152165DA9D282105
+ swap 36: 2 with 8
+ 
+ swapped: 852CF80D5CB877E88D52375768FE00F29CD22A8B.A7322D9C40F39C2E32D30699152165DA9D282105
+ 
+ newsig: 852CF80D5CB877E88D52375768FE00F29CD22A8B.A7322D9C40F39C2E32D30699152165DA9D282105
  
  */
 
-
-
-/* 
+/**
  
- take the key array and splice it from the starting index to the end of the string with the value 3 would change
+ this function will take the key array and splice it from the starting index to the end of the string with the value 3 
+ would change:
  105105282D9AD56125199603D23E2C93F04C9D2237A.B8A82DC92F00EF86757325D88E778BC5D08FC252252 to
  105282D9AD56125199603D23E2C93F04C9D2237A.B8A82DC92F00EF86757325D88E778BC5D08FC252252
-*/
+
+ */
 
 - (NSMutableArray *)sliceArray:(NSArray *)theArray atIndex:(int)theIndex
 {
