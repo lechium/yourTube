@@ -62,13 +62,17 @@
 
 - (NSDictionary *)getVideoDetailsForID:(NSString *)videoID
 {
-    //get the time stamp and cipher key in case we need to decode the signature.
-    [self getTimeStampAndKey:videoID];
-    
+    //if we already have the timestamp and key theres no reason to fetch them again, should make additional calls quicker.
+    if (self.yttimestamp.length == 0 && self.ytkey.length == 0)
+    {
+        //get the time stamp and cipher key in case we need to decode the signature.
+        [self getTimeStampAndKey:videoID];
+    }
+
     //a fallback just in case the jsbody is changed and we cant automatically grab current signatures
     //old ciphers generally continue to work at least temporarily.
     
-    if (self.yttimestamp == nil || self.ytkey == nil)
+    if (self.yttimestamp.length == 0 || self.ytkey.length == 0)
     {
         self.yttimestamp = @"16777";
         self.ytkey = @"13,0,-3,2,0,-3,36";
@@ -265,6 +269,7 @@
 
 - (void)getTimeStampAndKey:(NSString *)videoID
 {
+    NSLog(@"### getTS");
     NSString *url = [NSString stringWithFormat:@"https://www.youtube.com/embed/%@", videoID];
     NSString *body = [self stringFromRequest:url];
     
