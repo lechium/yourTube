@@ -172,6 +172,8 @@
         //add more readable format
         [inputSource addEntriesFromDictionary:[self formatFromTag:fmt]];
         
+        [inputSource setValue:url forKey:@"url"];
+        
         url = [url stringByAppendingFormat:@"&title=%@%@%@%@", inputSource[@"title"],@"%20%5B", inputSource[@"height"],  @"p%5D"];
         
         [inputSource setValue:url forKey:@"downloadURL"];
