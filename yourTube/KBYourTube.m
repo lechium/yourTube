@@ -97,7 +97,7 @@
             for (NSString *map in maps )
             {
                 //same thing, take these raw feeds and make them into an NSDictionary with usable info
-                NSDictionary *videoDict = [self parseFlashVars:map];
+                NSMutableDictionary *videoDict = [self parseFlashVars:map];
                 //add the title from the previous dictionary created
                 [videoDict setValue:title forKey:@"title"];
                 //process the raw dictionary into something that can be used with download links and format details
@@ -116,44 +116,38 @@
 }
 
 
-- (NSString *)formatFromTag:(int)tag
+- (NSDictionary *)formatFromTag:(int)tag
 {
-    NSString *fmt = nil;
+    NSDictionary *dict = nil;
     switch (tag) {
-            
-        case 38: fmt = @"4K MP4"; break;
-        case 37: fmt = @"1080p MP4"; break;
-        case 22: fmt = @"720p MP4"; break;
-        case 18: fmt = @"360p MP4"; break;
-            
+            //MP4
+        case 38: dict = @{@"format": @"4K MP4", @"height": @2304}; break;
+        case 37: dict = @{@"format": @"1080p MP4", @"height": @1080}; break;
+        case 22: dict = @{@"format": @"720p MP4", @"height": @720}; break;
+        case 18: dict = @{@"format": @"360p MP4", @"height": @360}; break;
             //FLV
-            
-        case 35: fmt = @"480p FLV"; break;
-        case 6: fmt = @"270p FLV"; break;
-        case 5: fmt = @"240p FLV"; break;
-            
+        case 35: dict = @{@"format": @"480p FLV", @"height": @480}; break;
+        case 34: dict = @{@"format": @"360p FLV", @"height": @360}; break;
+        case 6: dict = @{@"format": @"270p FLV", @"height": @270}; break;
+        case 5: dict = @{@"format": @"240p FLV", @"height": @240}; break;
             //WebM
-            
-        case 46: fmt = @"1080p WebM"; break;
-        case 45: fmt = @"720p WebM"; break;
-        case 44: fmt = @"480p WebM"; break;
-        case 43: fmt = @"360p WebM"; break;
-            
+        case 46: dict = @{@"format": @"1080p WebM", @"height": @1080}; break;
+        case 45: dict = @{@"format": @"720p WebM", @"height": @720}; break;
+        case 44: dict = @{@"format": @"480p WebM", @"height": @480}; break;
+        case 43: dict = @{@"format": @"360p WebM", @"height": @360}; break;
             //3gp
-        
-        case 17: fmt = @"350p 3GP"; break;
-            
+        case 17: dict = @{@"format": @"350p 3GP", @"height": @350}; break;
         default:
             break;
     }
     
-    return fmt;
+    return dict;
 }
 
 //get the basic source dictionary and update it with useful format and url info
 //decode the signature if necessary
 
-- (NSDictionary *)processSource:(NSDictionary *)inputSource
+- (NSDictionary *)processSource:(NSMutableDictionary *)inputSource
 {
     if ([[inputSource allKeys] containsObject:@"url"])
     {
@@ -175,13 +169,16 @@
                 url = [url stringByAppendingFormat:@"&signature=%@", signature];
             }
         
-        
-        url = [url stringByAppendingFormat:@"&title=%@", inputSource[@"title"]];
-        
-        [inputSource setValue:url forKey:@"url"];
-        
         //add more readable format
-        [inputSource setValue:[self formatFromTag:fmt] forKey:@"format"];
+        [inputSource addEntriesFromDictionary:[self formatFromTag:fmt]];
+        
+        url = [url stringByAppendingFormat:@"&title=%@%@%@%@", inputSource[@"title"],@"%20%5B", inputSource[@"height"],  @"p%5D"];
+        
+        [inputSource setValue:url forKey:@"downloadURL"];
+        
+        NSString *type = [[[[inputSource valueForKey:@"type"] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"+" withString:@" "] stringByReplacingOccurrencesOfString:@"\"" withString:@""];
+        [inputSource setValue:type forKey:@"type"];
+        
             return inputSource;
        // }
     }
@@ -376,8 +373,8 @@
  reversed: 252252CF80D5CB877E88D52375768FE00F29CD28A8B.A7322D9C40F39C2E32D30699152165DA9D282105
  
  sliced 3: 252CF80D5CB877E88D52375768FE00F29CD28A8B.A7322D9C40F39C2E32D30699152165DA9D282105
- swap 36: 2 with 8
  
+ swap 36: 2 with 8
  swapped: 852CF80D5CB877E88D52375768FE00F29CD22A8B.A7322D9C40F39C2E32D30699152165DA9D282105
  
  newsig: 852CF80D5CB877E88D52375768FE00F29CD22A8B.A7322D9C40F39C2E32D30699152165DA9D282105
@@ -430,7 +427,7 @@
  
  */
 
-- (NSDictionary *)parseFlashVars:(NSString *)vars
+- (NSMutableDictionary *)parseFlashVars:(NSString *)vars
 {
     return [self dictionaryFromString:vars withRegex:@"([^&=]*)=([^&]*)"];
 }
@@ -463,7 +460,7 @@
  
  */
 
-- (NSDictionary *)dictionaryFromString:(NSString *)string withRegex:(NSString *)pattern
+- (NSMutableDictionary *)dictionaryFromString:(NSString *)string withRegex:(NSString *)pattern
 {
     NSMutableDictionary *dict = [NSMutableDictionary new];
     NSArray *matches = [self matchesForString:string withRegex:pattern];
