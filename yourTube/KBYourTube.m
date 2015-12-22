@@ -178,7 +178,8 @@
         
         NSString *type = [[[[inputSource valueForKey:@"type"] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"+" withString:@" "] stringByReplacingOccurrencesOfString:@"\"" withString:@""];
         [inputSource setValue:type forKey:@"type"];
-        
+        NSString *title = [inputSource[@"title"] stringByReplacingOccurrencesOfString:@"+" withString:@" "];
+        [inputSource setObject:title forKey:@"title"];
             return inputSource;
        // }
     }
