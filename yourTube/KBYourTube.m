@@ -157,9 +157,10 @@
                     
                     rootInfo[@"title"] = title;
                     rootInfo[@"author"] = author;
-                    rootInfo[@"imageURLHQ"] = iurlhq;
-                    rootInfo[@"imageURLMQ"] = iurlmq;
-                    rootInfo[@"imageURLSD"] = iurlsd;
+                    rootInfo[@"images"] = [NSMutableDictionary new];
+                    rootInfo[@"images"][@"high"] = iurlhq;
+                    rootInfo[@"images"][@"medium"] = iurlmq;
+                    rootInfo[@"images"][@"standard"] = iurlsd;
                     rootInfo[@"keywords"] = keywords;
                     rootInfo[@"duration"] = [NSNumber numberWithInt:duration];
                     rootInfo[@"videoID"] = videoID;

@@ -18,9 +18,11 @@ Would yield
     2015-12-22 11:43:10.334 yourTube[31692:15977316] got details successfully: {
     author = fullaswag;
     duration = 324;
-    imageURLHQ = "https://i.ytimg.com/vi/_7nYuyfkjCk/hqdefault.jpg";
-    imageURLMQ = "https://i.ytimg.com/vi/_7nYuyfkjCk/mqdefault.jpg";
-    imageURLSD = "https://i.ytimg.com/vi/_7nYuyfkjCk/sddefault.jpg";
+    images =     {
+        high = "https://i.ytimg.com/vi/_7nYuyfkjCk/hqdefault.jpg";
+        medium = "https://i.ytimg.com/vi/_7nYuyfkjCk/mqdefault.jpg";
+        standard = "https://i.ytimg.com/vi/_7nYuyfkjCk/sddefault.jpg";
+};
     keywords = "wayne,she,loves,drake,said,will,young,money,lil,awesome,2011,feat,wants,everybody,cool,got,funny,remix";
     streams =     (
                 {
