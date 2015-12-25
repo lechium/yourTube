@@ -12,6 +12,11 @@
 
 
 @property (nonatomic, assign) IBOutlet NSTextField *youtubeLink;
+@property (nonatomic, assign) IBOutlet NSTextField *titleField;
+@property (nonatomic, assign) IBOutlet NSTextField *userField;
+@property (nonatomic, assign) IBOutlet NSTextField *lengthField;
+@property (nonatomic, assign) IBOutlet NSTextField *viewsField;
+@property (nonatomic, assign) IBOutlet NSImageView *imageView;
 @property (nonatomic, assign) IBOutlet NSTextView *resultsField;
 
 - (IBAction)getResults:(id)sender;

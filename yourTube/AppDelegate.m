@@ -39,6 +39,11 @@
             
             NSLog(@"got details successfully: %@", videoDetails);
             self.resultsField.string = [videoDetails description];
+            self.titleField.stringValue = videoDetails[@"title"];
+            self.userField.stringValue = videoDetails[@"author"];
+            self.lengthField.stringValue = videoDetails[@"duration"];
+            self.viewsField.stringValue = videoDetails[@"views"];
+            self.imageView.image = [[NSImage alloc] initWithContentsOfURL:[NSURL URLWithString:videoDetails[@"images"][@"high"]]];
             
         } failureBlock:^(NSString *error) {
             
