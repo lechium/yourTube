@@ -19,16 +19,35 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
     
-    [[KBYourTube sharedInstance] getVideoDetailsForID:@"_7nYuyfkjCk" completionBlock:^(NSDictionary *videoDetails) {
-        
-        NSLog(@"got details successfully: %@", videoDetails);
-        
-    } failureBlock:^(NSString *error) {
-        
-        NSLog(@"fail!: %@", error);
-        
-    }];
+    [self getResults:nil];
     
+}
+
+- (IBAction)getResults:(id)sender
+{
+    NSString *textResults = self.youtubeLink.stringValue;
+    
+    if ([[textResults componentsSeparatedByString:@"="] count] > 1)
+    {
+        textResults = [[textResults componentsSeparatedByString:@"="] lastObject];
+        NSLog(@"text results: %@", textResults);
+    }
+    
+    if ([textResults length] > 0)
+    {
+        [[KBYourTube sharedInstance] getVideoDetailsForID:textResults completionBlock:^(NSDictionary *videoDetails) {
+            
+            NSLog(@"got details successfully: %@", videoDetails);
+            self.resultsField.string = [videoDetails description];
+            
+        } failureBlock:^(NSString *error) {
+            
+            NSLog(@"fail!: %@", error);
+            
+        }];
+    }
+    
+   
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {

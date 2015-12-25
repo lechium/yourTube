@@ -11,5 +11,10 @@
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
 
+@property (nonatomic, assign) IBOutlet NSTextField *youtubeLink;
+@property (nonatomic, assign) IBOutlet NSTextView *resultsField;
+
+- (IBAction)getResults:(id)sender;
+
 @end
 
