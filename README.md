@@ -3,12 +3,19 @@ native objective-c wrapper for youtube get_video_info
 
 Instantiate KBYourTube and get video details in 2 lines of code;
 
-    KBYourTube *tube = [[KBYourTube alloc] init];
-    NSDictionary *streamInfo = [tube getVideoDetailsForID:@"_7nYuyfkjCk"];
+    [[KBYourTube sharedInstance] getVideoDetailsForID:@"_7nYuyfkjCk" completionBlock:^(NSDictionary *videoDetails) {
+    
+        NSLog(@"got details successfully: %@", videoDetails);
+    
+    } failureBlock:^(NSString *error) {
+
+        NSLog(@"fail!: %@", error);
+
+    }];
     
 Would yield
     
-    2015-12-22 11:43:10.334 yourTube[31692:15977316] streamInfo: {
+    2015-12-22 11:43:10.334 yourTube[31692:15977316] got details successfully: {
     author = fullaswag;
     duration = 324;
     imageURLHQ = "https://i.ytimg.com/vi/_7nYuyfkjCk/hqdefault.jpg";

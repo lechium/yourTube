@@ -48,6 +48,20 @@
 
 #pragma mark convenience methods
 
++ (id)sharedInstance {
+    
+    static dispatch_once_t onceToken;
+    static KBYourTube *shared;
+    if (!shared){
+        dispatch_once(&onceToken, ^{
+            shared = [KBYourTube new];
+        });
+    }
+    
+    return shared;
+    
+}
+
 //take a url and get its raw body, then return in string format
 
 - (NSString *)stringFromRequest:(NSString *)url
@@ -65,14 +79,17 @@
     
 }
 
+
+
+
 #pragma mark video details
 
-/* 
+/*
  
  the only function you should ever have to call to get video streams
  take the video ID from a youtube link and feed it in to this function
  
- ie _7nYuyfkjCk from the link below
+ ie _7nYuyfkjCk from the link below include blocks for failure and success.
  
  
  https://www.youtube.com/watch?v=_7nYuyfkjCk
@@ -80,90 +97,114 @@
  
  */
 
-- (NSDictionary *)getVideoDetailsForID:(NSString *)videoID
-{
-    //if we already have the timestamp and key theres no reason to fetch them again, should make additional calls quicker.
-    if (self.yttimestamp.length == 0 && self.ytkey.length == 0)
-    {
-        //get the time stamp and cipher key in case we need to decode the signature.
-        [self getTimeStampAndKey:videoID];
-    }
 
-    //a fallback just in case the jsbody is changed and we cant automatically grab current signatures
-    //old ciphers generally continue to work at least temporarily.
-    
-    if (self.yttimestamp.length == 0 || self.ytkey.length == 0)
-    {
-        self.yttimestamp = @"16777";
-        self.ytkey = @"13,0,-3,2,0,-3,36";
+- (void)getVideoDetailsForID:(NSString*)videoID
+  completionBlock:(void(^)(NSDictionary* videoDetails))completionBlock
+     failureBlock:(void(^)(NSString* error))failureBlock
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         
-    }
-    
-    NSString *url = [NSString stringWithFormat:@"https://www.youtube.com/get_video_info?&video_id=%@&%@&sts=%@", videoID, @"eurl=http%3A%2F%2Fwww%2Eyoutube%2Ecom%2F", self.yttimestamp];
-    
-    //get the post body from the url above, gets the initial raw info we work with
-    NSString *body = [self stringFromRequest:url];
-    
-    //turn all of these variables into an nsdictionary by separating elements by =
-    NSDictionary *vars = [self parseFlashVars:body];
-    
-    //NSLog(@"vars: %@", vars);
-    
-    if ([[vars allKeys] containsObject:@"status"])
-    {
-        if ([[vars objectForKey:@"status"] isEqualToString:@"ok"])
-        {
-            //grab the raw streams string that is available for the video
-            NSString *streamMap = [vars objectForKey:@"url_encoded_fmt_stream_map"];
-            
-            //grab a few extra variables from the vars
-            
-            NSString *title = [vars[@"title"] stringByReplacingOccurrencesOfString:@"+" withString:@" "];
-            NSString *author = vars[@"author"];
-            NSString *iurlhq = [vars[@"iurlhq"] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-            NSString *iurlmq = [vars[@"iurlmq"] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-            NSString *iurlsd = [vars[@"iurlsd"] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-            NSString *keywords = [vars[@"keywords"] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-            int duration = [vars[@"length_seconds"] intValue];
-            NSString *videoID = vars[@"video_id"];
-            int view_count = [vars[@"view_count"] intValue];
-            
+        @autoreleasepool {
             NSMutableDictionary *rootInfo = [NSMutableDictionary new];
-            rootInfo[@"title"] = title;
-            rootInfo[@"author"] = author;
-            rootInfo[@"imageURLHQ"] = iurlhq;
-            rootInfo[@"imageURLMQ"] = iurlmq;
-            rootInfo[@"imageURLSD"] = iurlsd;
-            rootInfo[@"keywords"] = keywords;
-            rootInfo[@"duration"] = [NSNumber numberWithInt:duration];
-            rootInfo[@"videoID"] = videoID;
-            rootInfo[@"views"] = [NSNumber numberWithInt:view_count];
+            NSString *errorString = nil;
             
-            //separate the streams into their initial array
-            
-            NSArray *maps = [[streamMap stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] componentsSeparatedByString:@","];
-            NSMutableArray *videoArray = [NSMutableArray new];
-            for (NSString *map in maps )
+            //if we already have the timestamp and key theres no reason to fetch them again, should make additional calls quicker.
+            if (self.yttimestamp.length == 0 && self.ytkey.length == 0)
             {
-                //same thing, take these raw feeds and make them into an NSDictionary with usable info
-                NSMutableDictionary *videoDict = [self parseFlashVars:map];
-                //add the title from the previous dictionary created
-                [videoDict setValue:title forKey:@"title"];
-                //process the raw dictionary into something that can be used with download links and format details
-                NSDictionary *processed = [self processSource:videoDict];
-                if (processed != nil)
-                {
-                    //if we actually have a video detail dictionary add it to final array
-                    [videoArray addObject:processed];
-                }
+                //get the time stamp and cipher key in case we need to decode the signature.
+                [self getTimeStampAndKey:videoID];
             }
-            [rootInfo setObject:videoArray forKey:@"streams"];
-            return rootInfo;
+            
+            //a fallback just in case the jsbody is changed and we cant automatically grab current signatures
+            //old ciphers generally continue to work at least temporarily.
+            
+            if (self.yttimestamp.length == 0 || self.ytkey.length == 0)
+            {
+                errorString = @"Failed to decode signature cipher javascript.";
+                self.yttimestamp = @"16777";
+                self.ytkey = @"13,0,-3,2,0,-3,36";
+                
+            }
+            
+            NSString *url = [NSString stringWithFormat:@"https://www.youtube.com/get_video_info?&video_id=%@&%@&sts=%@", videoID, @"eurl=http%3A%2F%2Fwww%2Eyoutube%2Ecom%2F", self.yttimestamp];
+            
+            //get the post body from the url above, gets the initial raw info we work with
+            NSString *body = [self stringFromRequest:url];
+            
+            //turn all of these variables into an nsdictionary by separating elements by =
+            NSDictionary *vars = [self parseFlashVars:body];
+            
+            //NSLog(@"vars: %@", vars);
+            
+            if ([[vars allKeys] containsObject:@"status"])
+            {
+                if ([[vars objectForKey:@"status"] isEqualToString:@"ok"])
+                {
+                    //grab the raw streams string that is available for the video
+                    NSString *streamMap = [vars objectForKey:@"url_encoded_fmt_stream_map"];
+                    
+                    //grab a few extra variables from the vars
+                    
+                    NSString *title = [vars[@"title"] stringByReplacingOccurrencesOfString:@"+" withString:@" "];
+                    NSString *author = vars[@"author"];
+                    NSString *iurlhq = [vars[@"iurlhq"] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+                    NSString *iurlmq = [vars[@"iurlmq"] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+                    NSString *iurlsd = [vars[@"iurlsd"] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+                    NSString *keywords = [vars[@"keywords"] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+                    int duration = [vars[@"length_seconds"] intValue];
+                    NSString *videoID = vars[@"video_id"];
+                    int view_count = [vars[@"view_count"] intValue];
+                    
+                    rootInfo[@"title"] = title;
+                    rootInfo[@"author"] = author;
+                    rootInfo[@"imageURLHQ"] = iurlhq;
+                    rootInfo[@"imageURLMQ"] = iurlmq;
+                    rootInfo[@"imageURLSD"] = iurlsd;
+                    rootInfo[@"keywords"] = keywords;
+                    rootInfo[@"duration"] = [NSNumber numberWithInt:duration];
+                    rootInfo[@"videoID"] = videoID;
+                    rootInfo[@"views"] = [NSNumber numberWithInt:view_count];
+                    
+                    //separate the streams into their initial array
+                    
+                    NSArray *maps = [[streamMap stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] componentsSeparatedByString:@","];
+                    NSMutableArray *videoArray = [NSMutableArray new];
+                    for (NSString *map in maps )
+                    {
+                        //same thing, take these raw feeds and make them into an NSDictionary with usable info
+                        NSMutableDictionary *videoDict = [self parseFlashVars:map];
+                        //add the title from the previous dictionary created
+                        [videoDict setValue:title forKey:@"title"];
+                        //process the raw dictionary into something that can be used with download links and format details
+                        NSDictionary *processed = [self processSource:videoDict];
+                        if (processed != nil)
+                        {
+                            //if we actually have a video detail dictionary add it to final array
+                            [videoArray addObject:processed];
+                        }
+                    }
+                    [rootInfo setObject:videoArray forKey:@"streams"];
+                    //return rootInfo;
+                }
+            } else {
+                
+                errorString = @"get_video_info failed.";
+                
+            }
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                if([[rootInfo allKeys] count] > 0)
+                {
+                    completionBlock(rootInfo);
+                } else {
+                    failureBlock(errorString);
+                }
+            });
         }
-    }
+    });
     
-    return nil;
 }
+
 
 //get the basic source dictionary and update it with useful format and url info
 //decode the signature if necessary

@@ -13,5 +13,12 @@
 @property (nonatomic, strong) NSString *yttimestamp;
 @property (nonatomic, strong) NSString *ytkey;
 
-- (NSDictionary *)getVideoDetailsForID:(NSString *)videoID;
++ (id)sharedInstance;
+
+- (void)getVideoDetailsForID:(NSString*)videoID
+  completionBlock:(void(^)(NSDictionary* videoDetails))completionBlock
+     failureBlock:(void(^)(NSString* error))failureBlock;
+
+
+
 @end

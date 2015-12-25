@@ -19,9 +19,15 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
     
-    KBYourTube *tube = [[KBYourTube alloc] init];
-    NSDictionary *streamInfo = [tube getVideoDetailsForID:@"_7nYuyfkjCk"];
-    NSLog(@"streamInfo: %@", streamInfo);
+    [[KBYourTube sharedInstance] getVideoDetailsForID:@"_7nYuyfkjCk" completionBlock:^(NSDictionary *videoDetails) {
+        
+        NSLog(@"got details successfully: %@", videoDetails);
+        
+    } failureBlock:^(NSString *error) {
+        
+        NSLog(@"fail!: %@", error);
+        
+    }];
     
 }
 
