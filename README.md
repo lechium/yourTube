@@ -22,7 +22,7 @@ Would yield
         high = "https://i.ytimg.com/vi/_7nYuyfkjCk/hqdefault.jpg";
         medium = "https://i.ytimg.com/vi/_7nYuyfkjCk/mqdefault.jpg";
         standard = "https://i.ytimg.com/vi/_7nYuyfkjCk/sddefault.jpg";
-};
+    };
     keywords = "wayne,she,loves,drake,said,will,young,money,lil,awesome,2011,feat,wants,everybody,cool,got,funny,remix";
     streams =     (
                 {
