@@ -1,7 +1,7 @@
 # yourTube
 native objective-c wrapper for youtube get_video_info
 
-Instantiate KBYourTube and get video details in 2 lines of code;
+Use the KBYourTube singleton with the following method to get video details.
 
     [[KBYourTube sharedInstance] getVideoDetailsForID:@"_7nYuyfkjCk" completionBlock:^(NSDictionary *videoDetails) {
     
