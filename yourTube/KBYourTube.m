@@ -258,23 +258,23 @@
     NSDictionary *dict = nil;
     switch (tag) {
             //MP4
-        case 38: dict = @{@"format": @"4K MP4", @"height": @2304}; break;
-        case 37: dict = @{@"format": @"1080p MP4", @"height": @1080}; break;
-        case 22: dict = @{@"format": @"720p MP4", @"height": @720}; break;
-        case 18: dict = @{@"format": @"360p MP4", @"height": @360}; break;
+        case 38: dict = @{@"format": @"4K MP4", @"height": @2304, @"extension": @"mp4"}; break;
+        case 37: dict = @{@"format": @"1080p MP4", @"height": @1080, @"extension": @"mp4"}; break;
+        case 22: dict = @{@"format": @"720p MP4", @"height": @720, @"extension": @"mp4"}; break;
+        case 18: dict = @{@"format": @"360p MP4", @"height": @360, @"extension": @"mp4"}; break;
             //FLV
-        case 35: dict = @{@"format": @"480p FLV", @"height": @480}; break;
-        case 34: dict = @{@"format": @"360p FLV", @"height": @360}; break;
-        case 6: dict = @{@"format": @"270p FLV", @"height": @270}; break;
-        case 5: dict = @{@"format": @"240p FLV", @"height": @240}; break;
+        case 35: dict = @{@"format": @"480p FLV", @"height": @480, @"extension": @"flv"}; break;
+        case 34: dict = @{@"format": @"360p FLV", @"height": @360, @"extension": @"flv"}; break;
+        case 6: dict = @{@"format": @"270p FLV", @"height": @270, @"extension": @"flv"}; break;
+        case 5: dict = @{@"format": @"240p FLV", @"height": @240, @"extension": @"flv"}; break;
             //WebM
-        case 46: dict = @{@"format": @"1080p WebM", @"height": @1080}; break;
-        case 45: dict = @{@"format": @"720p WebM", @"height": @720}; break;
-        case 44: dict = @{@"format": @"480p WebM", @"height": @480}; break;
-        case 43: dict = @{@"format": @"360p WebM", @"height": @360}; break;
+        case 46: dict = @{@"format": @"1080p WebM", @"height": @1080, @"extension": @"webm"}; break;
+        case 45: dict = @{@"format": @"720p WebM", @"height": @720, @"extension": @"webm"}; break;
+        case 44: dict = @{@"format": @"480p WebM", @"height": @480, @"extension": @"webm"}; break;
+        case 43: dict = @{@"format": @"360p WebM", @"height": @360, @"extension": @"webm"}; break;
             //3gp
-        case 36: dict = @{@"format": @"320p 3GP", @"height": @320}; break;
-        case 17: dict = @{@"format": @"176p 3GP", @"height": @176}; break;
+        case 36: dict = @{@"format": @"320p 3GP", @"height": @320, @"extension": @"3gp"}; break;
+        case 17: dict = @{@"format": @"176p 3GP", @"height": @176, @"extension": @"3gp"}; break;
         default:
             break;
     }

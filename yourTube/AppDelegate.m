@@ -16,7 +16,7 @@
 
 @implementation AppDelegate
 
-@synthesize itemSelected;
+@synthesize itemSelected, progressBar, downloadFile;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
@@ -40,7 +40,6 @@
         [[KBYourTube sharedInstance] getVideoDetailsForID:textResults completionBlock:^(NSDictionary *videoDetails) {
             
           //  NSLog(@"got details successfully: %@", videoDetails);
-            self.resultsField.string = [videoDetails description];
             self.titleField.stringValue = videoDetails[@"title"];
             self.userField.stringValue = videoDetails[@"author"];
             self.lengthField.stringValue = videoDetails[@"duration"];
@@ -59,19 +58,80 @@
    
 }
 
+- (void)downloadFailed:(NSString *)theDownload
+{
+    
+}
+
+- (void)downloadFinished:(NSString *)adownloadFile
+{
+    NSLog(@"downloadedfile: %@", adownloadFile);
+    [[NSWorkspace sharedWorkspace] openFile:adownloadFile];
+    [progressBar setDoubleValue:0];
+    [progressBar setHidden:TRUE];
+}
+
 - (IBAction)downloadFile:(id)sender {
 
+    if (self.downloading == true)
+    {
+        [downloadFile cancel];
+        self.downloading = false;
+        self.downloadButton.title = @"Download";
+        [progressBar setDoubleValue:0];
+        [progressBar setHidden:TRUE];
+        return;
+    }
+    
     NSDictionary *selectedObject = self.streamController.selectedObjects.lastObject;
-    NSURL *downloadURL = [NSURL URLWithString:selectedObject[@"downloadURL"]];
-    NSLog(@"selectedObject: %@", selectedObject);
-    [[NSWorkspace sharedWorkspace]openURL:downloadURL];
+    NSString *downloadURL = selectedObject[@"downloadURL"];
+    downloadFile = [[ripURL alloc] init];
+    [downloadFile setHandler:self];
+    NSString *fileName = selectedObject[@"title"];
+    NSNumber *height = selectedObject[@"height"];
+    fileName = [fileName stringByAppendingFormat:@" [%@p]", height];
+    [downloadFile setDownloadLocation:[[[NSHomeDirectory() stringByAppendingPathComponent:@"Desktop"] stringByAppendingPathComponent:fileName] stringByAppendingPathExtension:selectedObject[@"extension"]]];
+    [downloadFile downloadFile:downloadURL];
+    self.downloading = true;
+    self.downloadButton.title = @"Cancel";
+    
+}
+
+
+
+- (void)setDownloadProgress:(double)theProgress
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        
+        if (theProgress == 0)
+        {
+            [progressBar setIndeterminate:TRUE];
+            [progressBar setHidden:FALSE];
+            [progressBar setNeedsDisplay:YES];
+            [progressBar setUsesThreadedAnimation:YES];
+            [progressBar startAnimation:self];
+            return;
+        }
+        [progressBar setIndeterminate:FALSE];
+        [progressBar startAnimation:self];
+        [progressBar setHidden:FALSE];
+        [progressBar setNeedsDisplay:YES];
+        [progressBar setDoubleValue:theProgress];
+    });
+    
 }
 
 - (IBAction)playFile:(id)sender
 {
     NSDictionary *selectedObject = self.streamController.selectedObjects.lastObject;
     NSURL *playURL = [NSURL URLWithString:selectedObject[@"url"]];
-    [[NSWorkspace sharedWorkspace]openURL:playURL];
+    self.player = [[AVPlayer alloc] initWithURL:playURL];
+    [self.playerView setPlayer:self.player];
+    [self.player play];
+    
+    [self.playerWindow makeKeyAndOrderFront:nil];
+    
+    // [[NSWorkspace sharedWorkspace]openURL:playURL];
 }
 
 
