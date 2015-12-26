@@ -237,7 +237,7 @@
         
         [inputSource setValue:url forKey:@"url"];
         
-        url = [url stringByAppendingFormat:@"&title=%@%@%@%@", inputSource[@"title"],@"%20%5B", inputSource[@"height"],  @"p%5D"];
+        url = [url stringByAppendingFormat:@"&title=%@%@%@%@", [inputSource[@"title"] stringByReplacingOccurrencesOfString:@" " withString:@"+"],@"%20%5B", inputSource[@"height"],  @"p%5D"];
         
         [inputSource setValue:url forKey:@"downloadURL"];
         
@@ -273,7 +273,8 @@
         case 44: dict = @{@"format": @"480p WebM", @"height": @480}; break;
         case 43: dict = @{@"format": @"360p WebM", @"height": @360}; break;
             //3gp
-        case 17: dict = @{@"format": @"350p 3GP", @"height": @350}; break;
+        case 36: dict = @{@"format": @"320p 3GP", @"height": @320}; break;
+        case 17: dict = @{@"format": @"176p 3GP", @"height": @176}; break;
         default:
             break;
     }

@@ -16,9 +16,11 @@
 
 @implementation AppDelegate
 
+@synthesize itemSelected;
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
-    
+    itemSelected = false;
     [self getResults:nil];
     
 }
@@ -30,14 +32,14 @@
     if ([[textResults componentsSeparatedByString:@"="] count] > 1)
     {
         textResults = [[textResults componentsSeparatedByString:@"="] lastObject];
-        NSLog(@"text results: %@", textResults);
+     //   NSLog(@"text results: %@", textResults);
     }
     
     if ([textResults length] > 0)
     {
         [[KBYourTube sharedInstance] getVideoDetailsForID:textResults completionBlock:^(NSDictionary *videoDetails) {
             
-            NSLog(@"got details successfully: %@", videoDetails);
+          //  NSLog(@"got details successfully: %@", videoDetails);
             self.resultsField.string = [videoDetails description];
             self.titleField.stringValue = videoDetails[@"title"];
             self.userField.stringValue = videoDetails[@"author"];
@@ -45,14 +47,45 @@
             self.viewsField.stringValue = videoDetails[@"views"];
             self.imageView.image = [[NSImage alloc] initWithContentsOfURL:[NSURL URLWithString:videoDetails[@"images"][@"high"]]];
             
+            self.streamArray = videoDetails[@"streams"];
+            self.streamController.selectsInsertedObjects = true;
+            
         } failureBlock:^(NSString *error) {
             
             NSLog(@"fail!: %@", error);
             
         }];
     }
-    
    
+}
+
+- (IBAction)downloadFile:(id)sender {
+
+    NSDictionary *selectedObject = self.streamController.selectedObjects.lastObject;
+    NSURL *downloadURL = [NSURL URLWithString:selectedObject[@"downloadURL"]];
+    NSLog(@"selectedObject: %@", selectedObject);
+    [[NSWorkspace sharedWorkspace]openURL:downloadURL];
+}
+
+- (IBAction)playFile:(id)sender
+{
+    NSDictionary *selectedObject = self.streamController.selectedObjects.lastObject;
+    NSURL *playURL = [NSURL URLWithString:selectedObject[@"url"]];
+    [[NSWorkspace sharedWorkspace]openURL:playURL];
+}
+
+
+- (void)tableViewSelectionDidChange:(NSNotification *)notification
+{
+    NSTableView *tv = notification.object;
+    long sr = (long)tv.selectedRow;
+    if (sr == -1)
+    {
+        self.itemSelected = false;
+        return;
+    }
+    self.itemSelected = true;
+    [self.streamController setSelectionIndex:sr];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
