@@ -196,7 +196,7 @@
             [args addObject:@"-i"];
             [args addObject:audioFile];
          //
-            [args addObjectsFromArray:[@"-vcodec copy -acodec copy -map 0:v:0 -map 1:a:0 -shortest" componentsSeparatedByString:@" "]];
+            [args addObjectsFromArray:[@"-vcodec copy -acodec copy -map 0:v:0 -map 1:a:0 -shortest -y" componentsSeparatedByString:@" "]];
             
             [args addObject:outputFile];
             [afcTask setArguments:args];
