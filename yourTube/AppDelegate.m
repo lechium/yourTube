@@ -39,7 +39,7 @@
     {
         [[KBYourTube sharedInstance] getVideoDetailsForID:textResults completionBlock:^(NSDictionary *videoDetails) {
             
-            NSLog(@"got details successfully: %@", videoDetails);
+            //NSLog(@"got details successfully: %@", videoDetails);
             self.titleField.stringValue = videoDetails[@"title"];
             self.userField.stringValue = videoDetails[@"author"];
             self.lengthField.stringValue = videoDetails[@"duration"];
@@ -92,9 +92,26 @@
         
     } completed:^(NSString *downloadedFile) {
         
-        [[NSWorkspace sharedWorkspace] openFile:downloadedFile];
         [progressBar setDoubleValue:0];
         [progressBar setHidden:TRUE];
+        if ([[NSUserDefaults standardUserDefaults] boolForKey:@"extractAudio"] == true)
+        {
+            [progressBar setDoubleValue:1];
+            [progressBar setIndeterminate:true];
+            [progressBar startAnimation:self];
+            [progressBar setHidden:false];
+            [[KBYourTube sharedInstance] extractAudio:downloadedFile completionBlock:^(NSString *newFile) {
+                
+                NSLog(@"new audio file: %@", newFile);
+                [progressBar setDoubleValue:0];
+                [progressBar setHidden:true];
+             
+                [[NSWorkspace sharedWorkspace] openFile:newFile];
+            }];
+        }
+        
+        //[[NSWorkspace sharedWorkspace] openFile:downloadedFile];
+     
         self.downloadButton.title = @"Download";
         self.downloading = false;
     }];

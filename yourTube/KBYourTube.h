@@ -22,6 +22,9 @@
 @end
 
 @interface KBYourTube : NSObject
+{
+    NSInteger bestTag;
+}
 
 @property (nonatomic, strong) NSString *yttimestamp;
 @property (nonatomic, strong) NSString *ytkey;
@@ -33,5 +36,5 @@
      failureBlock:(void(^)(NSString* error))failureBlock;
 
 
-
+- (void)extractAudio:(NSString *)theFile completionBlock:(void(^)(NSString *newFile))completionBlock;
 @end

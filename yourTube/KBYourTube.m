@@ -132,8 +132,8 @@
 
 
 - (void)getVideoDetailsForID:(NSString*)videoID
-  completionBlock:(void(^)(NSDictionary* videoDetails))completionBlock
-     failureBlock:(void(^)(NSString* error))failureBlock
+             completionBlock:(void(^)(NSDictionary* videoDetails))completionBlock
+                failureBlock:(void(^)(NSString* error))failureBlock
 {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         
@@ -217,6 +217,7 @@
                             [videoArray addObject:processed];
                         }
                     }
+                    
                     [rootInfo setObject:videoArray forKey:@"streams"];
                     //return rootInfo;
                 }
@@ -283,6 +284,34 @@
     
     
     return nil;
+}
+
+- (void)extractAudio:(NSString *)theFile completionBlock:(void(^)(NSString *newFile))completionBlock
+{
+    NSString *outputFile = [[theFile stringByDeletingPathExtension] stringByAppendingPathExtension:@"m4a"];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+        
+        @autoreleasepool {
+            NSTask *afcTask = [NSTask new];
+            [afcTask setLaunchPath:@"/usr/bin/afconvert"];
+            NSMutableArray *args = [NSMutableArray new];
+            [args addObject:theFile];
+            [args addObject:@"-d"];
+            [args addObject:@"aac "];
+            [args addObject:@"--soundcheck-generate"];
+            [args addObject:@"-b"];
+            [args addObject:@"320000"];
+          
+            [args addObject:outputFile];
+            [afcTask setArguments:args];
+            [afcTask launch];
+            [afcTask waitUntilExit];
+        }
+        
+        completionBlock(outputFile);
+    });
+    
+    
 }
 
 - (NSDictionary *)formatFromTag:(int)tag
@@ -403,7 +432,7 @@
  
  swap 2: 1 with 5
  swapped: 501282D9AD56125199603D23E2C93F04C9D2237A.B8A82DC92F00EF86757325D88E778BC5D08FC252252
-
+ 
  reversed: 252252CF80D5CB877E88D52375768FE00F29CD28A8B.A7322D9C40F39C2E32D30699152165DA9D282105
  
  sliced 3: 252CF80D5CB877E88D52375768FE00F29CD28A8B.A7322D9C40F39C2E32D30699152165DA9D282105
@@ -541,11 +570,11 @@
 
 /**
  
- this function will take the key array and splice it from the starting index to the end of the string with the value 3 
+ this function will take the key array and splice it from the starting index to the end of the string with the value 3
  would change:
  105105282D9AD56125199603D23E2C93F04C9D2237A.B8A82DC92F00EF86757325D88E778BC5D08FC252252 to
  105282D9AD56125199603D23E2C93F04C9D2237A.B8A82DC92F00EF86757325D88E778BC5D08FC252252
-
+ 
  */
 
 - (NSMutableArray *)sliceArray:(NSArray *)theArray atIndex:(int)theIndex

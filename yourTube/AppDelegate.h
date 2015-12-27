@@ -27,6 +27,7 @@
 @property (nonatomic, assign) IBOutlet NSProgressIndicator *progressBar;
 @property (nonatomic, strong) ripURL *downloadFile;
 @property (readwrite, assign) BOOL downloading;
+@property (readwrite, assign) BOOL extractAudio;
 
 @property (nonatomic, assign) IBOutlet NSWindow *playerWindow;
 @property (nonatomic, assign) IBOutlet AVPlayerView *playerView;
