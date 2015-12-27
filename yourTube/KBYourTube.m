@@ -392,7 +392,8 @@
         case 36: dict = @{@"format": @"320p 3GP", @"height": @320, @"extension": @"3gp"}; break;
         case 17: dict = @{@"format": @"176p 3GP", @"height": @176, @"extension": @"3gp"}; break;
       
-        case 137:
+        case 137: dict = @{@"format": @"1080p M4V", @"height": @1080, @"extension": @"m4v", @"quality": @"adaptive"}; break;
+        case 138: dict = @{@"format": @"4K M4V", @"height": @1080, @"extension": @"m4v", @"quality": @"adaptive"}; break;
         case 299: dict = @{@"format": @"1080p HFR M4V", @"height": @1080, @"extension": @"m4v", @"quality": @"adaptive"}; break;
         case 140: dict = @{@"format": @"128K AAC M4A", @"height": @0, @"extension": @"m4a", @"quality": @"adaptive"}; break;
          
