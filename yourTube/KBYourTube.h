@@ -8,6 +8,19 @@
 
 #import <Foundation/Foundation.h>
 
+@interface NSObject  (convenience)
+
+- (NSString *)applicationSupportFolder;
+- (NSString *)downloadFolder;
+
+@end
+
+@interface NSString  (SplitString)
+
+- (NSArray *)splitString;
+
+@end
+
 @interface KBYourTube : NSObject
 
 @property (nonatomic, strong) NSString *yttimestamp;

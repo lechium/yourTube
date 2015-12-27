@@ -39,7 +39,7 @@
     {
         [[KBYourTube sharedInstance] getVideoDetailsForID:textResults completionBlock:^(NSDictionary *videoDetails) {
             
-          //  NSLog(@"got details successfully: %@", videoDetails);
+            NSLog(@"got details successfully: %@", videoDetails);
             self.titleField.stringValue = videoDetails[@"title"];
             self.userField.stringValue = videoDetails[@"author"];
             self.lengthField.stringValue = videoDetails[@"duration"];
@@ -63,13 +63,6 @@
     
 }
 
-- (void)downloadFinished:(NSString *)adownloadFile
-{
-    NSLog(@"downloadedfile: %@", adownloadFile);
-    [[NSWorkspace sharedWorkspace] openFile:adownloadFile];
-    [progressBar setDoubleValue:0];
-    [progressBar setHidden:TRUE];
-}
 
 - (IBAction)downloadFile:(id)sender {
 
@@ -84,12 +77,10 @@
     }
     
     NSDictionary *selectedObject = self.streamController.selectedObjects.lastObject;
-    NSString *downloadURL = selectedObject[@"downloadURL"];
+    NSString *downloadURL = selectedObject[@"url"];
     NSURL *url = [NSURL URLWithString:downloadURL];
-    NSString *fileName = selectedObject[@"title"];
-    NSNumber *height = selectedObject[@"height"];
-    fileName = [fileName stringByAppendingFormat:@" [%@p]", height];
-    NSString *outputFile = [[[NSHomeDirectory() stringByAppendingPathComponent:@"Desktop"] stringByAppendingPathComponent:fileName] stringByAppendingPathExtension:selectedObject[@"extension"]];
+    
+    NSString *outputFile = [[self downloadFolder] stringByAppendingPathComponent:selectedObject[@"outputFilename"]];
     
     downloadFile = [ripURL new];
     self.downloading = true;

@@ -8,18 +8,45 @@
 
 #import "KBYourTube.h"
 
-/**
- 
- Native objective-c implementation of several different functions pulled from clicktoplugin safari browser extension
- 
- */
 
 
-@interface NSString  (SplitString)
+@implementation NSObject (convenience)
 
-- (NSArray *)splitString;
+
+- (NSString *)applicationSupportFolder {
+    
+    NSFileManager *man = [NSFileManager defaultManager];
+    NSArray *paths =
+    NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory,
+                                        NSUserDomainMask, YES);
+    NSString *basePath = ([paths count] > 0) ? [paths objectAtIndex:
+                                                0] : NSTemporaryDirectory();
+    if (![man fileExistsAtPath:basePath])
+        [man createDirectoryAtPath:basePath withIntermediateDirectories:YES attributes:nil error:nil];
+    return basePath;
+}
+
+- (NSString *)downloadFolder {
+    NSFileManager *man = [NSFileManager defaultManager];
+    NSArray *paths =
+    NSSearchPathForDirectoriesInDomains(NSDownloadsDirectory,
+                                        NSUserDomainMask, YES);
+    NSString *basePath = ([paths count] > 0) ? [paths objectAtIndex:
+                                                0] : NSTemporaryDirectory();
+    if (![man fileExistsAtPath:basePath])
+        [man createDirectoryAtPath:basePath withIntermediateDirectories:YES attributes:nil error:nil];
+    
+    basePath = [basePath stringByAppendingPathComponent:@"yourTubeDownloads"];
+    
+    if (![man fileExistsAtPath:basePath])
+        [man createDirectoryAtPath:basePath withIntermediateDirectories:YES attributes:nil error:nil];
+    return basePath;
+}
+
 
 @end
+
+
 
 //split a string into an NSArray of characters
 
@@ -41,6 +68,12 @@
 }
 
 @end
+
+/**
+ 
+ Native objective-c implementation of several different functions pulled from clicktoplugin safari browser extension
+ 
+ */
 
 @implementation KBYourTube
 
@@ -237,14 +270,13 @@
         
         [inputSource setValue:url forKey:@"url"];
         
-        url = [url stringByAppendingFormat:@"&title=%@%@%@%@", [inputSource[@"title"] stringByReplacingOccurrencesOfString:@" " withString:@"+"],@"%20%5B", inputSource[@"height"],  @"p%5D"];
-        
-        [inputSource setValue:url forKey:@"downloadURL"];
-        
         NSString *type = [[[[inputSource valueForKey:@"type"] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"+" withString:@" "] stringByReplacingOccurrencesOfString:@"\"" withString:@""];
         [inputSource setValue:type forKey:@"type"];
         NSString *title = [inputSource[@"title"] stringByReplacingOccurrencesOfString:@"+" withString:@" "];
         [inputSource setObject:title forKey:@"title"];
+        NSNumber *height = inputSource[@"height"];
+        NSString *fileName = [NSString stringWithFormat:@"%@ [%@p].%@", title, height,inputSource[@"extension"]];
+        [inputSource setObject:fileName forKey:@"outputFilename"];
         return inputSource;
         // }
     }
