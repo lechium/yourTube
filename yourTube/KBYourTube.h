@@ -35,6 +35,11 @@
   completionBlock:(void(^)(NSDictionary* videoDetails))completionBlock
      failureBlock:(void(^)(NSString* error))failureBlock;
 
+- (void)fixAudio:(NSString *)theFile
+          volume:(NSInteger)volume
+ completionBlock:(void(^)(NSString *newFile))completionBlock;
 
-- (void)extractAudio:(NSString *)theFile completionBlock:(void(^)(NSString *newFile))completionBlock;
+- (void)extractAudio:(NSString *)theFile
+     completionBlock:(void(^)(NSString *newFile))completionBlock;
+
 @end

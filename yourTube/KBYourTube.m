@@ -336,6 +336,41 @@
     return nil;
 }
 
+- (void)fixAudio:(NSString *)theFile volume:(NSInteger)volume completionBlock:(void(^)(NSString *newFile))completionBlock
+{
+    NSLog(@"fix audio: %@", theFile);
+    NSString *outputFile = [[theFile stringByDeletingPathExtension] stringByAppendingPathExtension:@"m4a"];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+        
+        @autoreleasepool {
+            NSTask *afcTask = [NSTask new];
+            [afcTask setLaunchPath:[[NSBundle mainBundle] pathForResource:@"mux" ofType:@""]];
+            [afcTask setStandardError:[NSFileHandle fileHandleWithNullDevice]];
+            [afcTask setStandardOutput:[NSFileHandle fileHandleWithNullDevice]];
+            NSMutableArray *args = [NSMutableArray new];
+            [args addObject:@"-i"];
+            [args addObject:theFile];
+            
+            if (volume == 0){
+                [args addObjectsFromArray:[@"-acodec copy -y" componentsSeparatedByString:@" "]];
+            } else {
+                [args addObject:@"-vol"];
+                [args addObject:[NSString stringWithFormat:@"%ld", (long)volume]];
+                [args addObjectsFromArray:[@"-acodec libfdk_aac -ac 2 -ar 44100 -ab 320K -y" componentsSeparatedByString:@" "]];
+            }
+            [args addObject:outputFile];
+            [afcTask setArguments:args];
+             //NSLog(@"mux %@", [args componentsJoinedByString:@" "]);
+            [afcTask launch];
+            [afcTask waitUntilExit];
+        }
+        
+        completionBlock(outputFile);
+    });
+    
+    
+}
+
 - (void)extractAudio:(NSString *)theFile completionBlock:(void(^)(NSString *newFile))completionBlock
 {
     if ([theFile.pathExtension.lowercaseString isEqualToString:@"m4a"])
@@ -395,7 +430,7 @@
         case 137: dict = @{@"format": @"1080p M4V", @"height": @1080, @"extension": @"m4v", @"quality": @"adaptive"}; break;
         case 138: dict = @{@"format": @"4K M4V", @"height": @2160, @"extension": @"m4v", @"quality": @"adaptive"}; break;
         case 299: dict = @{@"format": @"1080p HFR M4V", @"height": @1080, @"extension": @"m4v", @"quality": @"adaptive"}; break;
-        case 140: dict = @{@"format": @"128K AAC M4A", @"height": @0, @"extension": @"m4a", @"quality": @"adaptive"}; break;
+        case 140: dict = @{@"format": @"128K AAC M4A", @"height": @0, @"extension": @"aac", @"quality": @"adaptive"}; break;
          
             /*
             //adaptive

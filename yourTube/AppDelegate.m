@@ -78,6 +78,7 @@
     }
     
     BOOL requiresMux = false;
+    BOOL fixAudio = false;
     NSDictionary *audioObject = nil;
     NSString *downloadText = @"Downloading media file...";
     NSDictionary *selectedObject = self.streamController.selectedObjects.lastObject;
@@ -87,6 +88,10 @@
         requiresMux = true;
         audioObject = [[self.streamController.arrangedObjects filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"itag == '140'"]]lastObject];
         downloadText = @"Downloading video file...";
+    }
+    if (itag == 140)
+    {
+        fixAudio = true;
     }
     NSString *downloadURL = selectedObject[@"url"];
     NSURL *url = [NSURL URLWithString:downloadURL];
@@ -106,7 +111,7 @@
         [progressBar setDoubleValue:0];
         [progressBar setHidden:TRUE];
         
-        if (requiresMux && audioObject != nil)
+        if (requiresMux == true && audioObject != nil)
         {
            
             [progressBar setDoubleValue:0];
@@ -150,10 +155,29 @@
             }];
             
         } else {
-            [[NSWorkspace sharedWorkspace] openFile:downloadedFile];
             
-            self.downloadButton.title = @"Download";
-            self.downloading = false;
+            NSLog(@"else!");
+            
+            if (fixAudio == true)
+            {
+                NSInteger volumeInt = [[NSUserDefaults standardUserDefaults] integerForKey:@"volume"];
+                NSLog(@"fix audio with volume: %lu", (long)volumeInt);
+                [[KBYourTube sharedInstance] fixAudio:downloadedFile volume:volumeInt completionBlock:^(NSString *newFile) {
+                    
+                    [[NSWorkspace sharedWorkspace] openFile:newFile];
+                    
+                    self.downloadButton.title = @"Download";
+                    self.downloading = false;
+                }];
+                
+            } else {
+                [[NSWorkspace sharedWorkspace] openFile:downloadedFile];
+                
+                self.downloadButton.title = @"Download";
+                self.downloading = false;
+            }
+            
+            
         }
         
        /*
@@ -260,6 +284,21 @@
     }
     self.itemSelected = true;
     [self.streamController setSelectionIndex:sr];
+    [self updateSlider];
+}
+
+- (void)updateSlider
+{
+    NSDictionary *selectedObject = self.streamController.selectedObjects.lastObject;
+    NSInteger itag = [[selectedObject valueForKey:@"itag"] integerValue];
+    if (itag == 140)
+    {
+        self.slider.hidden = false;
+        self.sliderLabel.hidden = false;
+    } else {
+        self.slider.hidden = true;
+        self.sliderLabel.hidden = true;
+    }
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {

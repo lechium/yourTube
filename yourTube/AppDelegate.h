@@ -26,6 +26,10 @@
 @property (readwrite, assign) BOOL itemSelected;
 @property (nonatomic, assign) IBOutlet NSTextField *progressLabel;
 @property (nonatomic, assign) IBOutlet NSProgressIndicator *progressBar;
+
+@property (nonatomic, assign) IBOutlet NSTextField *sliderLabel;
+@property (nonatomic, assign) IBOutlet NSSlider *slider;
+
 @property (nonatomic, strong) ripURL *downloadFile;
 @property (readwrite, assign) BOOL downloading;
 @property (readwrite, assign) BOOL extractAudio;
