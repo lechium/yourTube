@@ -847,14 +847,14 @@
                         </connections>
                     </button>
                     <scrollView focusRingType="none" autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="y89-g0-zAp">
-                        <rect key="frame" x="15" y="17" width="326" height="139"/>
+                        <rect key="frame" x="15" y="17" width="336" height="139"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <clipView key="contentView" focusRingType="none" id="QwD-Z2-VgW">
-                            <rect key="frame" x="1" y="17" width="324" height="121"/>
+                            <rect key="frame" x="1" y="17" width="334" height="121"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <tableView focusRingType="none" verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" rowSizeStyle="automatic" headerView="BUh-9r-JLM" viewBased="YES" id="vgE-gO-cl8">
-                                    <rect key="frame" x="0.0" y="0.0" width="324" height="121"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="334" height="121"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <size key="intercellSpacing" width="3" height="2"/>
                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -880,7 +880,7 @@
                                                 </binding>
                                             </connections>
                                         </tableColumn>
-                                        <tableColumn width="190" minWidth="40" maxWidth="1000" id="712-Nf-jWC">
+                                        <tableColumn width="200" minWidth="40" maxWidth="1000" id="712-Nf-jWC">
                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="center" title="Quality">
                                                 <font key="font" size="11" name=".HelveticaNeueDeskInterface-Bold"/>
                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -917,7 +917,7 @@
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                         <tableHeaderView key="headerView" id="BUh-9r-JLM">
-                            <rect key="frame" x="0.0" y="0.0" width="324" height="17"/>
+                            <rect key="frame" x="0.0" y="0.0" width="334" height="17"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </tableHeaderView>
                     </scrollView>
