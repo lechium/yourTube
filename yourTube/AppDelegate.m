@@ -71,6 +71,7 @@
         [downloadFile cancel];
         self.downloading = false;
         self.downloadButton.title = @"Download";
+        self.progressLabel.stringValue = @"";
         [progressBar setDoubleValue:0];
         [progressBar setHidden:TRUE];
         return;
@@ -80,7 +81,8 @@
     NSDictionary *audioObject = nil;
     NSString *downloadText = @"Downloading media file...";
     NSDictionary *selectedObject = self.streamController.selectedObjects.lastObject;
-    if ([[selectedObject valueForKey:@"itag"] integerValue] == 299)
+    NSInteger itag = [[selectedObject valueForKey:@"itag"] integerValue];
+    if (itag == 299 || itag == 137)
     {
         requiresMux = true;
         audioObject = [[self.streamController.arrangedObjects filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"itag == '140'"]]lastObject];
