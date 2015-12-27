@@ -76,15 +76,24 @@
         return;
     }
     
+    BOOL requiresMux = false;
+    NSDictionary *audioObject = nil;
+    NSString *downloadText = @"Downloading media file...";
     NSDictionary *selectedObject = self.streamController.selectedObjects.lastObject;
+    if ([[selectedObject valueForKey:@"itag"] integerValue] == 299)
+    {
+        requiresMux = true;
+        audioObject = [[self.streamController.arrangedObjects filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"itag == '140'"]]lastObject];
+        downloadText = @"Downloading video file...";
+    }
     NSString *downloadURL = selectedObject[@"url"];
     NSURL *url = [NSURL URLWithString:downloadURL];
-    
     NSString *outputFile = [[self downloadFolder] stringByAppendingPathComponent:selectedObject[@"outputFilename"]];
     
     downloadFile = [ripURL new];
     self.downloading = true;
     self.downloadButton.title = @"Cancel";
+    self.progressLabel.stringValue = downloadText;
     
     [downloadFile downloadVideoWithURL:url toLocation:outputFile progress:^(double percentComplete) {
         
@@ -94,6 +103,58 @@
         
         [progressBar setDoubleValue:0];
         [progressBar setHidden:TRUE];
+        
+        if (requiresMux && audioObject != nil)
+        {
+           
+            [progressBar setDoubleValue:0];
+            [progressBar setHidden:false];
+            NSString *downloadURL = audioObject[@"url"];
+            NSURL *url = [NSURL URLWithString:downloadURL];
+            downloadFile = [ripURL new];
+            NSString *outputFile2 = [[self downloadFolder] stringByAppendingPathComponent:audioObject[@"outputFilename"]];
+             NSLog(@"requires muxing, downloading audio now: %@", outputFile2);
+             self.progressLabel.stringValue = @"Downloading audio file...";
+            [downloadFile downloadVideoWithURL:url toLocation:outputFile2 progress:^(double percentComplete) {
+                
+                [self setDownloadProgress:percentComplete];
+                
+                
+            } completed:^(NSString *downloadedFile) {
+                
+                self.downloadButton.enabled = false;
+                self.progressLabel.stringValue = @"Multiplexing files...";
+                [progressBar setDoubleValue:1];
+                [progressBar setIndeterminate:true];
+                [progressBar startAnimation:self];
+                [progressBar setHidden:false];
+                [self muxFiles:@[outputFile, outputFile2] completionBlock:^(NSString *newFile) {
+                   
+                    NSFileManager *man = [NSFileManager defaultManager];
+                    [man removeItemAtPath:outputFile error:nil];
+                    [man removeItemAtPath:outputFile2 error:nil];
+                    [[NSWorkspace sharedWorkspace] openFile:newFile];
+                    self.downloadButton.enabled = true;
+                    [progressBar stopAnimation:self];
+                    [progressBar setHidden:true];
+                    self.progressLabel.stringValue = @"";
+                }];
+                //
+                //[[NSWorkspace sharedWorkspace] openFile:downloadedFile];
+                
+                self.downloadButton.title = @"Download";
+                self.downloading = false;
+                
+            }];
+            
+        } else {
+            [[NSWorkspace sharedWorkspace] openFile:downloadedFile];
+            
+            self.downloadButton.title = @"Download";
+            self.downloading = false;
+        }
+        
+       /*
         if ([[NSUserDefaults standardUserDefaults] boolForKey:@"extractAudio"] == true)
         {
             [progressBar setDoubleValue:1];
@@ -109,15 +170,46 @@
                 [[NSWorkspace sharedWorkspace] openFile:newFile];
             }];
         }
+        */
         
-        //[[NSWorkspace sharedWorkspace] openFile:downloadedFile];
-     
-        self.downloadButton.title = @"Download";
-        self.downloading = false;
+        
     }];
 
 }
 
+
+- (void)muxFiles:(NSArray *)theFiles completionBlock:(void(^)(NSString *newFile))completionBlock
+{
+    NSString *videoFile = [theFiles firstObject];
+    NSString *audioFile = [theFiles lastObject];
+    NSString *outputFile = [[videoFile stringByDeletingPathExtension] stringByAppendingPathExtension:@"mp4"];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+        
+        @autoreleasepool {
+            NSTask *afcTask = [NSTask new];
+            [afcTask setLaunchPath:[[NSBundle mainBundle] pathForResource:@"mux" ofType:@""]];
+            [afcTask setStandardError:[NSFileHandle fileHandleWithNullDevice]];
+            [afcTask setStandardOutput:[NSFileHandle fileHandleWithNullDevice]];
+            NSMutableArray *args = [NSMutableArray new];
+            [args addObject:@"-i"];
+            [args addObject:videoFile];
+            [args addObject:@"-i"];
+            [args addObject:audioFile];
+         //
+            [args addObjectsFromArray:[@"-vcodec copy -acodec copy -map 0:v:0 -map 1:a:0 -shortest" componentsSeparatedByString:@" "]];
+            
+            [args addObject:outputFile];
+            [afcTask setArguments:args];
+           // NSLog(@"mux %@", [args componentsJoinedByString:@" "]);
+            [afcTask launch];
+            [afcTask waitUntilExit];
+        }
+        
+        completionBlock(outputFile);
+    });
+    
+    
+}
 
 - (void)setDownloadProgress:(double)theProgress
 {

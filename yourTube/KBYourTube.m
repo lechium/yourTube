@@ -167,7 +167,7 @@
             //turn all of these variables into an nsdictionary by separating elements by =
             NSDictionary *vars = [self parseFlashVars:body];
             
-            //NSLog(@"vars: %@", vars);
+          //  NSLog(@"vars: %@", vars);
             
             if ([[vars allKeys] containsObject:@"status"])
             {
@@ -175,7 +175,7 @@
                 {
                     //grab the raw streams string that is available for the video
                     NSString *streamMap = [vars objectForKey:@"url_encoded_fmt_stream_map"];
-                    
+                    NSString *adaptiveMap = [vars objectForKey:@"adaptive_fmts"];
                     //grab a few extra variables from the vars
                     
                     NSString *title = [vars[@"title"] stringByReplacingOccurrencesOfString:@"+" withString:@" "];
@@ -188,7 +188,7 @@
                     NSString *videoID = vars[@"video_id"];
                     int view_count = [vars[@"view_count"] intValue];
                     
-                    rootInfo[@"title"] = title;
+                    rootInfo[@"title"] = [title stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
                     rootInfo[@"author"] = author;
                     rootInfo[@"images"] = [NSMutableDictionary new];
                     rootInfo[@"images"][@"high"] = iurlhq;
@@ -200,6 +200,8 @@
                     rootInfo[@"views"] = [NSNumber numberWithInt:view_count];
                     
                     //separate the streams into their initial array
+                    
+                   // NSLog(@"StreamMap: %@", streamMap);
                     
                     NSArray *maps = [[streamMap stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] componentsSeparatedByString:@","];
                     NSMutableArray *videoArray = [NSMutableArray new];
@@ -217,6 +219,47 @@
                             [videoArray addObject:processed];
                         }
                     }
+                    
+                    NSArray *adaptiveMaps = [[adaptiveMap stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] componentsSeparatedByString:@","];
+                    for (NSString *amap in adaptiveMaps )
+                    {
+                     //   NSString *newMap = [amap stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+                      //  NSLog(@"newMap: %@", newMap);
+                        //same thing, take these raw feeds and make them into an NSDictionary with usable info
+                        NSMutableDictionary *videoDict = [self parseFlashVars:amap];
+                        //NSLog(@"videoDict: %@", videoDict);
+                        //add the title from the previous dictionary created
+                        [videoDict setValue:[title stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] forKey:@"title"];
+                        //process the raw dictionary into something that can be used with download links and format details
+                        NSDictionary *processed = [self processSource:videoDict];
+                        //NSLog(@"processed: %@", processed[@"itag"]);
+                        if (processed != nil)
+                        {
+                            //if we actually have a video detail dictionary add it to final array
+                            [videoArray addObject:processed];
+                        }
+                    }
+                    
+//                    NSArray *dashMaps = [[dashmpd stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] componentsSeparatedByString:@","];
+//                    for (NSString *dashMap in dashMaps )
+//                    {
+//                        NSString *newMap = [dashMap stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+//                          NSLog(@"newMap: %@", newMap);
+//                        //same thing, take these raw feeds and make them into an NSDictionary with usable info
+//                        NSMutableDictionary *videoDict = [self parseFlashVars:newMap];
+//                        NSLog(@"videoDict: %@", videoDict);
+//                        //add the title from the previous dictionary created
+//                        [videoDict setValue:title forKey:@"title"];
+//                        //process the raw dictionary into something that can be used with download links and format details
+//                        NSDictionary *processed = [self processSource:videoDict];
+//                        NSLog(@"processed: %@", processed[@"itag"]);
+//                        if (processed != nil)
+//                        {
+//                            //if we actually have a video detail dictionary add it to final array
+//                            [videoArray addObject:processed];
+//                        }
+//                    }
+//                    
                     
                     [rootInfo setObject:videoArray forKey:@"streams"];
                     //return rootInfo;
@@ -266,8 +309,15 @@
             url = [url stringByAppendingFormat:@"&signature=%@", signature];
         }
         
+        NSDictionary *tags = [self formatFromTag:fmt];
+        
+        if (tags == nil) // unsupported format, return nil
+        {
+            return nil;
+        }
+        
         //add more readable format
-        [inputSource addEntriesFromDictionary:[self formatFromTag:fmt]];
+        [inputSource addEntriesFromDictionary:tags];
         
         [inputSource setValue:url forKey:@"url"];
         
@@ -288,6 +338,11 @@
 
 - (void)extractAudio:(NSString *)theFile completionBlock:(void(^)(NSString *newFile))completionBlock
 {
+    if ([theFile.pathExtension.lowercaseString isEqualToString:@"m4a"])
+    {
+       completionBlock(theFile);
+        return;
+    }
     NSString *outputFile = [[theFile stringByDeletingPathExtension] stringByAppendingPathExtension:@"m4a"];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         
@@ -336,6 +391,61 @@
             //3gp
         case 36: dict = @{@"format": @"320p 3GP", @"height": @320, @"extension": @"3gp"}; break;
         case 17: dict = @{@"format": @"176p 3GP", @"height": @176, @"extension": @"3gp"}; break;
+      
+        case 299: dict = @{@"format": @"1080p HFR M4V", @"height": @1080, @"extension": @"m4v", @"quality": @"adaptive"}; break;
+        case 140: dict = @{@"format": @"128K AAC M4A", @"height": @0, @"extension": @"m4a", @"quality": @"adaptive"}; break;
+         
+            /*
+            //adaptive
+    
+        case 133: dict = @{@"format": @"240p MP4", @"height": @240, @"extension": @"mp4", @"quality": @"adaptive"}; break;
+        case 134: dict = @{@"format": @"360p MP4", @"height": @360, @"extension": @"mp4", @"quality": @"adaptive"}; break;
+        case 135: dict = @{@"format": @"480p MP4", @"height": @480, @"extension": @"mp4", @"quality": @"adaptive"}; break;
+        case 136: dict = @{@"format": @"720p MP4", @"height": @720, @"extension": @"mp4", @"quality": @"adaptive"}; break;
+        case 160: dict = @{@"format": @"144p MP4", @"height": @144, @"extension": @"mp4", @"quality": @"adaptive"}; break;
+            
+        case 242: dict = @{@"format": @"240p WebM", @"height": @240, @"extension": @"WebM", @"quality": @"adaptive"}; break;
+        case 243: dict = @{@"format": @"360p WebM", @"height": @360, @"extension": @"WebM", @"quality": @"adaptive"}; break;
+        case 244: dict = @{@"format": @"480p WebM", @"height": @480, @"extension": @"WebM", @"quality": @"adaptive"}; break;
+        case 247: dict = @{@"format": @"720p WebM", @"height": @720, @"extension": @"WebM", @"quality": @"adaptive"}; break;
+        case 278: dict = @{@"format": @"144p WebM", @"height": @144, @"extension": @"WebM", @"quality": @"adaptive"}; break;
+         
+        case 298: dict = @{@"format": @"720p HFR MP4", @"height": @720, @"extension": @"mp4", @"quality": @"adaptive"}; break;
+    
+            
+        case 302: dict = @{@"format": @"720p HFR WebM", @"height": @720, @"extension": @"WebM", @"quality": @"adaptive"}; break;
+        case 303: dict = @{@"format": @"1080p HFR WebM", @"height": @1080, @"extension": @"WebM", @"quality": @"adaptive"}; break;
+            
+            //audio
+       
+        case 171: dict = @{@"format": @"128K Vorbis WebM", @"height": @0, @"extension": @"WebMa", @"quality": @"adaptive"}; break;
+        case 249: dict = @{@"format": @"48K Opus WebM", @"height": @0, @"extension": @"WebMa", @"quality": @"adaptive"}; break;
+        case 250: dict = @{@"format": @"64K Opus WebM", @"height": @0, @"extension": @"WebMa", @"quality": @"adaptive"}; break;
+        case 251: dict = @{@"format": @"160K Opus WebM", @"height": @0, @"extension": @"WebMa", @"quality": @"adaptive"}; break;
+            */
+            /*
+         136=720p MP4
+         247=720p WebM
+         135=480p MP4
+         244=480p WebM
+         134=360p MP4
+         243=360p WebM
+         133=240p MP4
+         242=240p WebM
+         160=144p MP4
+         278=144p WebM
+             
+         140=AAC M4A 128K
+         171=WebM Vorbis 128
+         249=WebM Opus 48
+         250=WebM Opus 64
+         251=WebM Opus 160
+         
+         299=1080p HFR MP4
+         303=1080p HFR WebM
+         298=720P HFR MP4
+         302=720P HFR VP9 WebM*/
+        
         default:
             break;
     }

@@ -29,6 +29,7 @@
                 <outlet property="playerView" destination="zgb-l5-YZ5" id="2LK-xZ-lhC"/>
                 <outlet property="playerWindow" destination="29e-k0-epi" id="6kk-96-hxp"/>
                 <outlet property="progressBar" destination="UOw-p9-ghs" id="NPI-7z-Kjc"/>
+                <outlet property="progressLabel" destination="2zZ-wL-cIp" id="Eg8-nu-EdW"/>
                 <outlet property="streamController" destination="hh7-93-GzP" id="vGm-ys-DBG"/>
                 <outlet property="titleField" destination="jw9-Wk-qj7" id="zu9-pF-pn8"/>
                 <outlet property="userField" destination="QPs-2V-RYy" id="Jxw-Ds-bfH"/>
@@ -802,50 +803,6 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <button verticalHuggingPriority="750" id="ObX-vg-LyY">
-                        <rect key="frame" x="368" y="120" width="79" height="43"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="push" title="Play" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="pvy-sG-ENT">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="playFile:" target="Voe-Tx-rLC" id="Lzt-Md-RG8"/>
-                            <binding destination="Voe-Tx-rLC" name="enabled" keyPath="self.itemSelected" id="PHo-FW-dZb"/>
-                        </connections>
-                    </button>
-                    <button verticalHuggingPriority="750" id="U4Q-Is-6ng">
-                        <rect key="frame" x="368" y="79" width="102" height="32"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="push" title="Download" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ufq-8b-1Xm">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="downloadFile:" target="Voe-Tx-rLC" id="uIF-tM-Szi"/>
-                            <binding destination="Voe-Tx-rLC" name="enabled" keyPath="self.itemSelected" id="uzW-AI-O0k"/>
-                        </connections>
-                    </button>
-                    <progressIndicator maxValue="100" displayedWhenStopped="NO" style="bar" id="UOw-p9-ghs">
-                        <rect key="frame" x="129" y="174" width="222" height="20"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    </progressIndicator>
-                    <button id="iHT-PB-hzD">
-                        <rect key="frame" x="374" y="42" width="104" height="18"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="check" title="Extract audio" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="8gy-qG-OiA">
-                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <binding destination="4nM-Ko-8Hb" name="value" keyPath="values.extractAudio" id="3SI-Y5-chf">
-                                <dictionary key="options">
-                                    <integer key="NSNullPlaceholder" value="1"/>
-                                    <bool key="NSValidatesImmediately" value="YES"/>
-                                </dictionary>
-                            </binding>
-                        </connections>
-                    </button>
                     <scrollView focusRingType="none" autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="y89-g0-zAp">
                         <rect key="frame" x="15" y="17" width="336" height="139"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
@@ -921,6 +878,59 @@
                             <autoresizingMask key="autoresizingMask"/>
                         </tableHeaderView>
                     </scrollView>
+                    <button verticalHuggingPriority="750" id="ObX-vg-LyY">
+                        <rect key="frame" x="368" y="117" width="79" height="43"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="Play" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="pvy-sG-ENT">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="playFile:" target="Voe-Tx-rLC" id="Lzt-Md-RG8"/>
+                            <binding destination="Voe-Tx-rLC" name="enabled" keyPath="self.itemSelected" id="PHo-FW-dZb"/>
+                        </connections>
+                    </button>
+                    <progressIndicator maxValue="100" displayedWhenStopped="NO" style="bar" id="UOw-p9-ghs">
+                        <rect key="frame" x="129" y="174" width="222" height="20"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    </progressIndicator>
+                    <button hidden="YES" id="iHT-PB-hzD">
+                        <rect key="frame" x="373" y="18" width="104" height="18"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="check" title="Extract audio" bezelStyle="regularSquare" imagePosition="left" enabled="NO" state="on" inset="2" id="8gy-qG-OiA">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <binding destination="4nM-Ko-8Hb" name="value" keyPath="values.extractAudio" id="3SI-Y5-chf">
+                                <dictionary key="options">
+                                    <integer key="NSNullPlaceholder" value="1"/>
+                                    <bool key="NSValidatesImmediately" value="YES"/>
+                                </dictionary>
+                            </binding>
+                        </connections>
+                    </button>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="2zZ-wL-cIp">
+                        <rect key="frame" x="129" y="193" width="224" height="14"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" id="gvD-MJ-VaJ">
+                            <font key="font" metaFont="smallSystem"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <button verticalHuggingPriority="750" id="U4Q-Is-6ng">
+                        <rect key="frame" x="368" y="69" width="102" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="Download" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ufq-8b-1Xm">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="downloadFile:" target="Voe-Tx-rLC" id="uIF-tM-Szi"/>
+                            <binding destination="Voe-Tx-rLC" name="enabled" keyPath="self.itemSelected" id="uzW-AI-O0k"/>
+                        </connections>
+                    </button>
                 </subviews>
             </view>
             <point key="canvasLocation" x="442" y="245.5"/>

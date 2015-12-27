@@ -48,7 +48,7 @@
 - (id)init
 {
 	if(self = [super init]) {
-	[self setUpdateFrequency:10.0];
+	[self setUpdateFrequency:1];
 	}
 	
 	return self;

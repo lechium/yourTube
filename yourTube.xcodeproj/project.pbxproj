@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		8922B2C91C2F788500A6D2E7 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8922B2C81C2F788500A6D2E7 /* AVFoundation.framework */; };
+		8922B2D01C2FB97600A6D2E7 /* mux in Resources */ = {isa = PBXBuildFile; fileRef = 8922B2CF1C2FB97600A6D2E7 /* mux */; };
 		89A0EB731C28CF0F00255773 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 89A0EB721C28CF0F00255773 /* AppDelegate.m */; };
 		89A0EB761C28CF0F00255773 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 89A0EB751C28CF0F00255773 /* main.m */; };
 		89A0EB781C28CF0F00255773 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 89A0EB771C28CF0F00255773 /* Assets.xcassets */; };
@@ -19,6 +20,7 @@
 
 /* Begin PBXFileReference section */
 		8922B2C81C2F788500A6D2E7 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		8922B2CF1C2FB97600A6D2E7 /* mux */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = mux; sourceTree = "<group>"; };
 		89A0EB6E1C28CF0F00255773 /* yourTube.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = yourTube.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		89A0EB711C28CF0F00255773 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		89A0EB721C28CF0F00255773 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -47,6 +49,25 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		8922B2CA1C2FB19D00A6D2E7 /* KBYT */ = {
+			isa = PBXGroup;
+			children = (
+				89A0EB821C28CF3C00255773 /* KBYourTube.h */,
+				89A0EB831C28CF3C00255773 /* KBYourTube.m */,
+				89A0EB881C2F273500255773 /* ripURL.h */,
+				89A0EB891C2F273500255773 /* ripURL.m */,
+			);
+			name = KBYT;
+			sourceTree = "<group>";
+		};
+		8922B2CE1C2FB97600A6D2E7 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				8922B2CF1C2FB97600A6D2E7 /* mux */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		89A0EB651C28CF0F00255773 = {
 			isa = PBXGroup;
 			children = (
@@ -71,10 +92,7 @@
 				89A0EB851C29D17100255773 /* README.md */,
 				89A0EB711C28CF0F00255773 /* AppDelegate.h */,
 				89A0EB721C28CF0F00255773 /* AppDelegate.m */,
-				89A0EB821C28CF3C00255773 /* KBYourTube.h */,
-				89A0EB831C28CF3C00255773 /* KBYourTube.m */,
-				89A0EB881C2F273500255773 /* ripURL.h */,
-				89A0EB891C2F273500255773 /* ripURL.m */,
+				8922B2CA1C2FB19D00A6D2E7 /* KBYT */,
 				89A0EB771C28CF0F00255773 /* Assets.xcassets */,
 				89A0EB791C28CF0F00255773 /* MainMenu.xib */,
 				89A0EB7C1C28CF0F00255773 /* Info.plist */,
@@ -86,6 +104,7 @@
 		89A0EB741C28CF0F00255773 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				8922B2CE1C2FB97600A6D2E7 /* Resources */,
 				89A0EB751C28CF0F00255773 /* main.m */,
 			);
 			name = "Supporting Files";
@@ -149,6 +168,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				89A0EB781C28CF0F00255773 /* Assets.xcassets in Resources */,
+				8922B2D01C2FB97600A6D2E7 /* mux in Resources */,
 				89A0EB7B1C28CF0F00255773 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

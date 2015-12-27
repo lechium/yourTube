@@ -24,6 +24,7 @@
 @property (nonatomic, assign) IBOutlet NSArrayController *streamController;
 @property (nonatomic, strong) NSArray *streamArray;
 @property (readwrite, assign) BOOL itemSelected;
+@property (nonatomic, assign) IBOutlet NSTextField *progressLabel;
 @property (nonatomic, assign) IBOutlet NSProgressIndicator *progressBar;
 @property (nonatomic, strong) ripURL *downloadFile;
 @property (readwrite, assign) BOOL downloading;
