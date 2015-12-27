@@ -726,7 +726,7 @@
                         </connections>
                     </button>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="Gcd-Xp-Z6V">
-                        <rect key="frame" x="127" y="231" width="34" height="17"/>
+                        <rect key="frame" x="127" y="237" width="34" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Title:" id="esT-jV-o2r">
                             <font key="font" metaFont="system"/>
@@ -735,7 +735,7 @@
                         </textFieldCell>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="jw9-Wk-qj7">
-                        <rect key="frame" x="172" y="231" width="181" height="17"/>
+                        <rect key="frame" x="172" y="237" width="181" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" id="hLz-6r-hZK">
                             <font key="font" metaFont="system"/>
@@ -744,7 +744,7 @@
                         </textFieldCell>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="7iA-DU-lMZ">
-                        <rect key="frame" x="127" y="211" width="37" height="17"/>
+                        <rect key="frame" x="127" y="217" width="37" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="User:" id="fZv-y4-AGO">
                             <font key="font" metaFont="system"/>
@@ -753,7 +753,7 @@
                         </textFieldCell>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="QPs-2V-RYy">
-                        <rect key="frame" x="172" y="211" width="171" height="17"/>
+                        <rect key="frame" x="172" y="217" width="171" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" id="oQw-gU-Imf">
                             <font key="font" metaFont="system"/>
@@ -762,7 +762,7 @@
                         </textFieldCell>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="b1i-Y1-JRc">
-                        <rect key="frame" x="362" y="231" width="51" height="17"/>
+                        <rect key="frame" x="362" y="237" width="51" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Length:" id="YCn-8T-kQ3">
                             <font key="font" metaFont="system"/>
@@ -771,7 +771,7 @@
                         </textFieldCell>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="Bxd-ru-q1e">
-                        <rect key="frame" x="362" y="211" width="44" height="17"/>
+                        <rect key="frame" x="362" y="217" width="44" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Views:" id="Xg7-El-4mL">
                             <font key="font" metaFont="system"/>
@@ -780,7 +780,7 @@
                         </textFieldCell>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="HbI-y9-5Ux">
-                        <rect key="frame" x="414" y="211" width="63" height="17"/>
+                        <rect key="frame" x="414" y="217" width="63" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" id="YRD-oZ-NDp">
                             <font key="font" metaFont="system"/>
@@ -789,12 +789,12 @@
                         </textFieldCell>
                     </textField>
                     <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" id="GZQ-8k-BgZ">
-                        <rect key="frame" x="16" y="157" width="102" height="103"/>
+                        <rect key="frame" x="16" y="165" width="102" height="103"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="ZMv-xl-dM5"/>
                     </imageView>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="38L-aC-d9w">
-                        <rect key="frame" x="414" y="231" width="74" height="17"/>
+                        <rect key="frame" x="414" y="237" width="74" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" id="3xq-Nc-Dyn">
                             <font key="font" metaFont="system"/>
@@ -802,8 +802,52 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
+                    <button verticalHuggingPriority="750" id="ObX-vg-LyY">
+                        <rect key="frame" x="368" y="120" width="79" height="43"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="Play" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="pvy-sG-ENT">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="playFile:" target="Voe-Tx-rLC" id="Lzt-Md-RG8"/>
+                            <binding destination="Voe-Tx-rLC" name="enabled" keyPath="self.itemSelected" id="PHo-FW-dZb"/>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" id="U4Q-Is-6ng">
+                        <rect key="frame" x="368" y="79" width="102" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="Download" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ufq-8b-1Xm">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="downloadFile:" target="Voe-Tx-rLC" id="uIF-tM-Szi"/>
+                            <binding destination="Voe-Tx-rLC" name="enabled" keyPath="self.itemSelected" id="uzW-AI-O0k"/>
+                        </connections>
+                    </button>
+                    <progressIndicator maxValue="100" displayedWhenStopped="NO" style="bar" id="UOw-p9-ghs">
+                        <rect key="frame" x="129" y="174" width="222" height="20"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    </progressIndicator>
+                    <button id="iHT-PB-hzD">
+                        <rect key="frame" x="374" y="42" width="104" height="18"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="check" title="Extract audio" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="8gy-qG-OiA">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <binding destination="4nM-Ko-8Hb" name="value" keyPath="values.extractAudio" id="3SI-Y5-chf">
+                                <dictionary key="options">
+                                    <integer key="NSNullPlaceholder" value="1"/>
+                                    <bool key="NSValidatesImmediately" value="YES"/>
+                                </dictionary>
+                            </binding>
+                        </connections>
+                    </button>
                     <scrollView focusRingType="none" autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="y89-g0-zAp">
-                        <rect key="frame" x="25" y="20" width="326" height="139"/>
+                        <rect key="frame" x="15" y="17" width="326" height="139"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <clipView key="contentView" focusRingType="none" id="QwD-Z2-VgW">
                             <rect key="frame" x="1" y="17" width="324" height="121"/>
@@ -877,50 +921,6 @@
                             <autoresizingMask key="autoresizingMask"/>
                         </tableHeaderView>
                     </scrollView>
-                    <button verticalHuggingPriority="750" id="ObX-vg-LyY">
-                        <rect key="frame" x="368" y="120" width="79" height="43"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="push" title="Play" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="pvy-sG-ENT">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="playFile:" target="Voe-Tx-rLC" id="Lzt-Md-RG8"/>
-                            <binding destination="Voe-Tx-rLC" name="enabled" keyPath="self.itemSelected" id="PHo-FW-dZb"/>
-                        </connections>
-                    </button>
-                    <button verticalHuggingPriority="750" id="U4Q-Is-6ng">
-                        <rect key="frame" x="368" y="79" width="102" height="32"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="push" title="Download" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ufq-8b-1Xm">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="downloadFile:" target="Voe-Tx-rLC" id="uIF-tM-Szi"/>
-                            <binding destination="Voe-Tx-rLC" name="enabled" keyPath="self.itemSelected" id="uzW-AI-O0k"/>
-                        </connections>
-                    </button>
-                    <progressIndicator maxValue="100" displayedWhenStopped="NO" style="bar" id="UOw-p9-ghs">
-                        <rect key="frame" x="129" y="168" width="222" height="20"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    </progressIndicator>
-                    <button id="iHT-PB-hzD">
-                        <rect key="frame" x="374" y="42" width="104" height="18"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="check" title="Extract audio" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="8gy-qG-OiA">
-                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <binding destination="4nM-Ko-8Hb" name="value" keyPath="values.extractAudio" id="3SI-Y5-chf">
-                                <dictionary key="options">
-                                    <integer key="NSNullPlaceholder" value="1"/>
-                                    <bool key="NSValidatesImmediately" value="YES"/>
-                                </dictionary>
-                            </binding>
-                        </connections>
-                    </button>
                 </subviews>
             </view>
             <point key="canvasLocation" x="442" y="245.5"/>
