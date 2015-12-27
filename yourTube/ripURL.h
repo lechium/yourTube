@@ -27,10 +27,21 @@
 	long long					freq;
 }
 
-@property (nonatomic, retain) NSString *downloadLocation;
-@property (nonatomic, assign) id handler;
+@property (strong, atomic) void (^ProgressBlock)(double percentComplete);
+@property (strong, atomic) void (^CompletedBlock)(NSString *downloadedFile);
 
-- (void)downloadFile:(NSString *)theFile;
+typedef void(^DownloadProgressBlock)(double percentComplete);
+typedef void(^DownloadCompletedBlock)(NSString *downloadedFile);
+
+@property (nonatomic, retain) NSString *downloadLocation;
+
+
+- (void)downloadVideoWithURL:(NSURL *)url
+                toLocation:(NSString *)dlLocation
+                  progress:(DownloadProgressBlock)progressBlock
+                 completed:(DownloadCompletedBlock)completedBlock;
+
+
 - (long long)updateFrequency;
 - (void)setUpdateFrequency:(long long)newUpdateFrequency;
 - (void)setDownloadResponse:(NSURLResponse *)response;

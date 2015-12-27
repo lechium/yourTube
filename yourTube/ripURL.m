@@ -17,9 +17,7 @@
 
 @implementation ripURL
 
-@synthesize downloadLocation, handler;
-
-
+@synthesize downloadLocation;
 
 #pragma mark -
 #pragma mark •• URL code
@@ -27,7 +25,6 @@
 - (void)dealloc
 {
 	downloadLocation = nil;
-
 }
 
 - (void)cancel
@@ -57,29 +54,40 @@
 	return self;
 }
 
-
-
-- (void)downloadFile:(NSString *)theFile
+- (void)downloadVideoWithURL:(NSURL *)url
+                toLocation:(NSString *)dlLocation
+                  progress:(DownloadProgressBlock)progressBlock
+                 completed:(DownloadCompletedBlock)completedBlock
 {
-   // NSLog(@"downloadFile: %@", theFile);
-	NSURLRequest *theRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:theFile] cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:60.0];
-	urlDownload = [[NSURLDownload alloc] initWithRequest:theRequest delegate:self];
-	[urlDownload setDestination:downloadLocation allowOverwrite:YES];
+    self.CompletedBlock = completedBlock;
+    self.ProgressBlock = progressBlock;
+    self.downloadLocation = dlLocation;
+    NSURLRequest *theRequest = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:60.0];
+    urlDownload = [[NSURLDownload alloc] initWithRequest:theRequest delegate:self];
+    [urlDownload setDestination:downloadLocation allowOverwrite:YES];
+ 
 }
+
 
 - (void)download:(NSURLDownload *)download didFailWithError:(NSError *)error
 
 {
 	NSLog(@"error: %@", error);
-	[handler downloadFailed:downloadLocation];
+	//[handler downloadFailed:downloadLocation];
 }
 
 - (void)downloadDidFinish:(NSURLDownload *)download
 {
    if(download == urlDownload) {
 
-		[handler downloadFinished:downloadLocation];
-      
+       
+       if (self.CompletedBlock != nil)
+       {
+           self.CompletedBlock(downloadLocation);
+       }
+       
+       
+       
 	}
 
 }
@@ -113,13 +121,14 @@
        // NSLog(@"Percent complete - %f",percentComplete);
 		
 		if((freq%updateFrequency) == 0){
-		//	while(1){
-				//NSLog(@"%i", freq%updateFrequency );
-				[handler setDownloadProgress:percentComplete];
+	        
+            if (self.ProgressBlock != nil)
+            {
+                self.ProgressBlock(percentComplete);
+            }
 				
 		}
 		freq++;
-		//	}
 		
        
         
@@ -133,8 +142,4 @@
 
     
 }
-
-
-
-
 @end

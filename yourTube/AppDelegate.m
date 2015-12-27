@@ -85,18 +85,30 @@
     
     NSDictionary *selectedObject = self.streamController.selectedObjects.lastObject;
     NSString *downloadURL = selectedObject[@"downloadURL"];
-    downloadFile = [[ripURL alloc] init];
-    [downloadFile setHandler:self];
+    NSURL *url = [NSURL URLWithString:downloadURL];
     NSString *fileName = selectedObject[@"title"];
     NSNumber *height = selectedObject[@"height"];
     fileName = [fileName stringByAppendingFormat:@" [%@p]", height];
-    [downloadFile setDownloadLocation:[[[NSHomeDirectory() stringByAppendingPathComponent:@"Desktop"] stringByAppendingPathComponent:fileName] stringByAppendingPathExtension:selectedObject[@"extension"]]];
-    [downloadFile downloadFile:downloadURL];
+    NSString *outputFile = [[[NSHomeDirectory() stringByAppendingPathComponent:@"Desktop"] stringByAppendingPathComponent:fileName] stringByAppendingPathExtension:selectedObject[@"extension"]];
+    
+    downloadFile = [ripURL new];
     self.downloading = true;
     self.downloadButton.title = @"Cancel";
     
-}
+    [downloadFile downloadVideoWithURL:url toLocation:outputFile progress:^(double percentComplete) {
+        
+        [self setDownloadProgress:percentComplete];
+        
+    } completed:^(NSString *downloadedFile) {
+        
+        [[NSWorkspace sharedWorkspace] openFile:downloadedFile];
+        [progressBar setDoubleValue:0];
+        [progressBar setHidden:TRUE];
+        self.downloadButton.title = @"Download";
+        self.downloading = false;
+    }];
 
+}
 
 
 - (void)setDownloadProgress:(double)theProgress
