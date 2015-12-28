@@ -12,6 +12,7 @@
 		8922B2D31C30B74C00A6D2E7 /* yt.icns in Resources */ = {isa = PBXBuildFile; fileRef = 8922B2D21C30B74C00A6D2E7 /* yt.icns */; };
 		8922B2D61C30C85600A6D2E7 /* KBYTWebKitViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8922B2D51C30C85600A6D2E7 /* KBYTWebKitViewController.m */; };
 		8922B2D81C30C87C00A6D2E7 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8922B2D71C30C87C00A6D2E7 /* WebKit.framework */; };
+		8922B2DD1C311E8400A6D2E7 /* back_button.png in Resources */ = {isa = PBXBuildFile; fileRef = 8922B2DC1C311E8400A6D2E7 /* back_button.png */; };
 		89A0EB731C28CF0F00255773 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 89A0EB721C28CF0F00255773 /* AppDelegate.m */; };
 		89A0EB761C28CF0F00255773 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 89A0EB751C28CF0F00255773 /* main.m */; };
 		89A0EB781C28CF0F00255773 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 89A0EB771C28CF0F00255773 /* Assets.xcassets */; };
@@ -29,6 +30,7 @@
 		8922B2D51C30C85600A6D2E7 /* KBYTWebKitViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KBYTWebKitViewController.m; sourceTree = "<group>"; };
 		8922B2D71C30C87C00A6D2E7 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		8922B2DA1C30EF9D00A6D2E7 /* yt.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = yt.pch; sourceTree = "<group>"; };
+		8922B2DC1C311E8400A6D2E7 /* back_button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = back_button.png; path = yourTube/back_button.png; sourceTree = SOURCE_ROOT; };
 		89A0EB6E1C28CF0F00255773 /* yourTube.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = yourTube.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		89A0EB711C28CF0F00255773 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		89A0EB721C28CF0F00255773 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -74,6 +76,7 @@
 		8922B2CE1C2FB97600A6D2E7 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				8922B2DC1C311E8400A6D2E7 /* back_button.png */,
 				8922B2D21C30B74C00A6D2E7 /* yt.icns */,
 				8922B2CF1C2FB97600A6D2E7 /* mux */,
 			);
@@ -192,6 +195,7 @@
 			files = (
 				89A0EB781C28CF0F00255773 /* Assets.xcassets in Resources */,
 				8922B2D01C2FB97600A6D2E7 /* mux in Resources */,
+				8922B2DD1C311E8400A6D2E7 /* back_button.png in Resources */,
 				89A0EB7B1C28CF0F00255773 /* MainMenu.xib in Resources */,
 				8922B2D31C30B74C00A6D2E7 /* yt.icns in Resources */,
 			);

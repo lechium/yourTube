@@ -1047,7 +1047,7 @@
             </view>
             <point key="canvasLocation" x="442" y="548"/>
         </window>
-        <window title="youtube search" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" animationBehavior="default" id="rbD-bD-fGw">
+        <window title="youtube search" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" animationBehavior="default" id="rbD-bD-fGw">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="362" y="167" width="744" height="621"/>
@@ -1056,10 +1056,10 @@
                 <rect key="frame" x="0.0" y="0.0" width="744" height="621"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <webView id="cnY-v4-PiP">
+                    <webView id="cnY-v4-PiP" customClass="MyWebView">
                         <rect key="frame" x="0.0" y="0.0" width="744" height="621"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <webPreferences key="preferences" defaultFontSize="12" defaultFixedFontSize="12">
+                        <webPreferences key="preferences" defaultFontSize="12" defaultFixedFontSize="12" javaEnabled="NO" javaScriptCanOpenWindowsAutomatically="NO">
                             <nil key="identifier"/>
                         </webPreferences>
                         <connections>
@@ -1071,10 +1071,28 @@
                     </webView>
                 </subviews>
             </view>
+            <toolbar key="toolbar" implicitIdentifier="B202FDD8-0E1C-452D-A485-83520EDD9FE4" autosavesConfiguration="NO" displayMode="iconOnly" sizeMode="regular" id="Xcu-3m-3ul">
+                <allowedToolbarItems>
+                    <toolbarItem implicitItemIdentifier="NSToolbarSpaceItem" id="9mf-pm-eKK"/>
+                    <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="hqM-z2-Shf"/>
+                    <toolbarItem implicitItemIdentifier="FA83917B-C7CC-494E-8061-C327980629D1" label="Back" paletteLabel="Back" tag="-1" image="back_button" id="0H7-Ef-DI8">
+                        <connections>
+                            <action selector="goBack:" target="cnY-v4-PiP" id="GXz-1R-ObE"/>
+                        </connections>
+                    </toolbarItem>
+                </allowedToolbarItems>
+                <defaultToolbarItems>
+                    <toolbarItem reference="0H7-Ef-DI8"/>
+                    <toolbarItem reference="hqM-z2-Shf"/>
+                </defaultToolbarItems>
+            </toolbar>
             <connections>
                 <outlet property="delegate" destination="10R-qC-Us1" id="Rq4-F7-TGB"/>
             </connections>
             <point key="canvasLocation" x="418" y="957.5"/>
         </window>
     </objects>
+    <resources>
+        <image name="back_button" width="640" height="594"/>
+    </resources>
 </document>
