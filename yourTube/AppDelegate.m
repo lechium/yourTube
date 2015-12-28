@@ -25,7 +25,6 @@
     [self getResults:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(idReceived:) name:@"idReceived" object:nil];
     [[self webkitController] showWebWindow:nil];
-    //NSLog(@"window delegate: %@", [[self window] delegate]);
     [self.window setDelegate:self];
     
 }
@@ -57,9 +56,9 @@
     [[self window] makeKeyAndOrderFront:self];
 }
 
+//no longer needed
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem
 {
-    LOG_SELF;
     if ([menuItem tag] == 150)
     {
         if ([[self window] isVisible] == true) {
@@ -71,7 +70,6 @@
 
 + (void)setDefaultPrefs
 {
-    LOG_SELF;
     NSString *dlLoc = [[NSUserDefaults standardUserDefaults] valueForKey:@"downloadLocation"];
     if ([dlLoc length] == 0)
     {
@@ -178,9 +176,7 @@
         
     } completed:^(NSString *downloadedFile) {
         
-        [progressBar setDoubleValue:0];
-        [progressBar setHidden:TRUE];
-        self.progressLabel.stringValue = @"";
+        [self hideProgress];
         if (requiresMux == true && audioObject != nil)
         {
            
@@ -201,10 +197,7 @@
                 
                 self.downloadButton.enabled = false;
                 self.progressLabel.stringValue = @"Multiplexing files...";
-                [progressBar setDoubleValue:1];
-                [progressBar setIndeterminate:true];
-                [progressBar startAnimation:self];
-                [progressBar setHidden:false];
+                [self setDownloadProgress:0];
                 [self muxFiles:@[outputFile, outputFile2] completionBlock:^(NSString *newFile) {
                    
                     NSFileManager *man = [NSFileManager defaultManager];
@@ -212,9 +205,7 @@
                     [man removeItemAtPath:outputFile2 error:nil];
                     [[NSWorkspace sharedWorkspace] openFile:newFile];
                     self.downloadButton.enabled = true;
-                    [progressBar stopAnimation:self];
-                    [progressBar setHidden:true];
-                    self.progressLabel.stringValue = @"";
+                    [self hideProgress];
                 }];
                 //
                 //[[NSWorkspace sharedWorkspace] openFile:downloadedFile];
@@ -226,55 +217,29 @@
             
         } else {
             
-            NSLog(@"else!");
-            
             if (fixAudio == true)
             {
                 NSInteger volumeInt = [[NSUserDefaults standardUserDefaults] integerForKey:@"volume"];
-                NSLog(@"fix audio with volume: %lu", (long)volumeInt);
+                [self setDownloadProgress:0];
+                self.progressLabel.stringValue = @"Fixing audio...";
                 [[KBYourTube sharedInstance] fixAudio:downloadedFile volume:volumeInt completionBlock:^(NSString *newFile) {
                     
                     [[NSWorkspace sharedWorkspace] openFile:newFile];
-                    
+                    [self hideProgress];
                     self.downloadButton.title = @"Download";
                     self.downloading = false;
                 }];
                 
             } else {
                 [[NSWorkspace sharedWorkspace] openFile:downloadedFile];
-                
-                self.progressLabel.stringValue = @"";
-                [self.progressBar stopAnimation:self];
-                self.progressBar.hidden = true;
-                [self.progressBar setDoubleValue:0];
-                
-                [self.progressBar setHidden:true];
+               
+                [self hideProgress];
                 self.downloadButton.title = @"Download";
                 self.downloading = false;
             }
             
             
         }
-        
-       /*
-        if ([[NSUserDefaults standardUserDefaults] boolForKey:@"extractAudio"] == true)
-        {
-            [progressBar setDoubleValue:1];
-            [progressBar setIndeterminate:true];
-            [progressBar startAnimation:self];
-            [progressBar setHidden:false];
-            [[KBYourTube sharedInstance] extractAudio:downloadedFile completionBlock:^(NSString *newFile) {
-                
-                NSLog(@"new audio file: %@", newFile);
-                [progressBar setDoubleValue:0];
-                [progressBar setHidden:true];
-             
-                [[NSWorkspace sharedWorkspace] openFile:newFile];
-            }];
-        }
-        */
-        
-        
     }];
 
 }
@@ -310,6 +275,15 @@
         completionBlock(outputFile);
     });
     
+    
+}
+
+- (void)hideProgress
+{
+    self.progressLabel.stringValue = @"";
+    [[self progressBar] stopAnimation:nil];
+    [[self progressBar] setDoubleValue:0];
+    [[self progressBar] setHidden:true];
     
 }
 

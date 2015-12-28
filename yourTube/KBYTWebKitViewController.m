@@ -39,7 +39,6 @@
 
 - (id)init
 {
-    LOG_SELF;
     self = [super init];
    
     return self;
@@ -47,10 +46,8 @@
 
 - (IBAction)showWebWindow:(id)sender
 {
-//    [[ourWebView set]]
     NSURLRequest * request = [[NSURLRequest alloc]initWithURL:[NSURL URLWithString:@"https://www.youtube.com"] cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:60];
     
-    NSLog(@"ourWebView: %@", ourWebView);
     [[ourWebView mainFrame] loadRequest:request];
     [[self webWindow] makeKeyAndOrderFront:self];
 }
