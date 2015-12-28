@@ -110,13 +110,17 @@
         audioObject = [[self.streamController.arrangedObjects filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"itag == '140'"]]lastObject];
         downloadText = @"Downloading video file...";
     }
-    if (itag == 140)
+    if (itag == 140 || itag == 141)
     {
         fixAudio = true;
     }
     NSString *downloadURL = selectedObject[@"url"];
     NSURL *url = [NSURL URLWithString:downloadURL];
     NSString *outputDest = [[NSUserDefaults standardUserDefaults] valueForKey:@"downloadLocation"];
+    if ([outputDest length] == 0)
+    {
+        outputDest = [self downloadFolder];
+    }
     NSString *outputFile = [outputDest stringByAppendingPathComponent:selectedObject[@"outputFilename"]];
     
     downloadFile = [ripURL new];
