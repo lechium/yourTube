@@ -68,6 +68,8 @@
             self.streamArray = videoDetails[@"streams"];
             self.streamController.selectsInsertedObjects = true;
             
+            [[self window] orderFrontRegardless];
+            
         } failureBlock:^(NSString *error) {
             
             NSLog(@"fail!: %@", error);

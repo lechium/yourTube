@@ -1047,17 +1047,17 @@
             </view>
             <point key="canvasLocation" x="442" y="548"/>
         </window>
-        <window title="youtube search" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="rbD-bD-fGw">
+        <window title="youtube search" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" animationBehavior="default" id="rbD-bD-fGw">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="735" y="440" width="683" height="543"/>
+            <rect key="contentRect" x="362" y="167" width="744" height="621"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
             <view key="contentView" id="Iow-R5-0WC">
-                <rect key="frame" x="0.0" y="0.0" width="683" height="543"/>
+                <rect key="frame" x="0.0" y="0.0" width="744" height="621"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <webView id="cnY-v4-PiP">
-                        <rect key="frame" x="0.0" y="0.0" width="683" height="543"/>
+                        <rect key="frame" x="0.0" y="0.0" width="744" height="621"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <webPreferences key="preferences" defaultFontSize="12" defaultFixedFontSize="12">
                             <nil key="identifier"/>
@@ -1074,7 +1074,7 @@
             <connections>
                 <outlet property="delegate" destination="10R-qC-Us1" id="Rq4-F7-TGB"/>
             </connections>
-            <point key="canvasLocation" x="387.5" y="918.5"/>
+            <point key="canvasLocation" x="418" y="957.5"/>
         </window>
     </objects>
 </document>
