@@ -25,6 +25,8 @@
     [self getResults:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(idReceived:) name:@"idReceived" object:nil];
     [[self webkitController] showWebWindow:nil];
+    //NSLog(@"window delegate: %@", [[self window] delegate]);
+    [self.window setDelegate:self];
     
 }
 
@@ -35,6 +37,36 @@
     [self getResults:nil];
     [[NSUserDefaults standardUserDefaults] setObject:url forKey:@"lastDownloadLink"];
     
+}
+
+
+- (void)windowWillClose:(NSNotification *)notification
+{
+    NSMenuItem *menuItem = [[NSApp mainMenu] itemWithTitle:@"Window"];
+    NSMenuItem *showMainWindowItem = [[NSMenuItem alloc] initWithTitle:@"Show Video Details" action:@selector(showMainWindow:) keyEquivalent:@"1"];
+    [showMainWindowItem setTarget:self];
+    [showMainWindowItem setTag:150];
+    [[menuItem submenu] insertItem:showMainWindowItem atIndex:5];
+}
+
+- (IBAction)showMainWindow:(id)sender
+{
+    NSMenuItem *menuItem = [[NSApp mainMenu] itemWithTitle:@"Window"];
+    NSMenuItem *ourItem = [[menuItem submenu] itemWithTag:150];
+    [[menuItem submenu] removeItem:ourItem];
+    [[self window] makeKeyAndOrderFront:self];
+}
+
+- (BOOL)validateMenuItem:(NSMenuItem *)menuItem
+{
+    LOG_SELF;
+    if ([menuItem tag] == 150)
+    {
+        if ([[self window] isVisible] == true) {
+            return FALSE;
+        }
+    }
+    return TRUE;
 }
 
 + (void)setDefaultPrefs

@@ -660,8 +660,8 @@
                                     <action selector="runToolbarCustomizationPalette:" target="-1" id="pQI-g3-MTW"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Toggle full screen..." id="EFQ-yA-UDF">
-                                <modifierMask key="keyEquivalentModifierMask"/>
+                            <menuItem isSeparatorItem="YES" id="nP3-fJ-474"/>
+                            <menuItem title="Toggle full screen..." keyEquivalent="F" id="EFQ-yA-UDF">
                                 <connections>
                                     <action selector="toggleFullScreen:" target="-1" id="drE-Eq-K0e"/>
                                 </connections>
@@ -685,12 +685,6 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="7Zv-hr-quL"/>
-                            <menuItem title="Show Main Info Window" id="RZn-96-f15">
-                                <modifierMask key="keyEquivalentModifierMask"/>
-                                <connections>
-                                    <action selector="makeKeyAndOrderFront:" target="QvC-M9-y7g" id="mgP-Sz-3kY"/>
-                                </connections>
-                            </menuItem>
                             <menuItem title="Show Search Window" id="PzN-mL-7pL">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
@@ -726,8 +720,11 @@
                     </menu>
                 </menuItem>
             </items>
+            <connections>
+                <outlet property="delegate" destination="Voe-Tx-rLC" id="1XS-k9-UgR"/>
+            </connections>
         </menu>
-        <window title="yourTube" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" animationBehavior="default" id="QvC-M9-y7g">
+        <window title="Video Details" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" animationBehavior="default" id="QvC-M9-y7g">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="335" y="390" width="494" height="317"/>
