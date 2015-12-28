@@ -353,18 +353,14 @@
     NSOpenPanel *op = [NSOpenPanel new];
     [op setCanChooseDirectories:true];
     [op setCanChooseFiles:false];
-    [op setTitle:@"Choose a download location please"];
+    [op setTitle:@"Choose a download location."];
     NSInteger modalResult = [op runModal];
     
     if (modalResult == NSModalResponseOK)
     {
-        NSString *fn = [op filename];
-        NSLog(@"fn: %@", fn);
+        NSString *fn = [[op URL] path];
         [[NSUserDefaults standardUserDefaults] setValue:fn forKey:@"downloadLocation"];
     }
-    
-    
-    
     
 }
 

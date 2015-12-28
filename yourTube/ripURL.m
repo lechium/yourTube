@@ -29,8 +29,8 @@
 
 - (void)cancel
 {
-	
-	[self download:urlDownload didFailWithError:nil];
+    NSError *theError = nil;
+	[self download:urlDownload didFailWithError:theError];
 	[urlDownload cancel];
 }
 
