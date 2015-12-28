@@ -25,6 +25,15 @@
     
 }
 
++ (void)initialize
+{
+    NSString *dlLoc = [[NSUserDefaults standardUserDefaults] valueForKey:@"downloadLocation"];
+    if ([dlLoc length] == 0)
+    {
+        [[NSUserDefaults standardUserDefaults] setValue:[self downloadFolder] forKey:@"downloadLocation"];
+    }
+}
+
 - (IBAction)getResults:(id)sender
 {
     NSString *textResults = self.youtubeLink.stringValue;
@@ -95,7 +104,8 @@
     }
     NSString *downloadURL = selectedObject[@"url"];
     NSURL *url = [NSURL URLWithString:downloadURL];
-    NSString *outputFile = [[self downloadFolder] stringByAppendingPathComponent:selectedObject[@"outputFilename"]];
+    NSString *outputDest = [[NSUserDefaults standardUserDefaults] valueForKey:@"downloadLocation"];
+    NSString *outputFile = [outputDest stringByAppendingPathComponent:selectedObject[@"outputFilename"]];
     
     downloadFile = [ripURL new];
     self.downloading = true;
@@ -110,7 +120,7 @@
         
         [progressBar setDoubleValue:0];
         [progressBar setHidden:TRUE];
-        
+        self.progressLabel.stringValue = @"";
         if (requiresMux == true && audioObject != nil)
         {
            
@@ -119,7 +129,7 @@
             NSString *downloadURL = audioObject[@"url"];
             NSURL *url = [NSURL URLWithString:downloadURL];
             downloadFile = [ripURL new];
-            NSString *outputFile2 = [[self downloadFolder] stringByAppendingPathComponent:audioObject[@"outputFilename"]];
+            NSString *outputFile2 = [outputDest stringByAppendingPathComponent:audioObject[@"outputFilename"]];
              NSLog(@"requires muxing, downloading audio now: %@", outputFile2);
              self.progressLabel.stringValue = @"Downloading audio file...";
             [downloadFile downloadVideoWithURL:url toLocation:outputFile2 progress:^(double percentComplete) {
@@ -173,6 +183,12 @@
             } else {
                 [[NSWorkspace sharedWorkspace] openFile:downloadedFile];
                 
+                self.progressLabel.stringValue = @"";
+                [self.progressBar stopAnimation:self];
+                self.progressBar.hidden = true;
+                [self.progressBar setDoubleValue:0];
+                
+                [self.progressBar setHidden:true];
                 self.downloadButton.title = @"Download";
                 self.downloading = false;
             }
@@ -272,6 +288,25 @@
     // [[NSWorkspace sharedWorkspace]openURL:playURL];
 }
 
+- (IBAction)setDownloadLocation:(id)sender{
+    
+    NSOpenPanel *op = [NSOpenPanel new];
+    [op setCanChooseDirectories:true];
+    [op setCanChooseFiles:false];
+    [op setTitle:@"Choose a download location please"];
+    NSInteger modalResult = [op runModal];
+    
+    if (modalResult == NSModalResponseOK)
+    {
+        NSString *fn = [op filename];
+        NSLog(@"fn: %@", fn);
+        [[NSUserDefaults standardUserDefaults] setValue:fn forKey:@"downloadLocation"];
+    }
+    
+    
+    
+    
+}
 
 - (void)tableViewSelectionDidChange:(NSNotification *)notification
 {

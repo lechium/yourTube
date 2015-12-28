@@ -37,9 +37,13 @@
 @property (nonatomic, assign) IBOutlet NSWindow *playerWindow;
 @property (nonatomic, assign) IBOutlet AVPlayerView *playerView;
 @property (nonatomic, strong) AVPlayer *player;
+@property (nonatomic, strong) NSWindow *prefWindow;
 
 - (IBAction)getResults:(id)sender;
 - (IBAction)downloadFile:(id)sender;
 - (IBAction)playFile:(id)sender;
+
+- (IBAction)setDownloadLocation:(id)sender;
+
 @end
 
