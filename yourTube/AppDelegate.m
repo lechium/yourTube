@@ -22,6 +22,16 @@
     // Insert code here to initialize your application
     itemSelected = false;
     [self getResults:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(idReceived:) name:@"idReceived" object:nil];
+    [[self webkitController] showWebWindow:nil];
+    
+}
+
+- (void)idReceived:(NSNotification *)n
+{
+    NSString *url = n.userInfo[@"url"];
+    self.youtubeLink.stringValue = url;
+    [self getResults:nil];
     
 }
 

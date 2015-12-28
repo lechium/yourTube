@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "KBYTWebKitViewController.h"
 
 @interface NSObject  (convenience)
 
@@ -28,6 +29,7 @@
 
 @property (nonatomic, strong) NSString *yttimestamp;
 @property (nonatomic, strong) NSString *ytkey;
+
 
 + (id)sharedInstance;
 

@@ -3,6 +3,7 @@
     <dependencies>
         <plugIn identifier="com.apple.AVKitIBPlugin" version="9059"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9059"/>
+        <plugIn identifier="com.apple.WebKitIBPlugin" version="9059"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -12,7 +13,13 @@
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
-        <arrayController avoidsEmptySelection="NO" id="hh7-93-GzP">
+        <customObject id="10R-qC-Us1" customClass="KBYTWebKitViewController">
+            <connections>
+                <outlet property="ourWebView" destination="cnY-v4-PiP" id="aBV-Ae-EN2"/>
+                <outlet property="webWindow" destination="rbD-bD-fGw" id="y53-H2-nlm"/>
+            </connections>
+        </customObject>
+        <arrayController id="hh7-93-GzP">
             <connections>
                 <binding destination="Voe-Tx-rLC" name="contentArray" keyPath="self.streamArray" id="zpg-Xw-RLd">
                     <dictionary key="options">
@@ -36,6 +43,7 @@
                 <outlet property="titleField" destination="jw9-Wk-qj7" id="zu9-pF-pn8"/>
                 <outlet property="userField" destination="QPs-2V-RYy" id="Jxw-Ds-bfH"/>
                 <outlet property="viewsField" destination="HbI-y9-5Ux" id="udt-CD-R5g"/>
+                <outlet property="webkitController" destination="10R-qC-Us1" id="wDI-nq-Xf2"/>
                 <outlet property="window" destination="QvC-M9-y7g" id="gIp-Ho-8D9"/>
                 <outlet property="youtubeLink" destination="Ftz-Ie-485" id="RdU-Cz-Ivx"/>
             </connections>
@@ -676,6 +684,25 @@
                                     <action selector="performZoom:" target="-1" id="DIl-cC-cCs"/>
                                 </connections>
                             </menuItem>
+                            <menuItem isSeparatorItem="YES" id="7Zv-hr-quL"/>
+                            <menuItem title="Show Main Info Window" id="RZn-96-f15">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="makeKeyAndOrderFront:" target="QvC-M9-y7g" id="mgP-Sz-3kY"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Show Search Window" id="PzN-mL-7pL">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="showWebWindow:" target="10R-qC-Us1" id="8le-tg-qyB"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Show Playback Window" id="iLr-9M-k53">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="makeKeyAndOrderFront:" target="29e-k0-epi" id="0re-KW-Lmh"/>
+                                </connections>
+                            </menuItem>
                             <menuItem isSeparatorItem="YES" id="eu3-7i-yIM"/>
                             <menuItem title="Bring All to Front" id="LE2-aR-0XJ">
                                 <modifierMask key="keyEquivalentModifierMask"/>
@@ -957,19 +984,19 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES" unifiedTitleAndToolbar="YES"/>
             <windowCollectionBehavior key="collectionBehavior" fullScreenPrimary="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="131" y="158" width="492" height="269"/>
+            <rect key="contentRect" x="423" y="258" width="562" height="402"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
             <view key="contentView" id="Rsa-fg-lkk">
-                <rect key="frame" x="0.0" y="0.0" width="492" height="269"/>
+                <rect key="frame" x="0.0" y="0.0" width="562" height="402"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <avPlayerView controlsStyle="inline" id="zgb-l5-YZ5">
-                        <rect key="frame" x="0.0" y="0.0" width="492" height="270"/>
+                        <rect key="frame" x="0.0" y="0.0" width="562" height="403"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     </avPlayerView>
                 </subviews>
             </view>
-            <point key="canvasLocation" x="124" y="228.5"/>
+            <point key="canvasLocation" x="159" y="295"/>
         </window>
         <window title="Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="RTn-Sl-lQ4">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
@@ -1019,6 +1046,35 @@
                 </subviews>
             </view>
             <point key="canvasLocation" x="442" y="548"/>
+        </window>
+        <window title="youtube search" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="rbD-bD-fGw">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
+            <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+            <rect key="contentRect" x="735" y="440" width="683" height="543"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <view key="contentView" id="Iow-R5-0WC">
+                <rect key="frame" x="0.0" y="0.0" width="683" height="543"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <webView id="cnY-v4-PiP">
+                        <rect key="frame" x="0.0" y="0.0" width="683" height="543"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <webPreferences key="preferences" defaultFontSize="12" defaultFixedFontSize="12">
+                            <nil key="identifier"/>
+                        </webPreferences>
+                        <connections>
+                            <outlet property="UIDelegate" destination="10R-qC-Us1" id="aSt-Gb-AO2"/>
+                            <outlet property="frameLoadDelegate" destination="10R-qC-Us1" id="7lQ-Qy-bDB"/>
+                            <outlet property="policyDelegate" destination="10R-qC-Us1" id="i1l-9m-WW5"/>
+                            <outlet property="resourceLoadDelegate" destination="10R-qC-Us1" id="7eU-NB-lRH"/>
+                        </connections>
+                    </webView>
+                </subviews>
+            </view>
+            <connections>
+                <outlet property="delegate" destination="10R-qC-Us1" id="Rq4-F7-TGB"/>
+            </connections>
+            <point key="canvasLocation" x="387.5" y="918.5"/>
         </window>
     </objects>
 </document>

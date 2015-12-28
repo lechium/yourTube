@@ -1,0 +1,16 @@
+//
+//  yt.prefix.pch
+//  yourTube
+//
+//  Created by Kevin Bradley on 12/27/15.
+//  Copyright © 2015 nito. All rights reserved.
+//
+
+#ifdef __OBJC__
+
+#define DLog(format, ...) CFShow((__bridge CFStringRef)[NSString stringWithFormat:format, ## __VA_ARGS__]);
+
+// Logging
+#define LOG_SELF        DLog(@"%@ %@", self, NSStringFromSelector(_cmd))
+
+#endif

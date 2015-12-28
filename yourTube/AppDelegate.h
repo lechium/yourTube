@@ -10,6 +10,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import <AVKit/AVKit.h>
 #import "ripURL.h"
+#import "KBYTWebKitViewController.h"
 
 @interface AppDelegate : NSObject <NSApplicationDelegate, NSTableViewDelegate>
 
@@ -38,6 +39,8 @@
 @property (nonatomic, assign) IBOutlet AVPlayerView *playerView;
 @property (nonatomic, strong) AVPlayer *player;
 @property (nonatomic, strong) NSWindow *prefWindow;
+
+@property (nonatomic, strong) IBOutlet KBYTWebKitViewController *webkitController;
 
 - (IBAction)getResults:(id)sender;
 - (IBAction)downloadFile:(id)sender;

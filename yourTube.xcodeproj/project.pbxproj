@@ -10,6 +10,8 @@
 		8922B2C91C2F788500A6D2E7 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8922B2C81C2F788500A6D2E7 /* AVFoundation.framework */; };
 		8922B2D01C2FB97600A6D2E7 /* mux in Resources */ = {isa = PBXBuildFile; fileRef = 8922B2CF1C2FB97600A6D2E7 /* mux */; };
 		8922B2D31C30B74C00A6D2E7 /* yt.icns in Resources */ = {isa = PBXBuildFile; fileRef = 8922B2D21C30B74C00A6D2E7 /* yt.icns */; };
+		8922B2D61C30C85600A6D2E7 /* KBYTWebKitViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8922B2D51C30C85600A6D2E7 /* KBYTWebKitViewController.m */; };
+		8922B2D81C30C87C00A6D2E7 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8922B2D71C30C87C00A6D2E7 /* WebKit.framework */; };
 		89A0EB731C28CF0F00255773 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 89A0EB721C28CF0F00255773 /* AppDelegate.m */; };
 		89A0EB761C28CF0F00255773 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 89A0EB751C28CF0F00255773 /* main.m */; };
 		89A0EB781C28CF0F00255773 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 89A0EB771C28CF0F00255773 /* Assets.xcassets */; };
@@ -23,6 +25,10 @@
 		8922B2C81C2F788500A6D2E7 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		8922B2CF1C2FB97600A6D2E7 /* mux */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = mux; sourceTree = "<group>"; };
 		8922B2D21C30B74C00A6D2E7 /* yt.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = yt.icns; sourceTree = "<group>"; };
+		8922B2D41C30C85600A6D2E7 /* KBYTWebKitViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KBYTWebKitViewController.h; sourceTree = "<group>"; };
+		8922B2D51C30C85600A6D2E7 /* KBYTWebKitViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KBYTWebKitViewController.m; sourceTree = "<group>"; };
+		8922B2D71C30C87C00A6D2E7 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		8922B2DA1C30EF9D00A6D2E7 /* yt.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = yt.pch; sourceTree = "<group>"; };
 		89A0EB6E1C28CF0F00255773 /* yourTube.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = yourTube.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		89A0EB711C28CF0F00255773 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		89A0EB721C28CF0F00255773 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -43,6 +49,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8922B2D81C30C87C00A6D2E7 /* WebKit.framework in Frameworks */,
 				8922B2C91C2F788500A6D2E7 /* AVFoundation.framework in Frameworks */,
 				89A0EB871C2F236E00255773 /* AVKit.framework in Frameworks */,
 			);
@@ -58,6 +65,8 @@
 				89A0EB831C28CF3C00255773 /* KBYourTube.m */,
 				89A0EB881C2F273500255773 /* ripURL.h */,
 				89A0EB891C2F273500255773 /* ripURL.m */,
+				8922B2D41C30C85600A6D2E7 /* KBYTWebKitViewController.h */,
+				8922B2D51C30C85600A6D2E7 /* KBYTWebKitViewController.m */,
 			);
 			name = KBYT;
 			sourceTree = "<group>";
@@ -71,11 +80,20 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
+		8922B2D91C30C88300A6D2E7 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				8922B2D71C30C87C00A6D2E7 /* WebKit.framework */,
+				8922B2C81C2F788500A6D2E7 /* AVFoundation.framework */,
+				89A0EB861C2F236E00255773 /* AVKit.framework */,
+			);
+			name = Frameworks;
+			path = ..;
+			sourceTree = "<group>";
+		};
 		89A0EB651C28CF0F00255773 = {
 			isa = PBXGroup;
 			children = (
-				8922B2C81C2F788500A6D2E7 /* AVFoundation.framework */,
-				89A0EB861C2F236E00255773 /* AVKit.framework */,
 				89A0EB701C28CF0F00255773 /* yourTube */,
 				89A0EB6F1C28CF0F00255773 /* Products */,
 			);
@@ -99,7 +117,9 @@
 				89A0EB771C28CF0F00255773 /* Assets.xcassets */,
 				89A0EB791C28CF0F00255773 /* MainMenu.xib */,
 				89A0EB7C1C28CF0F00255773 /* Info.plist */,
+				8922B2D91C30C88300A6D2E7 /* Frameworks */,
 				89A0EB741C28CF0F00255773 /* Supporting Files */,
+				8922B2DA1C30EF9D00A6D2E7 /* yt.pch */,
 			);
 			path = yourTube;
 			sourceTree = "<group>";
@@ -184,6 +204,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8922B2D61C30C85600A6D2E7 /* KBYTWebKitViewController.m in Sources */,
 				89A0EB841C28CF3C00255773 /* KBYourTube.m in Sources */,
 				89A0EB8A1C2F273500255773 /* ripURL.m in Sources */,
 				89A0EB761C28CF0F00255773 /* main.m in Sources */,
@@ -288,6 +309,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = yourTube/yt.pch;
 				INFOPLIST_FILE = yourTube/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.nito.yourTube;
@@ -299,6 +322,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = yourTube/yt.pch;
 				INFOPLIST_FILE = yourTube/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.nito.yourTube;
