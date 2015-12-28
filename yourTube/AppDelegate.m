@@ -16,7 +16,7 @@
 
 @implementation AppDelegate
 
-@synthesize itemSelected, progressBar, downloadFile;
+@synthesize itemSelected, progressBar, downloadFile, itemPlayable;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
@@ -378,6 +378,13 @@
         return;
     }
     self.itemSelected = true;
+    NSDictionary *selectedStream = [[self streamArray] objectAtIndex:sr];
+    if ([selectedStream[@"extension"] isEqualToString:@"mp4"] || [selectedStream[@"extension"] isEqualToString:@"3gp"] )
+    {
+        self.itemPlayable = true;
+    } else {
+        self.itemPlayable = false;
+    }
     [self.streamController setSelectionIndex:sr];
     [self updateSlider];
 }

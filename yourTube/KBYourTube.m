@@ -179,7 +179,7 @@
                     //grab a few extra variables from the vars
                     
                     NSString *title = [vars[@"title"] stringByReplacingOccurrencesOfString:@"+" withString:@" "];
-                    NSString *author = vars[@"author"];
+                    NSString *author = [[vars[@"author"] stringByReplacingOccurrencesOfString:@"+" withString:@" "]stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding ];
                     NSString *iurlhq = [vars[@"iurlhq"] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
                     NSString *iurlmq = [vars[@"iurlmq"] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
                     NSString *iurlsd = [vars[@"iurlsd"] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
@@ -223,8 +223,6 @@
                     NSArray *adaptiveMaps = [[adaptiveMap stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] componentsSeparatedByString:@","];
                     for (NSString *amap in adaptiveMaps )
                     {
-                     //   NSString *newMap = [amap stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-                      //  NSLog(@"newMap: %@", newMap);
                         //same thing, take these raw feeds and make them into an NSDictionary with usable info
                         NSMutableDictionary *videoDict = [self parseFlashVars:amap];
                       //  NSLog(@"videoDict: %@", videoDict[@"itag"]);
@@ -232,7 +230,6 @@
                         [videoDict setValue:[title stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] forKey:@"title"];
                         //process the raw dictionary into something that can be used with download links and format details
                         NSDictionary *processed = [self processSource:videoDict];
-                        //NSLog(@"processed: %@", processed[@"itag"]);
                         if (processed != nil)
                         {
                             //if we actually have a video detail dictionary add it to final array
@@ -240,26 +237,7 @@
                         }
                     }
                     
-//                    NSArray *dashMaps = [[dashmpd stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] componentsSeparatedByString:@","];
-//                    for (NSString *dashMap in dashMaps )
-//                    {
-//                        NSString *newMap = [dashMap stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-//                          NSLog(@"newMap: %@", newMap);
-//                        //same thing, take these raw feeds and make them into an NSDictionary with usable info
-//                        NSMutableDictionary *videoDict = [self parseFlashVars:newMap];
-//                        NSLog(@"videoDict: %@", videoDict);
-//                        //add the title from the previous dictionary created
-//                        [videoDict setValue:title forKey:@"title"];
-//                        //process the raw dictionary into something that can be used with download links and format details
-//                        NSDictionary *processed = [self processSource:videoDict];
-//                        NSLog(@"processed: %@", processed[@"itag"]);
-//                        if (processed != nil)
-//                        {
-//                            //if we actually have a video detail dictionary add it to final array
-//                            [videoArray addObject:processed];
-//                        }
-//                    }
-//                    
+                  
                     
                     [rootInfo setObject:videoArray forKey:@"streams"];
                     //return rootInfo;

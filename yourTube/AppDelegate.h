@@ -26,6 +26,7 @@
 @property (nonatomic, strong) NSArray *streamArray;
 
 @property (readwrite, assign) BOOL itemSelected;
+@property (readwrite, assign) BOOL itemPlayable;
 @property (nonatomic, assign) IBOutlet NSTextField *progressLabel;
 @property (nonatomic, assign) IBOutlet NSProgressIndicator *progressBar;
 
