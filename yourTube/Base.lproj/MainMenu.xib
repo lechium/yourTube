@@ -744,6 +744,16 @@
                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
+                        <connections>
+                            <binding destination="4nM-Ko-8Hb" name="value" keyPath="values.lastDownloadLink" id="7DP-we-yUP">
+                                <dictionary key="options">
+                                    <string key="NSNoSelectionPlaceholder">https://www.youtube.com/watch?v=6pxRHBw-k8M</string>
+                                    <string key="NSNotApplicablePlaceholder">https://www.youtube.com/watch?v=6pxRHBw-k8M</string>
+                                    <string key="NSNullPlaceholder">https://www.youtube.com/watch?v=6pxRHBw-k8M</string>
+                                    <bool key="NSValidatesImmediately" value="YES"/>
+                                </dictionary>
+                            </binding>
+                        </connections>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="aJP-Rp-hXF">
                         <rect key="frame" x="13" y="279" width="50" height="17"/>

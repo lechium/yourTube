@@ -20,6 +20,7 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
+    [AppDelegate setDefaultPrefs];
     itemSelected = false;
     [self getResults:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(idReceived:) name:@"idReceived" object:nil];
@@ -32,17 +33,28 @@
     NSString *url = n.userInfo[@"url"];
     self.youtubeLink.stringValue = url;
     [self getResults:nil];
+    [[NSUserDefaults standardUserDefaults] setObject:url forKey:@"lastDownloadLink"];
     
 }
 
-+ (void)initialize
++ (void)setDefaultPrefs
 {
+    LOG_SELF;
     NSString *dlLoc = [[NSUserDefaults standardUserDefaults] valueForKey:@"downloadLocation"];
     if ([dlLoc length] == 0)
     {
         [[NSUserDefaults standardUserDefaults] setValue:[self downloadFolder] forKey:@"downloadLocation"];
     }
+    
+    NSString *dlLink = [[NSUserDefaults standardUserDefaults] valueForKey:@"lastDownloadLink"];
+    if ([dlLink length] == 0)
+    {
+        [[NSUserDefaults standardUserDefaults] setValue:@"https://www.youtube.com/watch?v=6pxRHBw-k8M" forKey:@"lastDownloadLink"];
+        //
+    }
 }
+
+
 
 - (IBAction)getResults:(id)sender
 {
