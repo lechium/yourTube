@@ -92,7 +92,7 @@
     NSString *downloadText = @"Downloading media file...";
     NSDictionary *selectedObject = self.streamController.selectedObjects.lastObject;
     NSInteger itag = [[selectedObject valueForKey:@"itag"] integerValue];
-    if (itag == 299 || itag == 137 || itag == 138)
+    if (itag == 299 || itag == 137 || itag == 138 || itag == 264 || itag == 266)
     {
         requiresMux = true;
         audioObject = [[self.streamController.arrangedObjects filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"itag == '140'"]]lastObject];

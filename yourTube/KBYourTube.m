@@ -227,7 +227,7 @@
                       //  NSLog(@"newMap: %@", newMap);
                         //same thing, take these raw feeds and make them into an NSDictionary with usable info
                         NSMutableDictionary *videoDict = [self parseFlashVars:amap];
-                        //NSLog(@"videoDict: %@", videoDict);
+                      //  NSLog(@"videoDict: %@", videoDict[@"itag"]);
                         //add the title from the previous dictionary created
                         [videoDict setValue:[title stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] forKey:@"title"];
                         //process the raw dictionary into something that can be used with download links and format details
@@ -429,6 +429,10 @@
       
         case 137: dict = @{@"format": @"1080p M4V", @"height": @1080, @"extension": @"m4v", @"quality": @"adaptive"}; break;
         case 138: dict = @{@"format": @"4K M4V", @"height": @2160, @"extension": @"m4v", @"quality": @"adaptive"}; break;
+        case 264: dict = @{@"format": @"1440p M4v", @"height": @1440, @"extension": @"m4v", @"quality": @"adaptive"}; break;
+            
+        case 266: dict = @{@"format": @"4K M4V", @"height": @2160, @"extension": @"m4v", @"quality": @"adaptive"}; break;
+            
         case 299: dict = @{@"format": @"1080p HFR M4V", @"height": @1080, @"extension": @"m4v", @"quality": @"adaptive"}; break;
         case 140: dict = @{@"format": @"128K AAC M4A", @"height": @0, @"extension": @"aac", @"quality": @"adaptive"}; break;
          
