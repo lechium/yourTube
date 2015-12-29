@@ -70,18 +70,25 @@
 
 + (void)setDefaultPrefs
 {
-    NSString *dlLoc = [[NSUserDefaults standardUserDefaults] valueForKey:@"downloadLocation"];
-    if ([dlLoc length] == 0)
-    {
-        [[NSUserDefaults standardUserDefaults] setValue:[self downloadFolder] forKey:@"downloadLocation"];
-    }
+    LOG_SELF;
+    NSArray *keys = [NSArray arrayWithObjects:
+                     @"downloadLocation",
+                     @"lastDownloadLink",
+                     @"autoPlay",
+                     @"showFiles",
+                    nil];
     
-    NSString *dlLink = [[NSUserDefaults standardUserDefaults] valueForKey:@"lastDownloadLink"];
-    if ([dlLink length] == 0)
-    {
-        [[NSUserDefaults standardUserDefaults] setValue:@"https://www.youtube.com/watch?v=6pxRHBw-k8M" forKey:@"lastDownloadLink"];
-        //
-    }
+    NSArray *values = [NSArray arrayWithObjects:
+                       [self downloadFolder],
+                       @"https://www.youtube.com/watch?v=6pxRHBw-k8M",
+                       [NSNumber numberWithBool:true],
+                       [NSNumber numberWithBool:true],
+                       nil];
+    NSDictionary *appDefaults = [NSDictionary
+                                 dictionaryWithObjects:values forKeys:keys ];
+    [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    
 }
 
 - (IBAction)getResults:(id)sender
@@ -91,14 +98,14 @@
     if ([[textResults componentsSeparatedByString:@"="] count] > 1)
     {
         textResults = [[textResults componentsSeparatedByString:@"="] lastObject];
-     //   NSLog(@"text results: %@", textResults);
+        //   NSLog(@"text results: %@", textResults);
     }
     
     if ([textResults length] > 0)
     {
         [[KBYourTube sharedInstance] getVideoDetailsForID:textResults completionBlock:^(KBYTMedia *videoDetails) {
             
-           // NSLog(@"got details successfully: %@", videoDetails);
+            // NSLog(@"got details successfully: %@", videoDetails);
             self.titleField.stringValue = videoDetails.title;
             self.userField.stringValue = videoDetails.author;
             self.lengthField.stringValue = videoDetails.duration;
@@ -106,8 +113,8 @@
             self.imageView.image = [[NSImage alloc] initWithContentsOfURL:[NSURL URLWithString:videoDetails.images[@"high"]]];
             
             self.currentMedia = videoDetails;
-             self.streamArray = videoDetails.streams;
-             self.streamController.selectsInsertedObjects = true;
+            self.streamArray = videoDetails.streams;
+            self.streamController.selectsInsertedObjects = true;
             
             [[self window] orderFrontRegardless];
             
@@ -117,7 +124,7 @@
             
         }];
     }
-   
+    
 }
 
 - (void)downloadFailed:(NSString *)theDownload
@@ -150,8 +157,28 @@
             self.progressLabel.stringValue = downloadedFile;
         }
     } completed:^(NSString *downloadedFile) {
+        
+        if ([[downloadedFile pathExtension]isEqualToString:@"m4a"]) //so it opens in itunes or default player
+        {
+            [[NSWorkspace sharedWorkspace] openFile:downloadedFile];
+            return;
+        }
+        //
        
-        [[NSWorkspace sharedWorkspace] openFile:downloadedFile];
+        NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
+        
+        if ([def boolForKey:@"showFiles"] == true)
+        {
+            [[NSWorkspace sharedWorkspace] selectFile:downloadedFile inFileViewerRootedAtPath:[downloadedFile stringByDeletingLastPathComponent]];
+        }
+        NSLog(@"autoPlay: %i showFiles: %i", [def boolForKey:@"autoPlay"], [def boolForKey:@"showFiles"]);
+       
+        if ([selectedObject playable] == true && [def boolForKey:@"autoPlay"] == true)
+        {
+            [self playLocalFile:downloadedFile];
+        }
+        
+        
         [self hideProgress];
         self.downloadButton.title = @"Download";
         self.downloading = false;
@@ -163,10 +190,10 @@
 - (void)hideProgress
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-    self.progressLabel.stringValue = @"";
-    [[self progressBar] stopAnimation:nil];
-    [[self progressBar] setDoubleValue:0];
-    [[self progressBar] setHidden:true];
+        self.progressLabel.stringValue = @"";
+        [[self progressBar] stopAnimation:nil];
+        [[self progressBar] setDoubleValue:0];
+        [[self progressBar] setHidden:true];
     });
     
 }
@@ -191,6 +218,16 @@
         [progressBar setDoubleValue:theProgress];
     });
     
+}
+
+- (void)playLocalFile:(NSString *)localFile
+{
+    NSURL *theFile = [NSURL fileURLWithPath:localFile];
+    self.player = [[AVPlayer alloc] initWithURL:theFile];
+    [self.playerView setPlayer:self.player];
+    [self.playerWindow makeKeyAndOrderFront:nil];
+    [self.player play];
+    [self.playerWindow makeKeyAndOrderFront:nil];
 }
 
 - (IBAction)playFile:(id)sender
@@ -232,7 +269,7 @@
         return;
     }
     self.itemSelected = true;
-   
+    
     KBYTStream *stream = [[self streamArray] objectAtIndex:sr];
     self.itemPlayable = [stream playable];
     

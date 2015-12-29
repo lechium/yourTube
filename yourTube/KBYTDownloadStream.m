@@ -102,9 +102,11 @@
 {
    if(download == urlDownload) {
 
+       //audioStream is only set when theres adaptive video / audio streams that aren't multiplexed, the variable is also invalidated after the audio download is started.
+       
        if (audioStream != nil)
        {
-           videoDownloadLocation = self.downloadLocation;
+           videoDownloadLocation = self.downloadLocation; //back it up for when we mux, not elegant, but works.
            self.downloadLocation = [[self downloadFolder] stringByAppendingPathComponent:audioStream.outputFilename];
            NSURLRequest *theRequest = [NSURLRequest requestWithURL:audioStream.url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:60.0];
            audioStream = nil;
@@ -113,12 +115,12 @@
            return;
        }
        
+       //downloading audio and video, since audioStream var is nil it means we have both.
        if (self.downloadMode == 1)
        {
            self.FancyProgressBlock(0, @"Multiplexing files...");
            NSString *videoStream = videoDownloadLocation;
-           NSString *as = [self downloadLocation];
-           [[KBYourTube sharedInstance] muxFiles:@[videoStream, as] completionBlock:^(NSString *newFile) {
+           [[KBYourTube sharedInstance] muxFiles:@[videoStream, [self downloadLocation]] completionBlock:^(NSString *newFile) {
                
                self.CompletedBlock(newFile);
                
@@ -126,7 +128,9 @@
            
            return;
        }
-       
+       /*
+        if we get this far we aren't download mode 1 with both audio / video downloading (Single file download)
+       */
        if ([downloadLocation.pathExtension isEqualToString:@"aac"])
        {
            self.FancyProgressBlock(0, @"Fixing audio...");

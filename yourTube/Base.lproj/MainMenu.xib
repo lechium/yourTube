@@ -1003,14 +1003,23 @@
         <window title="Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="RTn-Sl-lQ4">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="483" y="369" width="514" height="78"/>
+            <rect key="contentRect" x="483" y="369" width="511" height="127"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
             <view key="contentView" id="I58-wb-AY7">
-                <rect key="frame" x="0.0" y="0.0" width="514" height="78"/>
+                <rect key="frame" x="0.0" y="0.0" width="511" height="127"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="bFJ-cm-P1T">
+                        <rect key="frame" x="16" y="77" width="131" height="17"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Download Location: " id="TIO-v3-hpe">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
                     <textField verticalHuggingPriority="750" id="eZi-NL-HWV">
-                        <rect key="frame" x="146" y="25" width="281" height="22"/>
+                        <rect key="frame" x="146" y="74" width="281" height="22"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" enabled="NO" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="sty-mf-EIA">
                             <font key="font" metaFont="system"/>
@@ -1026,7 +1035,7 @@
                         </connections>
                     </textField>
                     <button verticalHuggingPriority="750" id="aJs-P1-mcp">
-                        <rect key="frame" x="436" y="19" width="61" height="32"/>
+                        <rect key="frame" x="436" y="68" width="61" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="Set" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="7ao-15-qRA">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -1036,18 +1045,39 @@
                             <action selector="setDownloadLocation:" target="Voe-Tx-rLC" id="Nol-gl-Ggg"/>
                         </connections>
                     </button>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="bFJ-cm-P1T">
-                        <rect key="frame" x="16" y="28" width="131" height="17"/>
+                    <button id="Gcc-fO-bMP">
+                        <rect key="frame" x="16" y="29" width="219" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Download Location: " id="TIO-v3-hpe">
+                        <buttonCell key="cell" type="check" title="Show downloaded files in finder" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="dMn-Jx-SP6">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
-                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
+                        </buttonCell>
+                        <connections>
+                            <binding destination="4nM-Ko-8Hb" name="value" keyPath="values.showFiles" id="N5Z-fm-XGs">
+                                <dictionary key="options">
+                                    <bool key="NSValidatesImmediately" value="YES"/>
+                                </dictionary>
+                            </binding>
+                        </connections>
+                    </button>
+                    <button id="gWT-gw-bx2">
+                        <rect key="frame" x="301" y="29" width="192" height="18"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="check" title="Play compatible downloads" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="0Aw-jD-OUv">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <binding destination="4nM-Ko-8Hb" name="value" keyPath="values.autoPlay" id="BLs-u1-pm5">
+                                <dictionary key="options">
+                                    <bool key="NSValidatesImmediately" value="YES"/>
+                                </dictionary>
+                            </binding>
+                        </connections>
+                    </button>
                 </subviews>
             </view>
-            <point key="canvasLocation" x="442" y="548"/>
+            <point key="canvasLocation" x="440.5" y="572.5"/>
         </window>
         <window title="youtube search" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" animationBehavior="default" id="rbD-bD-fGw">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
