@@ -155,6 +155,9 @@
         if ([[downloadedFile pathExtension]isEqualToString:@"m4a"]) //so it opens in itunes or default player
         {
             [[NSWorkspace sharedWorkspace] openFile:downloadedFile];
+            [self hideProgress];
+            self.downloadButton.title = @"Download";
+            self.downloading = false;
             return;
         }
         NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
