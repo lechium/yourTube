@@ -70,7 +70,6 @@
 
 + (void)setDefaultPrefs
 {
-    LOG_SELF;
     NSArray *keys = [NSArray arrayWithObjects:
                      @"downloadLocation",
                      @"lastDownloadLink",
@@ -163,15 +162,13 @@
             [[NSWorkspace sharedWorkspace] openFile:downloadedFile];
             return;
         }
-        //
-       
         NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
         
         if ([def boolForKey:@"showFiles"] == true)
         {
             [[NSWorkspace sharedWorkspace] selectFile:downloadedFile inFileViewerRootedAtPath:[downloadedFile stringByDeletingLastPathComponent]];
         }
-        NSLog(@"autoPlay: %i showFiles: %i", [def boolForKey:@"autoPlay"], [def boolForKey:@"showFiles"]);
+       // NSLog(@"autoPlay: %i showFiles: %i", [def boolForKey:@"autoPlay"], [def boolForKey:@"showFiles"]);
        
         if ([selectedObject playable] == true && [def boolForKey:@"autoPlay"] == true)
         {

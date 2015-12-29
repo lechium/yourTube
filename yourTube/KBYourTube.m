@@ -157,7 +157,7 @@
     {
         if ([theStream multiplexed] == false && theStream != audioStream)
         {
-            NSLog(@"adding audio stream to stream with itag: %lu", (long)theStream.itag);
+            //NSLog(@"adding audio stream to stream with itag: %lu", (long)theStream.itag);
             [theStream setAudioStream:audioStream];
         }
     }
