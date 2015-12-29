@@ -105,7 +105,7 @@
     {
         [[KBYourTube sharedInstance] getVideoDetailsForID:textResults completionBlock:^(KBYTMedia *videoDetails) {
             
-            // NSLog(@"got details successfully: %@", videoDetails);
+         //    NSLog(@"got details successfully: %@", videoDetails);
             self.titleField.stringValue = videoDetails.title;
             self.userField.stringValue = videoDetails.author;
             self.lengthField.stringValue = videoDetails.duration;

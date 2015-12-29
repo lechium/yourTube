@@ -116,6 +116,16 @@
     return false;
 }
 
+- (NSDictionary *)dictionaryValue
+{
+    return @{@"title": self.title, @"type": self.type, @"format": self.format, @"height": self.height, @"itag": [NSNumber numberWithInteger:self.itag], @"extension": self.extension, @"url": self.url};
+}
+
+- (NSString *)description
+{
+    return [[self dictionaryValue] description];
+}
+
 
 @end
 
@@ -237,6 +247,12 @@
     
     return TRUE;
     
+}
+
+
+- (NSString *)description
+{
+   return [NSString stringWithFormat:@"%@\n\ttitle: %@\n\tauthor: %@\n\tkeywords: %@\n\tvideoID: %@\n\tviews: %@\n\tduration: %@\n\timages: %@\n\tstreams: %@\n",[super description], self.title, self.author, self.keywords, self.videoId, self.views, self.duration, self.images, self.streams];
 }
 
 @end

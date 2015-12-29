@@ -7,7 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "KBYTWebKitViewController.h"
 
 @interface KBYTMedia : NSObject
 

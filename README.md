@@ -1,5 +1,5 @@
 # yourTube
-native objective-c wrapper for youtube get_video_info
+native objective-c wrapper for youtube get_video_info & OS X application that is a basic youtube video player / downloader
 
 Use the KBYourTube singleton with the following method to get video details.
 
