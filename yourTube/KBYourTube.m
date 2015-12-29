@@ -8,23 +8,25 @@
 
 #import "KBYourTube.h"
 
-/*
+/**
  
+ out of pure laziness I put the implementation KBYTStream and KBYTMedia classes in this file and their interfaces
+ in the header file. However, it does provide easier portability since I have yet to make this into a library/framework/pod
+ 
+ 
+ KBYTStream identifies an actual playback stream
+
  extension = mp4;
- "fallback_host" = "tc.v20.cache6.googlevideo.com";
- format = "720p MP4";
+ format = 720p MP4;
  height = 720;
  itag = 22;
- outputFilename = "Lil Wayne - She Will ft. Drake [720p].mp4";
- quality = hd720;
- s = "0EB5EB288649655913278F5D38AB2CD79D45456B9CD.995862014F39B5A58912719A4712344E8DB84AB8AB8";
- title = "Lil Wayne - She Will ft. Drake";
+ title = "Lil Wayne - No Worries %28Explicit%29 ft. Detail\";
  type = "video/mp4; codecs=avc1.64001F, mp4a.40.2";
- url = "https://r15---sn-bvvbax-2iml.googlevideo.com/videoplayback?lmt=1417236324599143&sver=3&sparams=dur%2Cid%2Cip%2Cipbits%2Citag%2Clmt%2Cmime%2Cmm%2Cmn%2Cms%2Cmv%2Cnh%2Cpl%2Cratebypass%2Crequiressl%2Csource%2Cupn%2Cexpire&ipbits=0&expire=1451201206&id=o-AL0YS27EZsY-lvWQVAq_YYK9z7cGVTbHdXu0f59O2_KJ&requiressl=yes&dur=323.895&mm=31&mn=sn-bvvbax-2iml&pl=16&ratebypass=yes&source=youtube&ip=xx&fexp=9416126%2C9420452%2C9422596%2C9423662%2C9424859&ms=au&mt=1451179550&mv=m&itag=22&upn=1IQJzTpYaQc&mime=video%2Fmp4&key=yt6&nh=EAI&signature=BEB288649605913278F5D38AB2CD79D4545659CD.995862014F39B5A58912719A4712344E8DB848BA";
+ url = "https://r9---sn-bvvbax-2ime.googlevideo.com/videoplayback?dur=229.529&sver=3&expire=1451432986&pl=19&ratebypass=yes&nh=EAE&mime=video%2Fmp4&itag=22&ipbits=0&source=youtube&ms=au&mt=1451411225&mv=m&mm=31&mn=sn-bvvbax-2ime&requiressl=yes&key=yt6&lmt=1429504739223021&id=o-ANaYZmZnobN9YUPpUED-68dQ4O8sFyxHtMaQww4kxgTT&upn=PSfKek6hLJg&gcr=us&sparams=dur%2Cgcr%2Cid%2Cip%2Cipbits%2Citag%2Clmt%2Cmime%2Cmm%2Cmn%2Cms%2Cmv%2Cnh%2Cpl%2Cratebypass%2Crequiressl%2Csource%2Cupn%2Cexpire&fexp=9406813%2C9407016%2C9415422%2C9416126%2C9418404%2C9420452%2C9422596%2C9423662%2C9424205%2C9425382%2C9425742%2C9425965&ip=xx&signature=E0F8B6F26BF082B1EB97509DF597AB175DC04D4D.9408359B27A278F16AEF13EA16DE83AA7A600177\";
+ 
+ the signature deciphering (if necessary) is already taken care of in the url
  
  */
-
-
 
 @implementation KBYTStream
 
@@ -129,26 +131,28 @@
 
 @end
 
-/*
+/**
  
- author = fullaswag;
- duration = 324;
+ KBYTMedia contains the root reference object to the youtube video queried including the following values
+ 
+ author = LilWayneVEVO;
+ duration = 230;
  images =     {
- high = "https://i.ytimg.com/vi/_7nYuyfkjCk/hqdefault.jpg";
- medium = "https://i.ytimg.com/vi/_7nYuyfkjCk/mqdefault.jpg";
- standard = "https://i.ytimg.com/vi/_7nYuyfkjCk/sddefault.jpg";
+ high = "https://i.ytimg.com/vi/5z25pGEGBM4/hqdefault.jpg";
+ medium = "https://i.ytimg.com/vi/5z25pGEGBM4/mqdefault.jpg";
+ standard = "https://i.ytimg.com/vi/5z25pGEGBM4/sddefault.jpg";
  };
- keywords
- title = "Lil Wayne - She Will ft. Drake";
- videoID = "_7nYuyfkjCk";
- views = 22888597;
+ keywords = "Lil,Wayne,Detail,Cash,Money,Fear,and,Loathing,in,Las,Vegas,New,Video,explicit,Young,Official";
+ streams {} //example of stream listed above
+ title = "Lil Wayne - No Worries (Explicit) ft. Detail";
+ videoID = 5z25pGEGBM4;
+ views = 47109256;
  
  */
 
-
-
-
 @implementation KBYTMedia
+
+//make sure if its an adaptive stream that we match the video streams with the proper audio stream.
 
 - (void)matchAudioStreams
 {
@@ -172,6 +176,7 @@
     return nil;
 }
 
+//take the raw video detail dictionary, update our object and find/update stream details
 
 - (BOOL)processDictionary:(NSDictionary *)vars
 {
@@ -224,6 +229,8 @@
         }
     }
     
+    //adaptive streams, the higher res stuff (1080p, 1440p, 4K) all generally reside here.
+    
     NSArray *adaptiveMaps = [[adaptiveMap stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] componentsSeparatedByString:@","];
     for (NSString *amap in adaptiveMaps )
     {
@@ -243,20 +250,34 @@
     
     
     self.streams = videoArray;
+    
+    //adaptive streams aren't multiplexed, so we need to match the audio with the video
+    
     [self matchAudioStreams];
     
     return TRUE;
     
 }
 
+- (NSDictionary *)dictionaryRepresentation
+{
+    return @{@"title": self.title, @"author": self.author, @"keywords": self.keywords, @"videoID": self.videoId, @"views": self.views, @"duration": self.duration, @"images": self.images, @"streams": self.streams};
+}
 
 - (NSString *)description
 {
-   return [NSString stringWithFormat:@"%@\n\ttitle: %@\n\tauthor: %@\n\tkeywords: %@\n\tvideoID: %@\n\tviews: %@\n\tduration: %@\n\timages: %@\n\tstreams: %@\n",[super description], self.title, self.author, self.keywords, self.videoId, self.views, self.duration, self.images, self.streams];
+    return [[self dictionaryRepresentation] description];
+   //return [NSString stringWithFormat:@"%@\n\ttitle: %@\n\tauthor: %@\n\tkeywords: %@\n\tvideoID: %@\n\tviews: %@\n\tduration: %@\n\timages: %@\n\tstreams: %@\n",[super description], self.title, self.author, self.keywords, self.videoId, self.views, self.duration, self.images, self.streams];
 }
 
 @end
 
+/**
+ 
+ Is it bad form to add categories to NSObject for frequently used convenience methods? probably. does it make
+ calling these methods from anywhere incredibly easy? yes. so... DONT CARE :-P
+ 
+ */
 
 
 @implementation NSObject (convenience)
@@ -305,7 +326,7 @@
     return dict;
 }
 
-
+//currently unused.
 - (NSString *)applicationSupportFolder {
     
     NSFileManager *man = [NSFileManager defaultManager];
@@ -369,7 +390,9 @@
 
 /**
  
- Native objective-c implementation of several different functions pulled from clicktoplugin safari browser extension
+ Meat and potatoes of yourTube, get video details / signature deciphering and helper functions to mux / fix/extract/adjust audio
+ 
+ most things are done through the singleton method.
  
  */
 
@@ -458,6 +481,8 @@
                 
             }
             
+            //the url we use to call get_video_info
+            
             NSString *url = [NSString stringWithFormat:@"https://www.youtube.com/get_video_info?&video_id=%@&%@&sts=%@", videoID, @"eurl=http%3A%2F%2Fwww%2Eyoutube%2Ecom%2F", self.yttimestamp];
             
             //get the post body from the url above, gets the initial raw info we work with
@@ -472,6 +497,7 @@
             {
                 if ([[vars objectForKey:@"status"] isEqualToString:@"ok"])
                 {
+                    //the call was successful, create our root object.
                     rootInfo = [[KBYTMedia alloc] initWithDictionary:vars];
                 }
             } else {
@@ -495,9 +521,11 @@
 
 #pragma mark utility methods
 
+//DASH audio is a weird format, take that aac file and pump out a useable m4a file, with volume adjustment if necessary
+
 - (void)fixAudio:(NSString *)theFile volume:(NSInteger)volume completionBlock:(void(^)(NSString *newFile))completionBlock
 {
-    NSLog(@"fix audio: %@", theFile);
+    //NSLog(@"fix audio: %@", theFile);
     NSString *outputFile = [[theFile stringByDeletingPathExtension] stringByAppendingPathExtension:@"m4a"];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         
@@ -529,6 +557,8 @@
     
     
 }
+
+//currently not used, previously would be used to "extract" audio from a media file
 
 - (void)extractAudio:(NSString *)theFile completionBlock:(void(^)(NSString *newFile))completionBlock
 {
@@ -563,6 +593,7 @@
     
 }
 
+//useful display details based on the itag
 + (NSDictionary *)formatFromTag:(NSInteger)tag
 {
     NSDictionary *dict = nil;
@@ -653,6 +684,7 @@
     return dict;
 }
 
+//takes audio and video files and multiplexes them, would like to use mp4box instead if i can figure out how..
 
 - (void)muxFiles:(NSArray *)theFiles completionBlock:(void(^)(NSString *newFile))completionBlock
 {

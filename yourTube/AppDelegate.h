@@ -52,6 +52,6 @@
 - (IBAction)downloadFile:(id)sender;
 - (IBAction)playFile:(id)sender;
 - (IBAction)setDownloadLocation:(id)sender;
-
+- (void)showVideoAtURL:(NSString *)url;
 @end
 

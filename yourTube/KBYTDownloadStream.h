@@ -9,6 +9,14 @@
 #import <Cocoa/Cocoa.h>
 #import "KBYourTube.h"
 
+/**
+ 
+ This class is used for downloading files from youtube, it takes care of fixing and multiplexing streams when necessary
+ 
+ feed it a stream into downloadStream method and it will take care of the rest.
+ 
+ */
+
 @protocol KBYTDownloadStreamDelegate
 
 - (void)downloadFinished:(NSString *)downloadFile;
@@ -32,7 +40,7 @@
 }
 
 @property (strong, atomic) void (^ProgressBlock)(double percentComplete);
-@property (strong, atomic) void (^FancyProgressBlock)(double percentComplete, NSString *downloadedFile);
+@property (strong, atomic) void (^FancyProgressBlock)(double percentComplete, NSString *status);
 @property (strong, atomic) void (^CompletedBlock)(NSString *downloadedFile);
 
 typedef void(^DownloadProgressBlock)(double percentComplete);

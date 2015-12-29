@@ -23,22 +23,21 @@
     [AppDelegate setDefaultPrefs];
     itemSelected = false;
     [self getResults:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(idReceived:) name:@"idReceived" object:nil];
     [[self webkitController] showWebWindow:nil];
     [self.window setDelegate:self];
     
 }
 
-- (void)idReceived:(NSNotification *)n
+//called from webkit window when a link is clicked
+- (void)showVideoAtURL:(NSString *)url
 {
-    NSString *url = n.userInfo[@"url"];
     self.youtubeLink.stringValue = url;
     [self getResults:nil];
     [[NSUserDefaults standardUserDefaults] setObject:url forKey:@"lastDownloadLink"];
     
 }
 
-
+//update Window menu to make sure we can bring the main window back.
 - (void)windowWillClose:(NSNotification *)notification
 {
     NSMenuItem *menuItem = [[NSApp mainMenu] itemWithTitle:@"Window"];
@@ -48,6 +47,8 @@
     [[menuItem submenu] insertItem:showMainWindowItem atIndex:5];
 }
 
+//show Video Details window
+
 - (IBAction)showMainWindow:(id)sender
 {
     NSMenuItem *menuItem = [[NSApp mainMenu] itemWithTitle:@"Window"];
@@ -56,18 +57,7 @@
     [[self window] makeKeyAndOrderFront:self];
 }
 
-//no longer needed
-- (BOOL)validateMenuItem:(NSMenuItem *)menuItem
-{
-    if ([menuItem tag] == 150)
-    {
-        if ([[self window] isVisible] == true) {
-            return FALSE;
-        }
-    }
-    return TRUE;
-}
-
+//register default preferences
 + (void)setDefaultPrefs
 {
     NSArray *keys = [NSArray arrayWithObjects:
@@ -90,6 +80,7 @@
     
 }
 
+//get video details
 - (IBAction)getResults:(id)sender
 {
     NSString *textResults = self.youtubeLink.stringValue;
@@ -104,7 +95,7 @@
     {
         [[KBYourTube sharedInstance] getVideoDetailsForID:textResults completionBlock:^(KBYTMedia *videoDetails) {
             
-         //    NSLog(@"got details successfully: %@", videoDetails);
+            // NSLog(@"got details successfully: %@", videoDetails);
             self.titleField.stringValue = videoDetails.title;
             self.userField.stringValue = videoDetails.author;
             self.lengthField.stringValue = videoDetails.duration;
@@ -133,6 +124,8 @@
 
 - (IBAction)downloadFile:(id)sender
 {
+    //we're already downloading, cancel
+    //TODO: make downloading NSOperation/NSOperationQueue based
     if (self.downloading == true)
     {
         [downloadFile cancel];
@@ -143,17 +136,19 @@
         [progressBar setHidden:TRUE];
         return;
     }
-    
+    //create instance of downloader class
     downloadFile = [KBYTDownloadStream new];
     self.downloadButton.title = @"Cancel";
     self.downloading = true;
+    
+    //get the stream we want to download
     KBYTStream *selectedObject = self.streamController.selectedObjects.lastObject;
-    [downloadFile downloadStream:selectedObject progress:^(double percentComplete, NSString *downloadedFile) {
+    [downloadFile downloadStream:selectedObject progress:^(double percentComplete, NSString *status) {
         
         [self setDownloadProgress:percentComplete];
-        if (![self.progressLabel.stringValue isEqualToString:downloadedFile])
+        if (![self.progressLabel.stringValue isEqualToString:status])
         {
-            self.progressLabel.stringValue = downloadedFile;
+            self.progressLabel.stringValue = status;
         }
     } completed:^(NSString *downloadedFile) {
         
@@ -240,6 +235,7 @@
     // [[NSWorkspace sharedWorkspace]openURL:playURL];
 }
 
+//set download location in preferences
 - (IBAction)setDownloadLocation:(id)sender{
     
     NSOpenPanel *op = [NSOpenPanel new];
@@ -256,6 +252,7 @@
     
 }
 
+//when table view selection changes update whether download / play & audio adjustment slider are available.
 - (void)tableViewSelectionDidChange:(NSNotification *)notification
 {
     NSTableView *tv = notification.object;
@@ -274,6 +271,8 @@
     [self updateSlider];
     
 }
+
+//update the slider, if its an audio track the slider is visible and editable.
 
 - (void)updateSlider
 {

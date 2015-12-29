@@ -43,9 +43,10 @@ Would yield
 Download a video:
 
     KBYTStream *videoOne = [videoDetails.streams firstObject]; // get first stream
-    [downloadFile downloadStream:videoOne progress:^(double percentComplete, NSString *downloadedFile) {
+    [downloadFile downloadStream:videoOne progress:^(double percentComplete, NSString *status) {
 
         //[self setDownloadProgress:percentComplete];
+        //self.progressLabel.stringValue = status;
        
     } completed:^(NSString *downloadedFile) {
 

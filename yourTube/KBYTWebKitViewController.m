@@ -7,6 +7,7 @@
 //
 
 #import "KBYTWebKitViewController.h"
+#import "AppDelegate.h" //to silence the warning.
 
 @class WebBasePluginPackage;
 
@@ -62,17 +63,20 @@
 
 }
 
+//only way i could find to process video links being selected
+
 - (void)webView:(WebView *)sender didReceiveTitle:(NSString *)title forFrame:(WebFrame *)frame
 {
     NSString *url = [[frame DOMDocument] URL];
     
+    //previousURL is a kludge to make sure we don't go back twice.
     if ([url length] > 32 && ![previousURL isEqualToString:url]){
         NSString *substring = [url substringToIndex:32];
         if ([substring isEqualToString:@"https://www.youtube.com/watch?v="])
         {
             previousURL = url;
             [sender stopLoading:nil];
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"idReceived" object:nil userInfo:@{@"url": url}];
+            [[[NSApplication sharedApplication] delegate] showVideoAtURL:url];
             [sender goBack];
             
         }

@@ -8,7 +8,7 @@
 
 /*
  
- class adapted from hawkeye's KBYTDownloadStream class for downloading youtube files, largely pruned to remove irrelevant sections + updated to cancel the xfer.
+ class adapted from hawkeye's KBYTDownloadStream class for downloading youtube files, largely pruned to remove irrelevant sections + updated to cancel the xfer + remodified/updated to use blocks instead of antiquated delegate methods.
  
  */
 
@@ -76,6 +76,7 @@
     
 }
 
+//deprecated / obsolete, SHOULD still work but should never be used.
 - (void)downloadVideoWithURL:(NSURL *)url
                 toLocation:(NSString *)dlLocation
                   progress:(DownloadProgressBlock)progressBlock
@@ -145,7 +146,7 @@
            return;
        }
        
-       
+       //non adaptive files that are already multiplexed will be generically processed if we get this far
        if (self.CompletedBlock != nil)
        {
            self.CompletedBlock(downloadLocation);
@@ -207,17 +208,12 @@
             }
 		}
 		freq++;
-		
-       
-        
+	    
     } else {
         
-       // [downloadpBar setIndeterminate:YES];
         NSLog(@"Bytes received - %f",bytesReceived);
         
     }
 	
-
-    
 }
 @end
