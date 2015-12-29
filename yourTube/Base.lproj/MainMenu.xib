@@ -19,7 +19,12 @@
                 <outlet property="webWindow" destination="rbD-bD-fGw" id="y53-H2-nlm"/>
             </connections>
         </customObject>
-        <arrayController id="hh7-93-GzP">
+        <arrayController objectClassName="KBYTStream" id="hh7-93-GzP">
+            <declaredKeys>
+                <string>quality</string>
+                <string>format</string>
+                <string>itag</string>
+            </declaredKeys>
             <connections>
                 <binding destination="Voe-Tx-rLC" name="contentArray" keyPath="self.streamArray" id="zpg-Xw-RLd">
                     <dictionary key="options">
@@ -727,14 +732,14 @@
         <window title="Video Details" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" animationBehavior="default" id="QvC-M9-y7g">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="335" y="390" width="494" height="317"/>
+            <rect key="contentRect" x="335" y="390" width="494" height="319"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
             <view key="contentView" id="EiT-Mj-1SZ">
-                <rect key="frame" x="0.0" y="0.0" width="494" height="317"/>
+                <rect key="frame" x="0.0" y="0.0" width="494" height="319"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <textField verticalHuggingPriority="750" id="Ftz-Ie-485">
-                        <rect key="frame" x="69" y="276" width="344" height="22"/>
+                        <rect key="frame" x="69" y="278" width="344" height="22"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" title="https://www.youtube.com/watch?v=6pxRHBw-k8M" drawsBackground="YES" id="q0a-1Z-n54">
                             <font key="font" metaFont="system"/>
@@ -753,7 +758,7 @@
                         </connections>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="aJP-Rp-hXF">
-                        <rect key="frame" x="13" y="279" width="50" height="17"/>
+                        <rect key="frame" x="13" y="281" width="50" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="yt URL:" id="8Pd-as-RY1">
                             <font key="font" metaFont="system"/>
@@ -762,7 +767,7 @@
                         </textFieldCell>
                     </textField>
                     <button verticalHuggingPriority="750" id="Jtc-nX-Z38">
-                        <rect key="frame" x="417" y="269" width="69" height="32"/>
+                        <rect key="frame" x="417" y="271" width="69" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="Details" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="NxQ-Jh-NRq">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -773,7 +778,7 @@
                         </connections>
                     </button>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="jw9-Wk-qj7">
-                        <rect key="frame" x="127" y="237" width="226" height="17"/>
+                        <rect key="frame" x="127" y="239" width="226" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" id="hLz-6r-hZK">
                             <font key="font" size="13" name=".HelveticaNeueDeskInterface-Bold"/>
@@ -782,7 +787,7 @@
                         </textFieldCell>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="QPs-2V-RYy">
-                        <rect key="frame" x="127" y="217" width="214" height="17"/>
+                        <rect key="frame" x="127" y="219" width="214" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" id="oQw-gU-Imf">
                             <font key="font" size="13" name=".HelveticaNeueDeskInterface-Bold"/>
@@ -791,7 +796,7 @@
                         </textFieldCell>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="b1i-Y1-JRc">
-                        <rect key="frame" x="362" y="237" width="51" height="17"/>
+                        <rect key="frame" x="362" y="239" width="51" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Length:" id="YCn-8T-kQ3">
                             <font key="font" metaFont="system"/>
@@ -800,7 +805,7 @@
                         </textFieldCell>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="Bxd-ru-q1e">
-                        <rect key="frame" x="369" y="217" width="44" height="17"/>
+                        <rect key="frame" x="369" y="219" width="44" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Views:" id="Xg7-El-4mL">
                             <font key="font" metaFont="system"/>
@@ -809,7 +814,7 @@
                         </textFieldCell>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="HbI-y9-5Ux">
-                        <rect key="frame" x="414" y="217" width="63" height="17"/>
+                        <rect key="frame" x="414" y="219" width="63" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" id="YRD-oZ-NDp">
                             <font key="font" size="13" name=".HelveticaNeueDeskInterface-Bold"/>
@@ -818,12 +823,12 @@
                         </textFieldCell>
                     </textField>
                     <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" id="GZQ-8k-BgZ">
-                        <rect key="frame" x="16" y="165" width="102" height="103"/>
+                        <rect key="frame" x="16" y="167" width="102" height="103"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="ZMv-xl-dM5"/>
                     </imageView>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="38L-aC-d9w">
-                        <rect key="frame" x="414" y="237" width="74" height="17"/>
+                        <rect key="frame" x="414" y="239" width="74" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" id="3xq-Nc-Dyn">
                             <font key="font" size="13" name=".HelveticaNeueDeskInterface-Bold"/>
@@ -832,7 +837,7 @@
                         </textFieldCell>
                     </textField>
                     <scrollView focusRingType="none" autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="y89-g0-zAp">
-                        <rect key="frame" x="15" y="17" width="336" height="139"/>
+                        <rect key="frame" x="15" y="19" width="336" height="139"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <clipView key="contentView" focusRingType="none" id="QwD-Z2-VgW">
                             <rect key="frame" x="1" y="17" width="334" height="121"/>
@@ -907,11 +912,11 @@
                         </tableHeaderView>
                     </scrollView>
                     <progressIndicator maxValue="100" displayedWhenStopped="NO" style="bar" id="UOw-p9-ghs">
-                        <rect key="frame" x="129" y="174" width="222" height="20"/>
+                        <rect key="frame" x="129" y="176" width="222" height="20"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     </progressIndicator>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="2zZ-wL-cIp">
-                        <rect key="frame" x="129" y="193" width="224" height="14"/>
+                        <rect key="frame" x="129" y="195" width="224" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" id="gvD-MJ-VaJ">
                             <font key="font" metaFont="smallSystem"/>
@@ -920,7 +925,7 @@
                         </textFieldCell>
                     </textField>
                     <button verticalHuggingPriority="750" id="U4Q-Is-6ng">
-                        <rect key="frame" x="368" y="73" width="102" height="32"/>
+                        <rect key="frame" x="368" y="75" width="102" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="Download" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ufq-8b-1Xm">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -932,7 +937,7 @@
                         </connections>
                     </button>
                     <slider hidden="YES" verticalHuggingPriority="750" id="Llt-xr-yPM">
-                        <rect key="frame" x="372" y="16" width="108" height="21"/>
+                        <rect key="frame" x="372" y="18" width="108" height="21"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <sliderCell key="cell" state="on" alignment="left" maxValue="512" tickMarkPosition="above" sliderType="linear" id="bJg-qt-vJ3"/>
                         <connections>
@@ -944,7 +949,7 @@
                         </connections>
                     </slider>
                     <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" id="POv-Ri-JUj">
-                        <rect key="frame" x="374" y="41" width="89" height="14"/>
+                        <rect key="frame" x="374" y="43" width="89" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Audio Volume" id="foL-Fl-FSd">
                             <font key="font" metaFont="smallSystem"/>
@@ -953,7 +958,7 @@
                         </textFieldCell>
                     </textField>
                     <button verticalHuggingPriority="750" id="ObX-vg-LyY">
-                        <rect key="frame" x="368" y="117" width="102" height="43"/>
+                        <rect key="frame" x="368" y="119" width="102" height="43"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="Play" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="pvy-sG-ENT">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -974,7 +979,7 @@
                     </button>
                 </subviews>
             </view>
-            <point key="canvasLocation" x="442" y="245.5"/>
+            <point key="canvasLocation" x="302" y="245.5"/>
         </window>
         <userDefaultsController representsSharedInstance="YES" id="4nM-Ko-8Hb"/>
         <window allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="29e-k0-epi">
@@ -993,7 +998,7 @@
                     </avPlayerView>
                 </subviews>
             </view>
-            <point key="canvasLocation" x="159" y="295"/>
+            <point key="canvasLocation" x="-172" y="139"/>
         </window>
         <window title="Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="RTn-Sl-lQ4">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>

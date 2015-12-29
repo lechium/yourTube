@@ -19,7 +19,7 @@
 		89A0EB7B1C28CF0F00255773 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 89A0EB791C28CF0F00255773 /* MainMenu.xib */; };
 		89A0EB841C28CF3C00255773 /* KBYourTube.m in Sources */ = {isa = PBXBuildFile; fileRef = 89A0EB831C28CF3C00255773 /* KBYourTube.m */; };
 		89A0EB871C2F236E00255773 /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 89A0EB861C2F236E00255773 /* AVKit.framework */; };
-		89A0EB8A1C2F273500255773 /* ripURL.m in Sources */ = {isa = PBXBuildFile; fileRef = 89A0EB891C2F273500255773 /* ripURL.m */; };
+		89A0EB8A1C2F273500255773 /* KBYTDownloadStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 89A0EB891C2F273500255773 /* KBYTDownloadStream.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,8 +42,8 @@
 		89A0EB831C28CF3C00255773 /* KBYourTube.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KBYourTube.m; sourceTree = "<group>"; };
 		89A0EB851C29D17100255773 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
 		89A0EB861C2F236E00255773 /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
-		89A0EB881C2F273500255773 /* ripURL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ripURL.h; sourceTree = "<group>"; };
-		89A0EB891C2F273500255773 /* ripURL.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ripURL.m; sourceTree = "<group>"; };
+		89A0EB881C2F273500255773 /* KBYTDownloadStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KBYTDownloadStream.h; sourceTree = "<group>"; };
+		89A0EB891C2F273500255773 /* KBYTDownloadStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KBYTDownloadStream.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,8 +65,8 @@
 			children = (
 				89A0EB821C28CF3C00255773 /* KBYourTube.h */,
 				89A0EB831C28CF3C00255773 /* KBYourTube.m */,
-				89A0EB881C2F273500255773 /* ripURL.h */,
-				89A0EB891C2F273500255773 /* ripURL.m */,
+				89A0EB881C2F273500255773 /* KBYTDownloadStream.h */,
+				89A0EB891C2F273500255773 /* KBYTDownloadStream.m */,
 				8922B2D41C30C85600A6D2E7 /* KBYTWebKitViewController.h */,
 				8922B2D51C30C85600A6D2E7 /* KBYTWebKitViewController.m */,
 			);
@@ -210,7 +210,7 @@
 			files = (
 				8922B2D61C30C85600A6D2E7 /* KBYTWebKitViewController.m in Sources */,
 				89A0EB841C28CF3C00255773 /* KBYourTube.m in Sources */,
-				89A0EB8A1C2F273500255773 /* ripURL.m in Sources */,
+				89A0EB8A1C2F273500255773 /* KBYTDownloadStream.m in Sources */,
 				89A0EB761C28CF0F00255773 /* main.m in Sources */,
 				89A0EB731C28CF0F00255773 /* AppDelegate.m in Sources */,
 			);

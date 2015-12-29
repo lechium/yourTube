@@ -84,8 +84,6 @@
     }
 }
 
-
-
 - (IBAction)getResults:(id)sender
 {
     NSString *textResults = self.youtubeLink.stringValue;
@@ -98,17 +96,18 @@
     
     if ([textResults length] > 0)
     {
-        [[KBYourTube sharedInstance] getVideoDetailsForID:textResults completionBlock:^(NSDictionary *videoDetails) {
+        [[KBYourTube sharedInstance] getVideoDetailsForID:textResults completionBlock:^(KBYTMedia *videoDetails) {
             
-            //NSLog(@"got details successfully: %@", videoDetails);
-            self.titleField.stringValue = videoDetails[@"title"];
-            self.userField.stringValue = videoDetails[@"author"];
-            self.lengthField.stringValue = videoDetails[@"duration"];
-            self.viewsField.stringValue = videoDetails[@"views"];
-            self.imageView.image = [[NSImage alloc] initWithContentsOfURL:[NSURL URLWithString:videoDetails[@"images"][@"high"]]];
+           // NSLog(@"got details successfully: %@", videoDetails);
+            self.titleField.stringValue = videoDetails.title;
+            self.userField.stringValue = videoDetails.author;
+            self.lengthField.stringValue = videoDetails.duration;
+            self.viewsField.stringValue = videoDetails.views;
+            self.imageView.image = [[NSImage alloc] initWithContentsOfURL:[NSURL URLWithString:videoDetails.images[@"high"]]];
             
-            self.streamArray = videoDetails[@"streams"];
-            self.streamController.selectsInsertedObjects = true;
+            self.currentMedia = videoDetails;
+             self.streamArray = videoDetails.streams;
+             self.streamController.selectsInsertedObjects = true;
             
             [[self window] orderFrontRegardless];
             
@@ -126,9 +125,8 @@
     
 }
 
-
-- (IBAction)downloadFile:(id)sender {
-
+- (IBAction)downloadFile:(id)sender
+{
     if (self.downloading == true)
     {
         [downloadFile cancel];
@@ -140,150 +138,36 @@
         return;
     }
     
-    BOOL requiresMux = false;
-    BOOL fixAudio = false;
-    NSDictionary *audioObject = nil;
-    NSString *downloadText = @"Downloading media file...";
-    NSDictionary *selectedObject = self.streamController.selectedObjects.lastObject;
-    NSInteger itag = [[selectedObject valueForKey:@"itag"] integerValue];
-    if (itag == 299 || itag == 137 || itag == 138 || itag == 264 || itag == 266)
-    {
-        requiresMux = true;
-        audioObject = [[self.streamController.arrangedObjects filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"itag == '140'"]]lastObject];
-        downloadText = @"Downloading video file...";
-    }
-    if (itag == 140 || itag == 141)
-    {
-        fixAudio = true;
-    }
-    NSString *downloadURL = selectedObject[@"url"];
-    NSURL *url = [NSURL URLWithString:downloadURL];
-    NSString *outputDest = [[NSUserDefaults standardUserDefaults] valueForKey:@"downloadLocation"];
-    if ([outputDest length] == 0)
-    {
-        outputDest = [self downloadFolder];
-    }
-    NSString *outputFile = [outputDest stringByAppendingPathComponent:selectedObject[@"outputFilename"]];
-    
-    downloadFile = [ripURL new];
-    self.downloading = true;
+    downloadFile = [KBYTDownloadStream new];
     self.downloadButton.title = @"Cancel";
-    self.progressLabel.stringValue = downloadText;
-    
-    [downloadFile downloadVideoWithURL:url toLocation:outputFile progress:^(double percentComplete) {
+    self.downloading = true;
+    KBYTStream *selectedObject = self.streamController.selectedObjects.lastObject;
+    [downloadFile downloadStream:selectedObject progress:^(double percentComplete, NSString *downloadedFile) {
         
         [self setDownloadProgress:percentComplete];
-        
-    } completed:^(NSString *downloadedFile) {
-        
-        [self hideProgress];
-        if (requiresMux == true && audioObject != nil)
+        if (![self.progressLabel.stringValue isEqualToString:downloadedFile])
         {
-           
-            [progressBar setDoubleValue:0];
-            [progressBar setHidden:false];
-            NSString *downloadURL = audioObject[@"url"];
-            NSURL *url = [NSURL URLWithString:downloadURL];
-            downloadFile = [ripURL new];
-            NSString *outputFile2 = [outputDest stringByAppendingPathComponent:audioObject[@"outputFilename"]];
-             NSLog(@"requires muxing, downloading audio now: %@", outputFile2);
-             self.progressLabel.stringValue = @"Downloading audio file...";
-            [downloadFile downloadVideoWithURL:url toLocation:outputFile2 progress:^(double percentComplete) {
-                
-                [self setDownloadProgress:percentComplete];
-                
-                
-            } completed:^(NSString *downloadedFile) {
-                
-                self.downloadButton.enabled = false;
-                self.progressLabel.stringValue = @"Multiplexing files...";
-                [self setDownloadProgress:0];
-                [self muxFiles:@[outputFile, outputFile2] completionBlock:^(NSString *newFile) {
-                   
-                    NSFileManager *man = [NSFileManager defaultManager];
-                    [man removeItemAtPath:outputFile error:nil];
-                    [man removeItemAtPath:outputFile2 error:nil];
-                    [[NSWorkspace sharedWorkspace] openFile:newFile];
-                    self.downloadButton.enabled = true;
-                    [self hideProgress];
-                }];
-                //
-                //[[NSWorkspace sharedWorkspace] openFile:downloadedFile];
-                
-                self.downloadButton.title = @"Download";
-                self.downloading = false;
-                
-            }];
-            
-        } else {
-            
-            if (fixAudio == true)
-            {
-                NSInteger volumeInt = [[NSUserDefaults standardUserDefaults] integerForKey:@"volume"];
-                [self setDownloadProgress:0];
-                self.progressLabel.stringValue = @"Fixing audio...";
-                [[KBYourTube sharedInstance] fixAudio:downloadedFile volume:volumeInt completionBlock:^(NSString *newFile) {
-                    
-                    [[NSWorkspace sharedWorkspace] openFile:newFile];
-                    [self hideProgress];
-                    self.downloadButton.title = @"Download";
-                    self.downloading = false;
-                }];
-                
-            } else {
-                [[NSWorkspace sharedWorkspace] openFile:downloadedFile];
-               
-                [self hideProgress];
-                self.downloadButton.title = @"Download";
-                self.downloading = false;
-            }
-            
-            
+            self.progressLabel.stringValue = downloadedFile;
         }
+    } completed:^(NSString *downloadedFile) {
+       
+        [[NSWorkspace sharedWorkspace] openFile:downloadedFile];
+        [self hideProgress];
+        self.downloadButton.title = @"Download";
+        self.downloading = false;
+        
     }];
-
-}
-
-
-- (void)muxFiles:(NSArray *)theFiles completionBlock:(void(^)(NSString *newFile))completionBlock
-{
-    NSString *videoFile = [theFiles firstObject];
-    NSString *audioFile = [theFiles lastObject];
-    NSString *outputFile = [[videoFile stringByDeletingPathExtension] stringByAppendingPathExtension:@"mp4"];
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-        
-        @autoreleasepool {
-            NSTask *afcTask = [NSTask new];
-            [afcTask setLaunchPath:[[NSBundle mainBundle] pathForResource:@"mux" ofType:@""]];
-            [afcTask setStandardError:[NSFileHandle fileHandleWithNullDevice]];
-            [afcTask setStandardOutput:[NSFileHandle fileHandleWithNullDevice]];
-            NSMutableArray *args = [NSMutableArray new];
-            [args addObject:@"-i"];
-            [args addObject:videoFile];
-            [args addObject:@"-i"];
-            [args addObject:audioFile];
-         //
-            [args addObjectsFromArray:[@"-vcodec copy -acodec copy -map 0:v:0 -map 1:a:0 -shortest -y" componentsSeparatedByString:@" "]];
-            
-            [args addObject:outputFile];
-            [afcTask setArguments:args];
-           // NSLog(@"mux %@", [args componentsJoinedByString:@" "]);
-            [afcTask launch];
-            [afcTask waitUntilExit];
-        }
-        
-        completionBlock(outputFile);
-    });
-    
     
 }
 
 - (void)hideProgress
 {
+    dispatch_async(dispatch_get_main_queue(), ^{
     self.progressLabel.stringValue = @"";
     [[self progressBar] stopAnimation:nil];
     [[self progressBar] setDoubleValue:0];
     [[self progressBar] setHidden:true];
+    });
     
 }
 
@@ -348,22 +232,21 @@
         return;
     }
     self.itemSelected = true;
-    NSDictionary *selectedStream = [[self streamArray] objectAtIndex:sr];
-    if ([selectedStream[@"extension"] isEqualToString:@"mp4"] || [selectedStream[@"extension"] isEqualToString:@"3gp"] )
-    {
-        self.itemPlayable = true;
-    } else {
-        self.itemPlayable = false;
-    }
+   
+    KBYTStream *stream = [[self streamArray] objectAtIndex:sr];
+    self.itemPlayable = [stream playable];
+    
     [self.streamController setSelectionIndex:sr];
     [self updateSlider];
+    
 }
 
 - (void)updateSlider
 {
-    NSDictionary *selectedObject = self.streamController.selectedObjects.lastObject;
-    NSInteger itag = [[selectedObject valueForKey:@"itag"] integerValue];
-    if (itag == 140)
+    KBYTStream *selectedObject = self.streamController.selectedObjects.lastObject;
+    
+    NSInteger itag = [selectedObject itag];
+    if (itag == 140 || itag == 141)
     {
         self.slider.hidden = false;
         self.sliderLabel.hidden = false;

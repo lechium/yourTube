@@ -9,7 +9,7 @@
 #import <Cocoa/Cocoa.h>
 #import <AVFoundation/AVFoundation.h>
 #import <AVKit/AVKit.h>
-#import "ripURL.h"
+#import "KBYTDownloadStream.h"
 #import "KBYTWebKitViewController.h"
 
 @interface AppDelegate : NSObject <NSApplicationDelegate, NSTableViewDelegate, NSMenuDelegate, NSWindowDelegate>
@@ -40,9 +40,11 @@
 
 @property (nonatomic, strong) IBOutlet KBYTWebKitViewController *webkitController;
 
-@property (nonatomic, strong) ripURL *downloadFile;
+@property (nonatomic, strong) KBYTDownloadStream *downloadFile;
 @property (readwrite, assign) BOOL downloading;
 @property (readwrite, assign) BOOL extractAudio;
+
+@property (nonatomic, strong) KBYTMedia *currentMedia;
 
 - (IBAction)showMainWindow:(id)sender;
 

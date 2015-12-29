@@ -1,5 +1,5 @@
 //
-//  ripURL.h
+//  KBYTDownloadStream.h
 //  Seas0nPass
 //
 //  Created by Kevin Bradley on 3/9/07.
@@ -7,8 +7,9 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "KBYourTube.h"
 
-@protocol ripURLDelegate
+@protocol KBYTDownloadStreamDelegate
 
 - (void)downloadFinished:(NSString *)downloadFile;
 - (void)downloadFailed:(NSString *)downloadFile;
@@ -17,7 +18,7 @@
 @end
 
 
-@interface ripURL : NSObject <NSURLDownloadDelegate>  {
+@interface KBYTDownloadStream : NSObject <NSURLDownloadDelegate>  {
 	
 	NSURLDownload				*urlDownload;
     NSURLResponse				*myResponse;
@@ -25,16 +26,25 @@
 	NSString					*downloadLocation;
 	long long					updateFrequency;
 	long long					freq;
+    KBYTStream                  *audioStream;
+    NSString                    *videoDownloadLocation;
+
 }
 
 @property (strong, atomic) void (^ProgressBlock)(double percentComplete);
+@property (strong, atomic) void (^FancyProgressBlock)(double percentComplete, NSString *downloadedFile);
 @property (strong, atomic) void (^CompletedBlock)(NSString *downloadedFile);
 
 typedef void(^DownloadProgressBlock)(double percentComplete);
+typedef void(^FancyDownloadProgressBlock)(double percentComplete, NSString *downloadedFile);
 typedef void(^DownloadCompletedBlock)(NSString *downloadedFile);
 
 @property (nonatomic, retain) NSString *downloadLocation;
+@property (readwrite, assign) NSInteger downloadMode; //0 = muxed file, 1 = demuxed tracks
 
+- (void)downloadStream:(KBYTStream *)inputStream
+              progress:(FancyDownloadProgressBlock)progressBlock
+             completed:(DownloadCompletedBlock)completedBlock;
 
 - (void)downloadVideoWithURL:(NSURL *)url
                 toLocation:(NSString *)dlLocation
