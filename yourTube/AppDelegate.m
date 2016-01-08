@@ -227,8 +227,9 @@
 
 - (IBAction)playFile:(id)sender
 {
-    NSDictionary *selectedObject = self.streamController.selectedObjects.lastObject;
-    NSURL *playURL = [NSURL URLWithString:selectedObject[@"url"]];
+    KBYTStream *selectedObject = self.streamController.selectedObjects.lastObject;
+    NSURL *playURL = [selectedObject url];
+    NSLog(@"play url: %@", playURL);
     self.player = [[AVPlayer alloc] initWithURL:playURL];
     [self.playerView setPlayer:self.player];
     [self.player play];

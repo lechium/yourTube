@@ -532,6 +532,7 @@
         @autoreleasepool {
             NSTask *afcTask = [NSTask new];
             [afcTask setLaunchPath:[[NSBundle mainBundle] pathForResource:@"mux" ofType:@""]];
+            //iOS change to /usr/bin/ffmpeg and make sure to depend upon com.nin9tyfour.ffmpeg
             [afcTask setStandardError:[NSFileHandle fileHandleWithNullDevice]];
             [afcTask setStandardOutput:[NSFileHandle fileHandleWithNullDevice]];
             NSMutableArray *args = [NSMutableArray new];
@@ -544,6 +545,9 @@
                 [args addObject:@"-vol"];
                 [args addObject:[NSString stringWithFormat:@"%ld", (long)volume]];
                 [args addObjectsFromArray:[@"-acodec libfdk_aac -ac 2 -ar 44100 -ab 320K -y" componentsSeparatedByString:@" "]];
+                //for ios change to
+                // -strict -2
+                //[args addObjectsFromArray:[@"-acodec aac -ac 2 -ar 44100 -ab 320K -strict -2 -y" componentsSeparatedByString:@" "]]
             }
             [args addObject:outputFile];
             [afcTask setArguments:args];
