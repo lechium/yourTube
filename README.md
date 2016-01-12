@@ -56,5 +56,4 @@ Download a video:
 
 Heavily based on various clicktoplugin javascript code.
 
-Could easily be incorporated into an iOS app KBYourTube.h/m & KBYTDownloadStream.h/m are the only files needed.
-
+For iOS equivalent look at: https://github.com/lechium/yourTubeiOS
