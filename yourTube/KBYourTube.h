@@ -58,6 +58,12 @@
 
 @end
 
+@interface NSDate (convenience)
+
+- (NSString *)timeStringFromCurrentDate;
+
+@end
+
 @interface KBYourTube : NSObject
 {
     NSInteger bestTag;
@@ -67,7 +73,17 @@
 @property (nonatomic, strong) NSString *ytkey;
 
 
+- (NSString *)stringFromRequest:(NSString *)url;
+
 + (id)sharedInstance;
+
+- (void)getSearchResults:(NSString *)searchQuery
+         completionBlock:(void(^)(NSDictionary* searchDetails))completionBlock
+            failureBlock:(void(^)(NSString* error))failureBlock;
+
+- (void)getVideoDetailsForIDs:(NSArray*)videoIDs
+             completionBlock:(void(^)(NSArray* videoArray))completionBlock
+                failureBlock:(void(^)(NSString* error))failureBlock;
 
 - (void)getVideoDetailsForID:(NSString*)videoID
              completionBlock:(void(^)(KBYTMedia* videoDetails))completionBlock
