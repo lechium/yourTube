@@ -25,8 +25,31 @@
     [self getResults:nil];
     [[self webkitController] showWebWindow:nil];
     [self.window setDelegate:self];
+    /*
+    NSDate *myStart = [NSDate date];
+    
+    [[KBYourTube sharedInstance] youTubeSearch:@"Drake rick ross" pageNumber:1 completionBlock:^(NSDictionary *searchDetails) {
+        
+        NSLog(@"time taken: %@ searchDetails: %@", [myStart timeStringFromCurrentDate], searchDetails);
+        
+        
+    } failureBlock:^(NSString *error) {
+        
+        //
+    }];
     
     
+    [[KBYourTube sharedInstance]getSearchResults:@"Drake rick ross" pageNumber:1 completionBlock:^(NSDictionary *searchDetails) {
+        
+        
+        NSLog(@"time taken: %@ searchDetails: %@", [myStart timeStringFromCurrentDate], searchDetails);
+        
+        
+    } failureBlock:^(NSString *error) {
+        
+        //
+    }];
+    */
 }
 
 //called from webkit window when a link is clicked

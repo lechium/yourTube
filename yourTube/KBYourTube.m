@@ -7,6 +7,7 @@
 //
 
 #import "KBYourTube.h"
+#import "APDocument/APXML.h"
 
 /**
  
@@ -460,11 +461,9 @@
         // find end of tag
         [theScanner scanUpToString:@"results" intoString:&text] ;
     }
+
     
-    NSMutableCharacterSet *characterSet = [NSMutableCharacterSet whitespaceAndNewlineCharacterSet];
-    [characterSet addCharactersInString:@","];
-    
-    return [[[[[text componentsSeparatedByString:@"About"] lastObject] stringByTrimmingCharactersInSet:characterSet] stringByReplacingOccurrencesOfString:@"," withString:@""] integerValue];
+    return [[[[[text componentsSeparatedByString:@"About"] lastObject] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] stringByReplacingOccurrencesOfString:@"," withString:@""] integerValue];
 }
 
 - (NSArray *)ytSearchBasics:(NSString *)html {
@@ -498,7 +497,190 @@
     
 }
 
+/*
+ 
+ everything before <ol id="item-section" is mostly useless, and everything after the end </ol> is also
+ useless. this trims down to just the pertinent info and feeds back the raw string for processing.
+ 
+ */
+
+- (NSString *)rawYTFromHTML:(NSString *)html {
+    
+    NSScanner *theScanner;
+    NSString *text = nil;
+    theScanner = [NSScanner scannerWithString:html];
+    [theScanner scanUpToString:@"<ol id=\"item-section" intoString:NULL];
+    [theScanner scanUpToString:@"</ol>" intoString:&text] ;
+    return text;
+}
+
+/*
+ 
+ This is definitely not me cleanest or prettiest code, and if google changes the youtube layout on their website
+ this will definitely break, use this search code with MASSIVE caution. it will be VERY fragile.
+ 
+ that being said, it will be a LOT quicker then the one below it, which gets ALLL the datas.
+ 
+ however, the one below should be MUCH less fragile because its just looking for video ids and nothing else.
+ 
+ */
+
+- (void)youTubeSearch:(NSString *)searchQuery
+           pageNumber:(NSInteger)page
+      completionBlock:(void(^)(NSDictionary* searchDetails))completionBlock
+         failureBlock:(void(^)(NSString* error))failureBlock
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+        
+        @autoreleasepool {
+            
+            NSString *pageorsm = nil;
+            if (page == 1)
+            {
+                pageorsm = @"sm=1";
+            } else {
+                pageorsm = [NSString stringWithFormat:@"page=%lu", page];
+            }
+            
+            NSString *requestString = [NSString stringWithFormat:@"https://m.youtube.com/results?q=%@&%@", [searchQuery stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding], pageorsm];
+            NSString *request = [self stringFromRequest:requestString];
+            
+            //get the result number
+            
+            NSInteger results = [self resultNumber:request];
+            
+            //get the raw value we work with
+            
+            NSString *rawSearchValue = [self rawYTFromHTML:request];
+            
+            //hard to find a delimiter that sticks out between results, </div></div></div></div></div></li> will have to do
+            
+            NSArray *objectArray = [rawSearchValue componentsSeparatedByString:@"</div></div></div></div></div></li>"];
+            
+            //create the array that will store the final results
+            NSMutableDictionary *outputDict = [NSMutableDictionary new];
+            outputDict[@"resultCount"] = [NSNumber numberWithInteger:results];
+            NSMutableArray *finalArray = [NSMutableArray new];
+            for (NSString *object in objectArray)
+            {
+                //create a dictionary for each result
+                NSMutableDictionary *itemDict = [NSMutableDictionary new];
+                //add the delimiter back in so APXML can parse things "properly"
+                NSString *objectCopy = [object stringByAppendingString:@"</div></div></div></div></div></li>"];
+                
+                //this makes parsing the info a little less painful, treat it like XML with APDocument
+                
+                APDocument *theDoc = [[APDocument alloc] initWithString:objectCopy];
+                APElement *rootElement = [theDoc rootElement];
+                //the very first search element includes the initial "ol" line we scanned to, we dont need it so
+                //ignore it on the first result and make the root the next node down.
+                if ([[rootElement name] isEqualToString:@"ol"])
+                {
+                    rootElement = [rootElement firstChildElementNamed:@"li"];
+                }
+                
+                //divs everywhere, the initial element doesnt have anything we need in it
+                APElement *firstDiv = [rootElement firstChildElementNamed:@"div"];
+                //there are multiple places to get the videoID, this is the first
+                NSString *videoID = [firstDiv valueForAttributeNamed:@"data-context-item-id"];
+                if (videoID != nil)
+                {
+                    itemDict[@"videoID"] = videoID;
+                }
+                
+                //most of the other pertinent information is on the next node down
+                APElement *mainRoot = [firstDiv firstChildElement];
+                
+                //2 levels down from mainRoot has the image info and length info
+                
+                APElement *finalImageRoot = [[mainRoot firstChildElement] firstChildElement];
+                
+                //the actual image info is buried 3 levels deeper
+                
+                APElement *actualImageRoot = [[[finalImageRoot firstChildElement] firstChildElement] firstChildElement];
+                
+                //sometimes its data-thumb, sometimes its src
+                NSString *imagePath = [actualImageRoot valueForAttributeNamed:@"data-thumb"];
+                if (imagePath == nil)
+                {
+                    imagePath = [actualImageRoot valueForAttributeNamed:@"src"];
+                }
+                if (imagePath != nil)
+                {
+                    itemDict[@"imagePath"] = [@"https:" stringByAppendingString:imagePath];
+                }
+                
+                //the last node in finalImageRoot elements actual value (rather than an attribute) is our length
+                
+                NSString *length = [(APElement *)[[finalImageRoot childElements]lastObject] value];
+                if (length != nil)
+                {
+                    itemDict[@"length"] = length;
+                }
+                
+                //the last node in the mainRoot has the title and username
+                
+                APElement *otherMetaElement = [[mainRoot childElements] lastObject];
+                
+                //the title element is buried 2 nodes deeper then otherMetaElement
+                APElement *titleElement = [[otherMetaElement firstChildElement] firstChildElement];
+                //just like length, the title is stored as the value and not an attribute
+                NSString *title = [titleElement value];
+                if (title != nil)
+                {
+                    itemDict[@"title"] = title;
+                }
+                NSString *userName = @"";
+                if ([otherMetaElement childCount] >= 2) //safety first ;-P
+                {
+                    //the second child node of otherMetaElement has the username inside its first child node. also
+                    //stored as the value and not an attribute.
+                    userName = [[(APElement *)[[otherMetaElement childElements] objectAtIndex:1] firstChildElement] value];
+                    if (userName != nil)
+                    {
+                        itemDict[@"userName"] = userName;
+                    }
+                    //   NSLog(@"userName: %@", userName);
+                }
+                
+                //if we got keys we got a result, add it to the array
+                if ([[itemDict allKeys] count] > 0)
+                {
+                    [finalArray addObject:itemDict];
+                }
+            }
+            //doneski!
+            if ([finalArray count] > 0)
+            {
+                outputDict[@"results"] = finalArray;
+                NSInteger pageCount = results/[finalArray count];
+                outputDict[@"pageCount"] = [NSNumber numberWithInteger:pageCount];
+            }
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                if([finalArray count] > 0)
+                {
+                    completionBlock(outputDict);
+                } else {
+                    failureBlock(@"fail");
+                }
+            });
+        }
+    });
+    
+}
+
+/**
+ 
+ This will get ALL the info about EVERY search result. it initially just compiles a list of video ID's scraping
+ youtubes search, this scrape should be MUCH less fragile. However, since it runs through get_video_info
+ with EVERY video id its a LOT slower then the basic search above. so it would be better to use as a
+ fallback if the one above fails.
+ 
+ */
+
 - (void)getSearchResults:(NSString *)searchQuery
+              pageNumber:(NSInteger)page
          completionBlock:(void(^)(NSDictionary* searchDetails))completionBlock
             failureBlock:(void(^)(NSString* error))failureBlock
 {
@@ -506,7 +688,14 @@
         
         @autoreleasepool {
             
-            NSString *requestString = [NSString stringWithFormat:@"https://m.youtube.com/results?q=%@&sm=1", [searchQuery stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+            NSString *pageorsm = nil;
+            if (page == 1)
+            {
+                pageorsm = @"sm=1";
+            } else {
+                pageorsm = [NSString stringWithFormat:@"page=%lu", page];
+            }
+            NSString *requestString = [NSString stringWithFormat:@"https://m.youtube.com/results?q=%@&%@", [searchQuery stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding], pageorsm];
             
             NSString *request = [self stringFromRequest:requestString];
             NSInteger results = [self resultNumber:request];

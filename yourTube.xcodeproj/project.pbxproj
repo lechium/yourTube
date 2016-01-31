@@ -13,6 +13,9 @@
 		8922B2D61C30C85600A6D2E7 /* KBYTWebKitViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8922B2D51C30C85600A6D2E7 /* KBYTWebKitViewController.m */; };
 		8922B2D81C30C87C00A6D2E7 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8922B2D71C30C87C00A6D2E7 /* WebKit.framework */; };
 		8922B2DD1C311E8400A6D2E7 /* back_button.png in Resources */ = {isa = PBXBuildFile; fileRef = 8922B2DC1C311E8400A6D2E7 /* back_button.png */; };
+		897B4A391C5E970800F50BC2 /* APAttribute.m in Sources */ = {isa = PBXBuildFile; fileRef = 897B4A331C5E970800F50BC2 /* APAttribute.m */; };
+		897B4A3A1C5E970800F50BC2 /* APDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 897B4A351C5E970800F50BC2 /* APDocument.m */; };
+		897B4A3B1C5E970800F50BC2 /* APElement.m in Sources */ = {isa = PBXBuildFile; fileRef = 897B4A371C5E970800F50BC2 /* APElement.m */; };
 		89A0EB731C28CF0F00255773 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 89A0EB721C28CF0F00255773 /* AppDelegate.m */; };
 		89A0EB761C28CF0F00255773 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 89A0EB751C28CF0F00255773 /* main.m */; };
 		89A0EB781C28CF0F00255773 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 89A0EB771C28CF0F00255773 /* Assets.xcassets */; };
@@ -31,6 +34,13 @@
 		8922B2D71C30C87C00A6D2E7 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		8922B2DA1C30EF9D00A6D2E7 /* yt.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = yt.pch; sourceTree = "<group>"; };
 		8922B2DC1C311E8400A6D2E7 /* back_button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = back_button.png; path = yourTube/back_button.png; sourceTree = SOURCE_ROOT; };
+		897B4A321C5E970800F50BC2 /* APAttribute.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APAttribute.h; sourceTree = "<group>"; };
+		897B4A331C5E970800F50BC2 /* APAttribute.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = APAttribute.m; sourceTree = "<group>"; };
+		897B4A341C5E970800F50BC2 /* APDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APDocument.h; sourceTree = "<group>"; };
+		897B4A351C5E970800F50BC2 /* APDocument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = APDocument.m; sourceTree = "<group>"; };
+		897B4A361C5E970800F50BC2 /* APElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APElement.h; sourceTree = "<group>"; };
+		897B4A371C5E970800F50BC2 /* APElement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = APElement.m; sourceTree = "<group>"; };
+		897B4A381C5E970800F50BC2 /* APXML.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APXML.h; sourceTree = "<group>"; };
 		89A0EB6E1C28CF0F00255773 /* yourTube.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = yourTube.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		89A0EB711C28CF0F00255773 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		89A0EB721C28CF0F00255773 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -63,6 +73,7 @@
 		8922B2CA1C2FB19D00A6D2E7 /* KBYT */ = {
 			isa = PBXGroup;
 			children = (
+				897B4A311C5E970800F50BC2 /* APDocument */,
 				89A0EB821C28CF3C00255773 /* KBYourTube.h */,
 				89A0EB831C28CF3C00255773 /* KBYourTube.m */,
 				89A0EB881C2F273500255773 /* KBYTDownloadStream.h */,
@@ -92,6 +103,20 @@
 			);
 			name = Frameworks;
 			path = ..;
+			sourceTree = "<group>";
+		};
+		897B4A311C5E970800F50BC2 /* APDocument */ = {
+			isa = PBXGroup;
+			children = (
+				897B4A321C5E970800F50BC2 /* APAttribute.h */,
+				897B4A331C5E970800F50BC2 /* APAttribute.m */,
+				897B4A341C5E970800F50BC2 /* APDocument.h */,
+				897B4A351C5E970800F50BC2 /* APDocument.m */,
+				897B4A361C5E970800F50BC2 /* APElement.h */,
+				897B4A371C5E970800F50BC2 /* APElement.m */,
+				897B4A381C5E970800F50BC2 /* APXML.h */,
+			);
+			path = APDocument;
 			sourceTree = "<group>";
 		};
 		89A0EB651C28CF0F00255773 = {
@@ -208,11 +233,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				897B4A3A1C5E970800F50BC2 /* APDocument.m in Sources */,
+				897B4A3B1C5E970800F50BC2 /* APElement.m in Sources */,
 				8922B2D61C30C85600A6D2E7 /* KBYTWebKitViewController.m in Sources */,
 				89A0EB841C28CF3C00255773 /* KBYourTube.m in Sources */,
 				89A0EB8A1C2F273500255773 /* KBYTDownloadStream.m in Sources */,
 				89A0EB761C28CF0F00255773 /* main.m in Sources */,
 				89A0EB731C28CF0F00255773 /* AppDelegate.m in Sources */,
+				897B4A391C5E970800F50BC2 /* APAttribute.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

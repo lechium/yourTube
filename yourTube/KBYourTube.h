@@ -77,7 +77,14 @@
 
 + (id)sharedInstance;
 
+- (void)youTubeSearch:(NSString *)searchQuery
+           pageNumber:(NSInteger)page
+      completionBlock:(void(^)(NSDictionary* searchDetails))completionBlock
+         failureBlock:(void(^)(NSString* error))failureBlock;
+
+
 - (void)getSearchResults:(NSString *)searchQuery
+              pageNumber:(NSInteger)page
          completionBlock:(void(^)(NSDictionary* searchDetails))completionBlock
             failureBlock:(void(^)(NSString* error))failureBlock;
 
