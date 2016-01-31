@@ -54,6 +54,19 @@ Download a video:
     }];
 
 
+Scrape search results:
+
+    [[KBYourTube sharedInstance] youTubeSearch:@"Drake rick ross" pageNumber:1 completionBlock:^(NSDictionary *searchDetails) {
+
+    NSLog(@"searchDetails: %@", searchDetails);
+
+
+    } failureBlock:^(NSString *error) {
+
+
+    }];
+
+
 Heavily based on various clicktoplugin javascript code.
 
 For iOS equivalent look at: https://github.com/lechium/yourTubeiOS
