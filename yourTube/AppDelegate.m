@@ -25,7 +25,7 @@
     [self getResults:nil];
     [[self webkitController] showWebWindow:nil];
     [self.window setDelegate:self];
-    /*
+    
     NSDate *myStart = [NSDate date];
     
     [[KBYourTube sharedInstance] youTubeSearch:@"Drake rick ross" pageNumber:1 completionBlock:^(NSDictionary *searchDetails) {
@@ -37,7 +37,7 @@
         
         //
     }];
-    
+    /*
     
     [[KBYourTube sharedInstance]getSearchResults:@"Drake rick ross" pageNumber:1 completionBlock:^(NSDictionary *searchDetails) {
         
