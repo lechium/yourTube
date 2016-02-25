@@ -11,6 +11,7 @@
 #import <AVKit/AVKit.h>
 #import "KBYTDownloadStream.h"
 #import "KBYTWebKitViewController.h"
+#import "ONOXMLDocument.h"
 
 @interface AppDelegate : NSObject <NSApplicationDelegate, NSTableViewDelegate, NSMenuDelegate, NSWindowDelegate>
 

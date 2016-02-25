@@ -23,17 +23,18 @@
 
 
 @interface APElement : NSObject {
-	NSString *name;
-	NSMutableString *value;
-	__unsafe_unretained APElement *parent;
-	
-	NSMutableDictionary *attributes;
-	NSMutableArray *childElements;
+    NSString *name;
+    NSMutableString *value;
+    __unsafe_unretained APElement *parent;
+    
+    NSMutableDictionary *attributes;
+    NSMutableArray *childElements;
 }
 
 @property (readonly) NSString *name;
 @property (nonatomic, assign) APElement *parent;
 
+- (APElement *)elementContainingNameString:(NSString *)string;
 - (NSString *)recursiveAttributeNamed:(NSString *)attributeName;
 - (APElement *)elementContainingClassString:(NSString *)string;
 + (id)elementWithName:(NSString*)aName;

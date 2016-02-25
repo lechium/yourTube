@@ -8,6 +8,14 @@
 
 #import <Foundation/Foundation.h>
 
+typedef NS_ENUM(NSUInteger, kYTSearchResultType) {
+    
+    kYTSearchResultTypeUnknown,
+    kYTSearchResultTypeVideo,
+    kYTSearchResultTypePlaylist,
+    kYTSearchResultTypeChannel,
+};
+
 @interface KBYTSearchResult: NSObject
 
 @property (nonatomic, strong) NSString *title;
@@ -18,7 +26,7 @@
 @property (nonatomic, strong) NSString *age;
 @property (nonatomic, strong) NSString *views;
 @property (nonatomic, strong) NSString *details;
-
+@property (readwrite, assign) kYTSearchResultType resultType;
 
 - (id)initWithDictionary:(NSDictionary *)resultDict;
 
@@ -34,7 +42,7 @@
 @property (nonatomic, strong) NSString *duration;
 @property (nonatomic, strong) NSDictionary *images;
 @property (nonatomic, strong) NSArray *streams;
-
+@property (nonatomic, strong) NSString *details; //description
 
 @end
 
@@ -70,6 +78,7 @@
 
 @interface NSString  (SplitString)
 
++ (NSString *)stringFromTimeInterval:(NSTimeInterval)timeInterval;
 - (NSArray *)splitString;
 
 @end
@@ -80,6 +89,11 @@
 
 @end
 
+@interface NSURL (QSParameters)
+- (NSArray *)parameterArray;
+- (NSDictionary *)parameterDictionary;
+@end
+
 @interface KBYourTube : NSObject
 {
     NSInteger bestTag;
@@ -88,11 +102,15 @@
 @property (nonatomic, strong) NSString *yttimestamp;
 @property (nonatomic, strong) NSString *ytkey;
 
-
+- (NSString *)videoDescription:(NSString *)videoID;
 - (NSString *)stringFromRequest:(NSString *)url;
-
 + (id)sharedInstance;
+- (NSString *)rawYTFromHTML:(NSString *)html;
+- (NSDictionary *)videoDetailsFromID:(NSString *)videoID;
 
+- (void)getPlaylistVideos:(NSString *)listID
+          completionBlock:(void(^)(NSArray * playlistArray))completionBlock
+             failureBlock:(void(^)(NSString *error))failureBlock;
 /**
  
  searchQuery is just a basic unescaped search string, this will return a dictionary with
@@ -106,6 +124,21 @@
       completionBlock:(void(^)(NSDictionary* searchDetails))completionBlock
          failureBlock:(void(^)(NSString* error))failureBlock;
 
+- (void)youTubeSearch2:(NSString *)searchQuery
+            pageNumber:(NSInteger)page
+   includeAllResults:(BOOL)includeAll
+       completionBlock:(void(^)(NSDictionary* searchDetails))completionBlock
+          failureBlock:(void(^)(NSString* error))failureBlock;
+
+
+- (NSString *)videoInfoPage:(NSString *)html;
+
+- (void)getChannelVideos:(NSString *)channelID
+         completionBlock:(void(^)(NSDictionary *searchDetails))completionBlock
+            failureBlock:(void(^)(NSString *error))failureBlock;
+
+- (void)getFeaturedVideosWithCompletionBlock:(void(^)(NSDictionary* searchDetails))completionBlock
+                                failureBlock:(void(^)(NSString* error))failureBlock;
 
 - (void)getSearchResults:(NSString *)searchQuery
               pageNumber:(NSInteger)page
