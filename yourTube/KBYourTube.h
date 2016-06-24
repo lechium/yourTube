@@ -43,6 +43,9 @@ typedef NS_ENUM(NSUInteger, kYTSearchResultType) {
 @property (nonatomic, strong) NSDictionary *images;
 @property (nonatomic, strong) NSArray *streams;
 @property (nonatomic, strong) NSString *details; //description
+@property (readwrite, assign) NSInteger expireTime;
+
+- (BOOL)isExpired;
 
 @end
 
@@ -61,8 +64,10 @@ typedef NS_ENUM(NSUInteger, kYTSearchResultType) {
 @property (nonatomic, strong) NSURL *url;
 @property (readwrite, assign) BOOL playable;
 @property (nonatomic, assign) KBYTStream *audioStream; //will be empty if its multiplexed
+@property (readwrite, assign) NSInteger expireTime;
 
 - (id)initWithDictionary:(NSDictionary *)streamDict;
+- (BOOL)isExpired;
 
 @end
 
@@ -85,6 +90,7 @@ typedef NS_ENUM(NSUInteger, kYTSearchResultType) {
 
 @interface NSDate (convenience)
 
++ (BOOL)passedEpochDateInterval:(NSTimeInterval)interval;
 - (NSString *)timeStringFromCurrentDate;
 
 @end
@@ -102,15 +108,29 @@ typedef NS_ENUM(NSUInteger, kYTSearchResultType) {
 @property (nonatomic, strong) NSString *yttimestamp;
 @property (nonatomic, strong) NSString *ytkey;
 
+- (NSArray *)channelArrayFromUserName:(NSString *)userName;
 - (NSString *)videoDescription:(NSString *)videoID;
 - (NSString *)stringFromRequest:(NSString *)url;
 + (id)sharedInstance;
 - (NSString *)rawYTFromHTML:(NSString *)html;
 - (NSDictionary *)videoDetailsFromID:(NSString *)videoID;
+- (BOOL)isSignedIn;
+
+- (void)getUserDetailsDictionaryWithCompletionBlock:(void(^)(NSDictionary *outputResults))completionBlock
+                                       failureBlock:(void(^)(NSString *error))failureBlock;
+
+- (void)loadMoreVideosFromHREF:(NSString *)loadMoreLink
+               completionBlock:(void(^)(NSDictionary *outputResults))completionBlock
+                  failureBlock:(void(^)(NSString *error))failureBlock;
 
 - (void)getPlaylistVideos:(NSString *)listID
-          completionBlock:(void(^)(NSArray * playlistArray))completionBlock
+          completionBlock:(void(^)(NSDictionary * playlistDictionary))completionBlock
              failureBlock:(void(^)(NSString *error))failureBlock;
+
+- (void)loadMorePlaylistVideosFromHREF:(NSString *)loadMoreLink
+                       completionBlock:(void(^)(NSDictionary *outputResults))completionBlock
+                          failureBlock:(void(^)(NSString *error))failureBlock;
+
 /**
  
  searchQuery is just a basic unescaped search string, this will return a dictionary with
