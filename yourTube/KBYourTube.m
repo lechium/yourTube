@@ -2674,7 +2674,7 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
     
     //isolate the base.js file that we need to extract the signature from
     
-    NSString *baseJS = [NSString stringWithFormat:@"https:%@", [[[[[self matchesForString:body withRegex:@"\"js\":\"([^\"]*)\""] lastObject] componentsSeparatedByString:@":"] lastObject] stringByReplacingOccurrencesOfString:@"\\/" withString:@"/"]];
+    NSString *baseJS = [NSString stringWithFormat:@"https://youtube.com%@", [[[[[self matchesForString:body withRegex:@"\"js\":\"([^\"]*)\""] lastObject] componentsSeparatedByString:@":"] lastObject] stringByReplacingOccurrencesOfString:@"\\/" withString:@"/"]];
     
     //get the raw js source of the decoder file that we need to get the signature cipher from
     
