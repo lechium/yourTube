@@ -68,15 +68,19 @@ typedef NS_ENUM(NSUInteger, kYTSearchResultType) {
 
 - (id)initWithDictionary:(NSDictionary *)streamDict;
 - (BOOL)isExpired;
-
+- (NSDictionary *)dictionaryValue;
 @end
 
 @interface NSObject  (convenience)
 
+- (id)recursiveObjectForKey:(NSString *)desiredKey;
+- (id)recursiveObjectsForKey:(NSString *)desiredKey;
+- (NSString *)downloadFile;
 - (NSString *)applicationSupportFolder;
 - (NSString *)downloadFolder;
 - (NSMutableDictionary *)parseFlashVars:(NSString *)vars;
 - (NSArray *)matchesForString:(NSString *)string withRegex:(NSString *)pattern;
+- (NSArray *)matchesForString:(NSString *)string withRegex:(NSString *)pattern allRanges:(BOOL)includeAllRanges;
 - (NSMutableDictionary *)dictionaryFromString:(NSString *)string withRegex:(NSString *)pattern;
 
 @end
@@ -108,6 +112,9 @@ typedef NS_ENUM(NSUInteger, kYTSearchResultType) {
 @property (nonatomic, strong) NSString *yttimestamp;
 @property (nonatomic, strong) NSString *ytkey;
 
+- (void)apiSearch:(NSString *)search
+  completionBlock:(void(^)(NSArray <KBYTSearchResult *> * searchDetails))completionBlock
+     failureBlock:(void(^)(NSString* error))failureBlock;
 - (NSArray *)channelArrayFromUserName:(NSString *)userName;
 - (NSString *)videoDescription:(NSString *)videoID;
 - (NSString *)stringFromRequest:(NSString *)url;

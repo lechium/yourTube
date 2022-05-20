@@ -8,12 +8,13 @@
 
 #import "AppDelegate.h"
 #import "KBYourTube.h"
-
+#import "KBYTDownloadManager.h"
 extern NSString * ONOXPathFromCSS(NSString *CSS);
 
 @interface AppDelegate ()
 
 @property (weak) IBOutlet NSWindow *window;
+@property (nonatomic, strong) NSString *playlistFolder;
 @end
 
 @implementation AppDelegate
@@ -876,15 +877,23 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
     return finalArray;
 }
 
+- (void)addProgressObserver {
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(gotProgressNotification:) name:@"updateProgressNote" object:nil];
+    
+}
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
     [AppDelegate setDefaultPrefs];
     itemSelected = false;
     [self getResults:nil];
-    [[self webkitController] showWebWindow:nil];
+    //[[self webkitController] showWebWindow:nil];
     [self.window setDelegate:self];
-
+    [self addProgressObserver];
     
+    NSString *ffmpegPath = [[NSBundle mainBundle] pathForResource:@"ffmpeg" ofType:@"" inDirectory:@"mux"];
+    NSLog(@"ffmpegPath: %@", ffmpegPath);
     
     //NSData *rawRequestResult = [NSData dataWithContentsOfFile:[NSHomeDirectory() stringByAppendingPathComponent:@"Desktop/science2.html"]];
     
@@ -1000,10 +1009,11 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
                      @"autoPlay",
                      @"showFiles",
                      nil];
-    
+    //xpVfcZ0ZcFM
+    //6pxRHBw-k8M
     NSArray *values = [NSArray arrayWithObjects:
                        [self downloadFolder],
-                       @"https://www.youtube.com/watch?v=6pxRHBw-k8M",
+                       @"https://www.youtube.com/watch?v=xpVfcZ0ZcFM",
                        [NSNumber numberWithBool:true],
                        [NSNumber numberWithBool:true],
                        nil];
@@ -1022,13 +1032,16 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
     
     if ([videoID length] > 0)
     {
+        self.playlistFolder = nil;
         [[KBYourTube sharedInstance] getVideoDetailsForID:videoID completionBlock:^(KBYTMedia *videoDetails) {
             
               NSLog(@"got details successfully: %@", videoDetails);
+            
             self.titleField.stringValue = videoDetails.title;
             self.userField.stringValue = videoDetails.author;
             self.lengthField.stringValue = videoDetails.duration;
             self.viewsField.stringValue = videoDetails.views;
+             
             self.imageView.image = [[NSImage alloc] initWithContentsOfURL:[NSURL URLWithString:videoDetails.images[@"high"]]];
             
             self.currentMedia = videoDetails;
@@ -1041,7 +1054,71 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
             
             NSLog(@"fail!: %@", error);
             
+            NSAlert *alert = [NSAlert alertWithMessageText:@"An error occured" defaultButton:@"OK" alternateButton:nil otherButton:nil informativeTextWithFormat:error];
+            [alert runModal];
+            
+            
         }];
+    } else {
+        
+        NSString *plID = [[NSURL URLWithString:self.youtubeLink.stringValue] parameterDictionary][@"list"];
+        NSLog(@"plID: %@", plID);
+        
+        if (plID.length > 0){
+            
+            NSMutableArray *fullIDs = [NSMutableArray new];
+            
+            [[KBYourTube sharedInstance] getPlaylistVideos:plID completionBlock:^(NSDictionary *playlistDictionary) {
+                DLog(@"pld: %@", playlistDictionary);
+                self.userField.stringValue = playlistDictionary[@"playlistAuthor"];
+                self.playlistFolder = playlistDictionary[@"title"];
+                self.titleField.stringValue = self.playlistFolder;
+                NSArray <KBYTMedia *> *results = playlistDictionary[@"results"];
+                [results enumerateObjectsUsingBlock:^(KBYTMedia  *obj, NSUInteger idx, BOOL *  stop) {
+                   
+                    [fullIDs addObject:obj.videoId];
+                    
+                    //[[KBYourTube sharedInstance] getVi]
+                    
+                    
+                }];
+              
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self setDownloadProgress:0];
+                    self.progressLabel.stringValue = @"Downloading playlist...";
+                });
+       
+                
+                
+                [[KBYourTube sharedInstance] getVideoDetailsForIDs:fullIDs completionBlock:^(NSArray *videoArray) {
+                    //NSLog(@"video array: %@", videoArray);
+                    
+                    [videoArray enumerateObjectsUsingBlock:^(KBYTMedia *  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                       
+                        [self downloadMedia:obj];
+                        
+                    }];
+                    
+                } failureBlock:^(NSString *error) {
+                     DLog(@"error: %@", error);
+                }];
+                
+                
+            } failureBlock:^(NSString *error) {
+               
+                DLog(@"error: %@", error);
+                
+            }];
+            
+        }
+        
+        
+        /*
+         
+         https://www.youtube.com/playlist?list=PLLAZ4kZ9dFpOPV5C5Ay0pHaa0RJFhcmcB
+         
+         */
+        
     }
     
 }
@@ -1051,27 +1128,68 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
     
 }
 
-- (IBAction)downloadFile:(id)sender
+- (void)downloadStream:(KBYTStream *)stream
 {
-    //we're already downloading, cancel
-    //TODO: make downloading NSOperation/NSOperationQueue based
-    if (self.downloading == true)
-    {
-        [downloadFile cancel];
-        self.downloading = false;
-        self.downloadButton.title = @"Download";
-        self.progressLabel.stringValue = @"";
-        [progressBar setDoubleValue:0];
-        [progressBar setHidden:TRUE];
-        return;
+    NSMutableDictionary *streamDict = [[stream dictionaryValue] mutableCopy];
+/*
+    streamDict[@"duration"] = self.ytMedia.duration;
+    streamDict[@"author"] = self.ytMedia.author;
+    streamDict[@"images"] = self.ytMedia.images;
+    streamDict[@"inProgress"] = [NSNumber numberWithBool:true];
+    streamDict[@"videoId"] = self.ytMedia.videoId;
+    streamDict[@"views"]= self.ytMedia.views;
+ */
+    if (self.playlistFolder.length > 0) {
+        
+        streamDict[@"downloadFolder"] = self.playlistFolder;
+        
     }
-    //create instance of downloader class
+    NSString *stringURL = [[stream url] absoluteString];
+    streamDict[@"url"] = stringURL;
+   // [self updateDownloadsDictionary:streamDict];
+        [[KBYTDownloadManager sharedInstance] addDownloadToQueue:streamDict];
+}
+
+- (void)gotProgressNotification:(NSNotification *)n {
+    
+    [self updateProgress:n.userInfo];
+    
+}
+
+- (void)updateProgress:(NSDictionary *)progress {
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+       
+        double percentComplete = [progress[@"percentComplete"] doubleValue];
+        NSString *status = progress[@"status"];
+        if (percentComplete == -1){
+            [self hideProgress];
+        } else {
+            [self setDownloadProgress:0];
+        }
+        
+        
+        NSString *progressString = [NSString stringWithFormat:@"Downloading %@...", status];
+        
+        if (![self.progressLabel.stringValue isEqualToString:progressString])
+        {
+            self.progressLabel.stringValue = progressString;
+        }
+    });
+    
+}
+
+- (void)downloadMedia:(KBYTMedia *)media {
+    
     downloadFile = [KBYTDownloadStream new];
     self.downloadButton.title = @"Cancel";
     self.downloading = true;
     
     //get the stream we want to download
-    KBYTStream *selectedObject = self.streamController.selectedObjects.lastObject;
+    KBYTStream *selectedObject = media.streams[0];
+    [self downloadStream:selectedObject];
+    return;
+    
     [downloadFile downloadStream:selectedObject progress:^(double percentComplete, NSString *status) {
         
         [self setDownloadProgress:percentComplete];
@@ -1106,6 +1224,70 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
         [self hideProgress];
         self.downloadButton.title = @"Download";
         self.downloading = false;
+        
+    }];
+    
+}
+
+
+- (IBAction)downloadFile:(id)sender
+{
+    //we're already downloading, cancel
+    //TODO: make downloading NSOperation/NSOperationQueue based
+    if (self.downloading == true)
+    {
+        [downloadFile cancel];
+        self.downloading = false;
+        self.downloadButton.title = @"Download";
+        self.progressLabel.stringValue = @"";
+        [progressBar setDoubleValue:0];
+        [progressBar setHidden:TRUE];
+        return;
+    }
+    //create instance of downloader class
+    downloadFile = [KBYTDownloadStream new];
+    self.downloadButton.title = @"Cancel";
+    self.downloading = true;
+    
+    //get the stream we want to download
+    KBYTStream *selectedObject = self.streamController.selectedObjects.lastObject;
+    [downloadFile downloadStream:selectedObject progress:^(double percentComplete, NSString *status) {
+        
+        [self setDownloadProgress:percentComplete];
+        if (![self.progressLabel.stringValue isEqualToString:status])
+        {
+            self.progressLabel.stringValue = status;
+        }
+    } completed:^(NSString *downloadedFile) {
+        
+        if ([[downloadedFile pathExtension]isEqualToString:@"m4a"]) //so it opens in itunes or default player
+        {
+            [[NSWorkspace sharedWorkspace] openFile:downloadedFile];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self hideProgress];
+                self.downloadButton.title = @"Download";
+                self.downloading = false;
+            });
+            return;
+        }
+        NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
+        
+        if ([def boolForKey:@"showFiles"] == true)
+        {
+            [[NSWorkspace sharedWorkspace] selectFile:downloadedFile inFileViewerRootedAtPath:[downloadedFile stringByDeletingLastPathComponent]];
+        }
+        // NSLog(@"autoPlay: %i showFiles: %i", [def boolForKey:@"autoPlay"], [def boolForKey:@"showFiles"]);
+        
+        if ([selectedObject playable] == true && [def boolForKey:@"autoPlay"] == true)
+        {
+            [self playLocalFile:downloadedFile];
+        }
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self hideProgress];
+            self.downloadButton.title = @"Download";
+            self.downloading = false;
+        });
         
     }];
     

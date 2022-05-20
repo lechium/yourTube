@@ -7,9 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		322D147B28370E4F004B46AB /* mux in Resources */ = {isa = PBXBuildFile; fileRef = 8922B2CF1C2FB97600A6D2E7 /* mux */; };
+		32528D9121BB53B900D73A72 /* KBYTDownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32528D8E21BB539E00D73A72 /* KBYTDownloadManager.m */; };
+		32528D9221BB53BC00D73A72 /* KBYTDownloadOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 32528D9021BB539E00D73A72 /* KBYTDownloadOperation.m */; };
+		32528D9421BB586200D73A72 /* complete.aif in Resources */ = {isa = PBXBuildFile; fileRef = 32528D9321BB580000D73A72 /* complete.aif */; };
 		8912FA4D1C6DB39A00FB6D67 /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8912FA4C1C6DB39A00FB6D67 /* libxml2.dylib */; };
 		8922B2C91C2F788500A6D2E7 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8922B2C81C2F788500A6D2E7 /* AVFoundation.framework */; };
-		8922B2D01C2FB97600A6D2E7 /* mux in Resources */ = {isa = PBXBuildFile; fileRef = 8922B2CF1C2FB97600A6D2E7 /* mux */; };
 		8922B2D31C30B74C00A6D2E7 /* yt.icns in Resources */ = {isa = PBXBuildFile; fileRef = 8922B2D21C30B74C00A6D2E7 /* yt.icns */; };
 		8922B2D61C30C85600A6D2E7 /* KBYTWebKitViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8922B2D51C30C85600A6D2E7 /* KBYTWebKitViewController.m */; };
 		8922B2D81C30C87C00A6D2E7 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8922B2D71C30C87C00A6D2E7 /* WebKit.framework */; };
@@ -28,6 +31,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		32528D8D21BB539E00D73A72 /* KBYTDownloadManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KBYTDownloadManager.h; sourceTree = "<group>"; };
+		32528D8E21BB539E00D73A72 /* KBYTDownloadManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KBYTDownloadManager.m; sourceTree = "<group>"; };
+		32528D8F21BB539E00D73A72 /* KBYTDownloadOperation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KBYTDownloadOperation.h; sourceTree = "<group>"; };
+		32528D9021BB539E00D73A72 /* KBYTDownloadOperation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KBYTDownloadOperation.m; sourceTree = "<group>"; };
+		32528D9321BB580000D73A72 /* complete.aif */ = {isa = PBXFileReference; lastKnownFileType = file; path = complete.aif; sourceTree = "<group>"; };
 		8912FA4C1C6DB39A00FB6D67 /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/usr/lib/libxml2.dylib; sourceTree = DEVELOPER_DIR; };
 		8922B2C81C2F788500A6D2E7 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		8922B2CF1C2FB97600A6D2E7 /* mux */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = mux; sourceTree = "<group>"; };
@@ -76,6 +84,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		32528D8C21BB539E00D73A72 /* Download */ = {
+			isa = PBXGroup;
+			children = (
+				32528D8D21BB539E00D73A72 /* KBYTDownloadManager.h */,
+				32528D8E21BB539E00D73A72 /* KBYTDownloadManager.m */,
+				32528D8F21BB539E00D73A72 /* KBYTDownloadOperation.h */,
+				32528D9021BB539E00D73A72 /* KBYTDownloadOperation.m */,
+			);
+			path = Download;
+			sourceTree = "<group>";
+		};
 		8914B9F71C7E493200082024 /* Ono */ = {
 			isa = PBXGroup;
 			children = (
@@ -88,6 +107,7 @@
 		8922B2CA1C2FB19D00A6D2E7 /* KBYT */ = {
 			isa = PBXGroup;
 			children = (
+				32528D8C21BB539E00D73A72 /* Download */,
 				8914B9F71C7E493200082024 /* Ono */,
 				897B4A311C5E970800F50BC2 /* APDocument */,
 				89A0EB821C28CF3C00255773 /* KBYourTube.h */,
@@ -172,6 +192,7 @@
 		89A0EB741C28CF0F00255773 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				32528D9321BB580000D73A72 /* complete.aif */,
 				8922B2CE1C2FB97600A6D2E7 /* Resources */,
 				89A0EB751C28CF0F00255773 /* main.m */,
 			);
@@ -217,6 +238,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -236,8 +258,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				89A0EB781C28CF0F00255773 /* Assets.xcassets in Resources */,
-				8922B2D01C2FB97600A6D2E7 /* mux in Resources */,
+				322D147B28370E4F004B46AB /* mux in Resources */,
 				8922B2DD1C311E8400A6D2E7 /* back_button.png in Resources */,
+				32528D9421BB586200D73A72 /* complete.aif in Resources */,
 				89A0EB7B1C28CF0F00255773 /* MainMenu.xib in Resources */,
 				8922B2D31C30B74C00A6D2E7 /* yt.icns in Resources */,
 			);
@@ -251,6 +274,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				897B4A3A1C5E970800F50BC2 /* APDocument.m in Sources */,
+				32528D9121BB53B900D73A72 /* KBYTDownloadManager.m in Sources */,
 				897B4A3B1C5E970800F50BC2 /* APElement.m in Sources */,
 				8922B2D61C30C85600A6D2E7 /* KBYTWebKitViewController.m in Sources */,
 				89A0EB841C28CF3C00255773 /* KBYourTube.m in Sources */,
@@ -258,6 +282,7 @@
 				89A0EB8A1C2F273500255773 /* KBYTDownloadStream.m in Sources */,
 				89A0EB761C28CF0F00255773 /* main.m in Sources */,
 				89A0EB731C28CF0F00255773 /* AppDelegate.m in Sources */,
+				32528D9221BB53BC00D73A72 /* KBYTDownloadOperation.m in Sources */,
 				897B4A391C5E970800F50BC2 /* APAttribute.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -366,7 +391,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.nito.yourTube;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx10.11;
+				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
@@ -381,7 +406,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.nito.yourTube;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx10.11;
+				SDKROOT = macosx;
 			};
 			name = Release;
 		};

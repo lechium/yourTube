@@ -72,11 +72,12 @@
     //previousURL is a kludge to make sure we don't go back twice.
     if ([url length] > 32 && ![previousURL isEqualToString:url]){
         NSString *substring = [url substringToIndex:32];
+        NSLog(@"substring: %@", substring);
         if ([substring isEqualToString:@"https://www.youtube.com/watch?v="])
         {
             previousURL = url;
             [sender stopLoading:nil];
-            [[[NSApplication sharedApplication] delegate] showVideoAtURL:url];
+            [(AppDelegate*)[[NSApplication sharedApplication] delegate] showVideoAtURL:url];
             [sender goBack];
             
         }

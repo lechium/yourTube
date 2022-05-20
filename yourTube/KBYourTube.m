@@ -118,7 +118,7 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
 - (BOOL)processSource:(NSDictionary *)inputSource
 {
     //NSLog(@"inputSource: %@", inputSource);
-    if ([[inputSource allKeys] containsObject:@"url"])
+    if ([[inputSource allKeys] containsObject:@"url"]|| [[inputSource allKeys] containsObject:@"signatureCipher"] )
     {
         NSString *signature = nil;
         self.itag = [[inputSource objectForKey:@"itag"] integerValue];
@@ -127,6 +127,19 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
         //  if (fmt == 22 || fmt == 18 || fmt == 37 || fmt == 38)
         //    {
         NSString *url = [[inputSource objectForKey:@"url"] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        if ([[inputSource allKeys] containsObject:@"signatureCipher"]){
+            
+            NSDictionary *sigCipher = [self parseFlashVars:inputSource[@"signatureCipher"]];
+            url = sigCipher[@"url"];
+            NSLog(@"sigCipher: %@", sigCipher);
+            /*
+             s=8A8AOq0QJAwRAIgKSdpFxJyyyoEYfkEh5RkOQmtEM7Hh8YGQtCvlL1VT_sCIF8e0s44KmvvtzWwsG5eD22lw2_Yz7GwdTmVqQ8Kuryzyz&sp=sig&url=https://rr3---sn-a5msen7z.googlevideo.com/videoplayback%3Fexpire%3D1652595005%26ei%3D3USAYrrkINWxkgbU6404%26ip%3D2600%253A8800%253A1588%253A9f00%253A8c89%253A1660%253Acdbf%253Ac18e%26id%3Do-AGQBqqF2-LgoaqBVkcmRlkpvU9WtRB5S32NMhEfH2jkN%26itag%3D18%26source%3Dyoutube%26requiressl%3Dyes%26mh%3D_Q%26mm%3D31%252C29%26mn%3Dsn-a5msen7z%252Csn-a5mekn6s%26ms%3Dau%252Crdu%26mv%3Dm%26mvi%3D3%26pl%3D39%26gcr%3Dus%26initcwndbps%3D1766250%26spc%3D4ocVCxyJsB4VkTqIT3xnFSkZMdvN%26vprv%3D1%26mime%3Dvideo%252Fmp4%26ns%3DEBmX5nmYQ6nGhLxV-2TjWuUG%26gir%3Dyes%26clen%3D26129098%26ratebypass%3Dyes%26dur%3D356.906%26lmt%3D1651347053004693%26mt%3D1652573092%26fvip%3D4%26fexp%3D24001373%252C24007246%26c%3DWEB%26txp%3D4530434%26n%3DxzUdRoyXVMRN_uab%26sparams%3Dexpire%252Cei%252Cip%252Cid%252Citag%252Csource%252Crequiressl%252Cgcr%252Cspc%252Cvprv%252Cmime%252Cns%252Cgir%252Cclen%252Cratebypass%252Cdur%252Clmt%26lsparams%3Dmh%252Cmm%252Cmn%252Cms%252Cmv%252Cmvi%252Cpl%252Cinitcwndbps%26lsig%3DAG3C_xAwRAIgD-9V8s9iM0XUVRuXq7QNKFbCJEQWM1Xzu2q_1_PYFyQCIHEPOU69K4EiJtC_zMPDZs0RuGoYP_t3YoI2rSIcpzY0
+             */
+            self.s = sigCipher[@"s"];
+            signature = self.s;
+            signature = [[KBYourTube sharedInstance] decodeSignature:signature];
+            url = [url stringByAppendingFormat:@"&signature=%@", signature];
+        }
         if ([[inputSource allKeys] containsObject:@"sig"])
         {
             self.s = [inputSource objectForKey:@"sig"];
@@ -145,6 +158,7 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
         
         if (tags == nil) // unsupported format, return nil
         {
+            DLog(@"tag not found: %lu", self.itag);
             return false;
         }
         
@@ -177,7 +191,11 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
         
         self.type = [[[[inputSource valueForKey:@"type"] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"+" withString:@" "] stringByReplacingOccurrencesOfString:@"\"" withString:@""];
         self.title = [inputSource[@"title"] stringByReplacingOccurrencesOfString:@"+" withString:@" "];
-        self.outputFilename = [NSString stringWithFormat:@"%@ [%@p].%@", self.title, self.height,self.extension];
+        if (self.height.integerValue > 0){
+            self.outputFilename = [[NSString stringWithFormat:@"%@ [%@p].%@", self.title, self.height,self.extension] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        } else {
+            self.outputFilename = [[NSString stringWithFormat:@"%@.%@", self.title ,self.extension] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        }
         return true;
         // }
     }
@@ -185,11 +203,25 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
     
     return false;
 }
+/*
+ - (NSDictionary *)dictionaryValue
+ {
+ return @{@"title": self.title, @"type": self.type, @"format": self.format, @"height": self.height, @"itag": [NSNumber numberWithInteger:self.itag], @"extension": self.extension, @"url": self.url};
+ }
+ */
 
 - (NSDictionary *)dictionaryValue
 {
-    return @{@"title": self.title, @"type": self.type, @"format": self.format, @"height": self.height, @"itag": [NSNumber numberWithInteger:self.itag], @"extension": self.extension, @"url": self.url};
+    if (self.title == nil)self.title = @"Unavailable";
+    if (self.type == nil)self.type = @"Unavailable";
+    if (self.format == nil)self.format = @"Unavailable";
+    if (self.height == nil)self.height = 0;
+    if (self.extension == nil)self.extension = @"Unavailable";
+    if (self.outputFilename == nil)self.outputFilename = @"Unavailable";
+    
+    return @{@"title": self.title, @"type": self.type, @"format": self.format, @"height": self.height, @"itag": [NSNumber numberWithInteger:self.itag], @"extension": self.extension, @"url": self.url, @"outputFilename": self.outputFilename};
 }
+
 
 - (NSString *)description
 {
@@ -244,7 +276,7 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
     {
         if ([theStream multiplexed] == false && theStream != audioStream)
         {
-            //NSLog(@"adding audio stream to stream with itag: %lu", (long)theStream.itag);
+            NSLog(@"adding audio stream to stream with itag: %lu", (long)theStream.itag);
             [theStream setAudioStream:audioStream];
         }
     }
@@ -259,10 +291,78 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
     return nil;
 }
 
+- (id)initWithJSON:(NSDictionary *)jsonDict {
+    self = [super init];
+    if ([self processJSON:jsonDict] == true) {
+        return self;
+    }
+    return nil;
+}
+
+- (BOOL)processJSON:(NSDictionary *)jsonDict {
+    NSDictionary *streamingData = jsonDict[@"streamingData"];
+    NSDictionary *videoDetails = jsonDict[@"videoDetails"];
+    self.author = videoDetails[@"author"];
+    self.title = videoDetails[@"title"];
+    self.videoId = videoDetails[@"videoId"];
+    self.views = videoDetails[@"viewCount"];
+    self.duration = videoDetails[@"lengthSeconds"];
+    self.details = videoDetails[@"shortDescription"];
+    NSArray *imageArray = videoDetails[@"thumbnail"][@"thumbnails"];
+    self.keywords = [videoDetails[@"keywords"] componentsJoinedByString:@","];
+    NSMutableDictionary *images = [NSMutableDictionary new];
+    NSInteger imageCount = imageArray.count; //TODO make sure there are actually that many images
+    images[@"high"] = imageArray.lastObject[@"url"];
+    images[@"medium"] = imageArray[imageCount-2][@"url"];
+    images[@"standard"] = imageArray[imageCount-3][@"url"];
+    self.images = images;
+    NSMutableArray *videoArray = [NSMutableArray new];
+    NSArray *formats = streamingData[@"formats"];
+    //NSLog(@"adaptiveFormats: %@", adaptiveFormats);
+    //NSLog(@"formats: %@", formats);
+    NSArray *adaptiveFormats = streamingData[@"adaptiveFormats"];
+    [adaptiveFormats enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        NSMutableDictionary *videoDict = [obj mutableCopy];
+        //add the title from the previous dictionary created
+        [videoDict setValue:self.title forKey:@"title"];
+        //NSLog(@"videoDict: %@", videoDict);
+        //process the raw dictionary into something that can be used with download links and format details
+        KBYTStream *processed = [[KBYTStream alloc] initWithDictionary:videoDict];
+        //NSDictionary *processed = [self processSource:videoDict];
+        if (processed.title != nil)
+        {
+            self.expireTime = [processed expireTime];
+            //if we actually have a video detail dictionary add it to final array
+            [videoArray addObject:processed];
+        }
+    }];
+    [formats enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        NSMutableDictionary *videoDict = [obj mutableCopy];
+        //add the title from the previous dictionary created
+        [videoDict setValue:self.title forKey:@"title"];
+        //NSLog(@"videoDict: %@", videoDict);
+        //process the raw dictionary into something that can be used with download links and format details
+        KBYTStream *processed = [[KBYTStream alloc] initWithDictionary:videoDict];
+        //NSDictionary *processed = [self processSource:videoDict];
+        if (processed.title != nil)
+        {
+            self.expireTime = [processed expireTime];
+            //if we actually have a video detail dictionary add it to final array
+            [videoArray addObject:processed];
+        }
+    }];
+    //NSLog(@"videoArray: %@", videoArray);
+    self.streams = videoArray;
+    [self matchAudioStreams];
+    return true;
+}
+
 //take the raw video detail dictionary, update our object and find/update stream details
 
 - (BOOL)processDictionary:(NSDictionary *)vars
 {
+    //DLog(@"ad_tag: %@", [vars[@"ad_tag"] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding]);
+    //DLog(@"%@", vars);
     //grab the raw streams string that is available for the video
     NSString *streamMap = [vars objectForKey:@"url_encoded_fmt_stream_map"];
     NSString *adaptiveMap = [vars objectForKey:@"adaptive_fmts"];
@@ -295,7 +395,12 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
     self.duration = duration;
     self.videoId = videoID;
     self.views = view_count;
-    
+    if (self.keywords == nil){
+        self.keywords = @"";
+    }
+    if (self.views == nil){
+        self.views = @"";
+    }
     //separate the streams into their initial array
     
     // NSLog(@"StreamMap: %@", streamMap);
@@ -326,16 +431,17 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
     {
         //same thing, take these raw feeds and make them into an NSDictionary with usable info
         NSMutableDictionary *videoDict = [self parseFlashVars:amap];
-        //  NSLog(@"videoDict: %@", videoDict[@"itag"]);
+        //NSLog(@"videoDict: %@", videoDict);
         //add the title from the previous dictionary created
         [videoDict setValue:[title stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] forKey:@"title"];
         //process the raw dictionary into something that can be used with download links and format details
         KBYTStream *processed = [[KBYTStream alloc] initWithDictionary:videoDict];
-        if (processed.title != nil)
-        {
-            //if we actually have a video detail dictionary add it to final array
-            [videoArray addObject:processed];
-        }
+        //if (processed.title != nil)
+        // {
+        //if we actually have a video detail dictionary add it to final array
+        NSLog(@"processed: %@", processed);
+        [videoArray addObject:processed];
+        //}
     }
     
     
@@ -352,6 +458,9 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
 - (NSDictionary *)dictionaryRepresentation
 {
     if (self.details == nil)self.details = @"Unavailable";
+    if (self.keywords == nil)self.keywords = @"Unavailable";
+    if (self.images == nil)self.images = @{};
+    if (self.streams == nil)self.streams = @[];
     return @{@"title": self.title, @"author": self.author, @"keywords": self.keywords, @"videoID": self.videoId, @"views": self.views, @"duration": self.duration, @"images": self.images, @"streams": self.streams, @"details": self.details, @"expireTime": [NSNumber numberWithInteger:self.expireTime], @"isExpired": [self expiredString]};
 }
 
@@ -373,6 +482,101 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
 
 @implementation NSObject (convenience)
 
+- (id)recursiveObjectsForKey:(NSString *)desiredKey parent:(id)parent {
+    if ([self isKindOfClass:NSDictionary.class]) {
+        NSDictionary *dictSelf = (NSDictionary *)self;
+        //NSLog(@"dict: %@", dictSelf.allKeys);
+        for (NSString *key in dictSelf.allKeys) {
+            if ([desiredKey isEqualToString:key]){
+                //NSLog(@"got im!: %@", parent);
+                return parent ? parent : dictSelf[key];
+            } else {
+                NSDictionary *dict = dictSelf[key];
+                
+                if ([dict isKindOfClass:NSDictionary.class] || [dict isKindOfClass:NSArray.class]){
+                    //NSLog(@"checking key: %@", key);
+                    id obj = [dict recursiveObjectsForKey:desiredKey parent:key];
+                    if (obj) {
+                        //NSLog(@"found key: %@ in parent: %@", [obj valueForKey:@"title"], key);
+                        //return dict;
+                        return obj;
+                    }
+                }
+            }
+        }
+    } else if ([self isKindOfClass:NSArray.class]){
+        NSArray *arraySelf = (NSArray *)self;
+        for (NSDictionary *item in arraySelf) {
+            if ([item isKindOfClass:NSDictionary.class]){
+                id obj = [item recursiveObjectsForKey:desiredKey parent:arraySelf];
+                if (obj) {
+                    return obj;
+                }
+                //return [item recursiveObjectForKey:desiredKey];
+            }
+        }
+    } else {
+        NSLog(@"%@ is not an NSDictionary or an NSArray, bail!", self);
+    }
+    
+    return nil;
+}
+
+- (id)recursiveObjectForKey:(NSString *)desiredKey parent:(id)parent {
+    if ([self isKindOfClass:NSDictionary.class]) {
+        NSDictionary *dictSelf = (NSDictionary *)self;
+        //NSLog(@"dict: %@", dictSelf.allKeys);
+        for (NSString *key in dictSelf.allKeys) {
+            if ([desiredKey isEqualToString:key]){
+                //NSLog(@"got im!: %@", parent);
+                return dictSelf[key];
+            } else {
+                NSDictionary *dict = dictSelf[key];
+                
+                if ([dict isKindOfClass:NSDictionary.class] || [dict isKindOfClass:NSArray.class]){
+                    //NSLog(@"checking key: %@", key);
+                    id obj = [dict recursiveObjectForKey:desiredKey parent:key];
+                    if (obj) {
+                        //NSLog(@"found key: %@ in parent: %@", [obj valueForKey:@"title"], key);
+                        //return dict;
+                        return obj;
+                    }
+                }
+            }
+        }
+    } else if ([self isKindOfClass:NSArray.class]){
+        NSArray *arraySelf = (NSArray *)self;
+        for (NSDictionary *item in arraySelf) {
+            if ([item isKindOfClass:NSDictionary.class]){
+                id obj = [item recursiveObjectForKey:desiredKey parent:arraySelf];
+                if (obj) {
+                    return obj;
+                }
+                //return [item recursiveObjectForKey:desiredKey];
+            }
+        }
+    } else {
+        NSLog(@"%@ is not an NSDictionary or an NSArray, bail!", self);
+    }
+    
+    return nil;
+}
+
+- (id)recursiveObjectForKey:(NSString *)desiredKey {
+    return [self recursiveObjectForKey:desiredKey parent:nil];
+}
+
+- (id)recursiveObjectsForKey:(NSString *)desiredKey {
+    return [self recursiveObjectsForKey:desiredKey parent:nil];
+}
+
+
+
+- (NSString *)downloadFile
+{
+    return [[self applicationSupportFolder] stringByAppendingPathComponent:@"Downloads.plist"];
+}
+
 #pragma mark Parsing & Regex magic
 
 //change a wall of "body" text into a dictionary like &key=value
@@ -382,10 +586,7 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
     return [self dictionaryFromString:vars withRegex:@"([^&=]*)=([^&]*)"];
 }
 
-//give us the actual matches from a regex, rather then NSTextCheckingResult full of ranges
-
-- (NSArray *)matchesForString:(NSString *)string withRegex:(NSString *)pattern
-{
+- (NSArray *)matchesForString:(NSString *)string withRegex:(NSString *)pattern allRanges:(BOOL)includeAllRanges {
     NSMutableArray *array = [NSMutableArray new];
     NSError *error = NULL;
     NSRange range = NSMakeRange(0, string.length);
@@ -393,11 +594,27 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
     NSArray *matches = [regex matchesInString:string options:NSMatchingReportProgress range:range];
     for (NSTextCheckingResult *entry in matches)
     {
-        NSString *text = [string substringWithRange:entry.range];
-        [array addObject:text];
+        if (includeAllRanges) {
+            for (NSInteger i = 0; i < entry.numberOfRanges; i++) {
+                NSRange range = [entry rangeAtIndex:i];
+                if (range.location != NSNotFound){
+                    NSString *text = [string substringWithRange:range];
+                    [array addObject:text];
+                }
+            }
+        } else {
+            NSString *text = [string substringWithRange:entry.range];
+            [array addObject:text];
+        }
     }
     
     return array;
+}
+
+//give us the actual matches from a regex, rather then NSTextCheckingResult full of ranges
+
+- (NSArray *)matchesForString:(NSString *)string withRegex:(NSString *)pattern {
+    return [self matchesForString:string withRegex:pattern allRanges:false];
 }
 
 
@@ -583,6 +800,28 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
     
 }
 
+- (void)enumerateJSONToFindKeys:(id)object forKeyNamed:(NSString *)keyName
+{
+    if ([object isKindOfClass:[NSDictionary class]])
+    {
+        // If it's a dictionary, enumerate it and pass in each key value to check
+        [object enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *stop) {
+            [self enumerateJSONToFindKeys:value forKeyNamed:key];
+        }];
+    }
+    else if ([object isKindOfClass:[NSArray class]])
+    {
+        // If it's an array, pass in the objects of the array to check
+        [object enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            [self enumerateJSONToFindKeys:obj forKeyNamed:nil];
+        }];
+    }
+    else
+    {
+        // If we got here (i.e. it's not a dictionary or array) so its a key/value that we needed
+        NSLog(@"We found key %@ with value %@", keyName, object);
+    }
+}
 
 - (ONOXMLDocument *)documentFromURL:(NSString *)theURL
 {
@@ -606,6 +845,24 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
     return false;
 }
 
+
+- (NSString *)stringFromPostRequest:(NSString *)url withParams:(NSDictionary *)params {
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:url]
+                                                           cachePolicy:NSURLRequestReloadIgnoringCacheData
+                                                       timeoutInterval:10];
+    
+    NSURLResponse *response = nil;
+    
+    [request setHTTPMethod:@"POST"];
+    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+    NSData *json = [NSJSONSerialization dataWithJSONObject:params options:NSJSONWritingFragmentsAllowed error:nil];
+    [request setHTTPBody:json];
+    //[request setValue:@"Mozilla/5.0 (iPhone; CPU iPhone OS 8_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Version/8.0 Mobile/12B410 Safari/600.1.4" forHTTPHeaderField:@"User-Agent"];
+    NSData *data = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:nil];
+    return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    
+}
 
 //take a url and get its raw body, then return in string format
 
@@ -779,7 +1036,7 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
 {
     ONOXMLDocument *xmlDoct = [self documentFromURL:[NSString stringWithFormat:@"https://m.youtube.com/%@/playlists?sort=da&flow=grid&view=1", userName]];
     ONOXMLElement *root = [xmlDoct rootElement];
-   // NSLog(@"root: %@", root);
+    // NSLog(@"root: %@", root);
     ONOXMLElement *playlistGroup = [root firstChildWithXPath:@"//ul[contains(@id, 'channels-browse-content-grid')]"];
     id playlistEnum = [playlistGroup XPath:@".//li[contains(@class, 'channels-content-item')]"];
     ONOXMLElement *playlistElement = nil;
@@ -921,7 +1178,7 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
             ONOXMLDocument *loadMoreDoc = [ONOXMLDocument HTMLDocumentWithString:loadMoreHTML encoding:NSUTF8StringEncoding error:nil];
             ONOXMLDocument *xmlDoc = [ONOXMLDocument HTMLDocumentWithString:rawHTML encoding:NSUTF8StringEncoding error:nil];
             ONOXMLElement *root = [xmlDoc rootElement];
-          //  NSLog(@"root: %@", root);
+            //  NSLog(@"root: %@", root);
             ONOXMLElement *videosElement = [root firstChildWithXPath:@"//ol[contains(@class, 'item-section')]"];
             if (videosElement == nil)
             {
@@ -963,7 +1220,7 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
                     result.imagePath = [@"https:" stringByAppendingString:imagePath];
                 }
                 
-               
+                
                 
                 if (lengthElement != nil)
                     result.duration = lengthElement.stringValue;
@@ -1049,6 +1306,15 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
             NSMutableDictionary *outputDict = [NSMutableDictionary new];
             NSInteger i = 0;
             ONOXMLElement *playlistDetails = [root firstChildWithXPath:@"//*[contains(@class, 'pl-header-details')]"];
+            
+            ONOXMLElement *playlistTitle = [root firstChildWithXPath:@"//*[contains(@class, 'pl-header-title')]"];
+            
+            if (playlistTitle) {
+                
+                outputDict[@"title"] = [[playlistTitle stringValue] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+                
+            }
+            
             
             for (ONOXMLElement *detailChild in [playlistDetails children])
             {
@@ -1183,7 +1449,7 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
             NSString *rawRequestResult = [self stringFromRequest:requestString];
             ONOXMLDocument *xmlDoc = [ONOXMLDocument HTMLDocumentWithString:rawRequestResult encoding:NSUTF8StringEncoding error:nil];
             ONOXMLElement *root = [xmlDoc rootElement];
-            // NSLog(@"rootelement: %@", root);
+            NSLog(@"rootelement: %@", root);
             //scan down to the section-list to find the videos
             NSString *fullSectionXPath = @"//ol[contains(@class, 'section-list')]";
             ONOXMLElement *sectionListElement = [root firstChildWithXPath:fullSectionXPath];
@@ -1563,8 +1829,8 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
 //playlists?view=1&sort=dd
 
 - (void)getChannelPlaylists:(NSString *)channelID
-         completionBlock:(void(^)(NSDictionary *searchDetails))completionBlock
-            failureBlock:(void(^)(NSString *error))failureBlock
+            completionBlock:(void(^)(NSDictionary *searchDetails))completionBlock
+               failureBlock:(void(^)(NSString *error))failureBlock
 {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         
@@ -1714,12 +1980,12 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
             NSString *rawRequestResult = [self stringFromRequest:requestString];
             ONOXMLDocument *xmlDoc = [ONOXMLDocument HTMLDocumentWithString:rawRequestResult encoding:NSUTF8StringEncoding error:nil];
             ONOXMLElement *root = [xmlDoc rootElement];
-           // NSLog(@"root element: %@", root);
+            // NSLog(@"root element: %@", root);
             ONOXMLElement *headerSection = [root firstChildWithXPath:@"//div[contains(@id, 'gh-banner')]"];
             NSString *headerString = [[[headerSection children] firstObject] stringValue];
             NSScanner *bannerScanner = [NSScanner scannerWithString:headerString];
             NSString *headerBanner = nil;
-          
+            
             [bannerScanner scanUpToString:@");" intoString:&headerBanner];
             headerBanner = [[headerBanner componentsSeparatedByString:@"//"] lastObject];
             headerBanner = [@"https://" stringByAppendingString:headerBanner];
@@ -1847,7 +2113,7 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
                 NSArray *subscribedChannels = [self channelArrayFromUserName:outputDict[@"name"]];
                 outputDict[@"channels"] = subscribedChannels;
             }
-                
+            
             if ([finalArray count] > 0)
             {
                 ONOXMLElement *loadMoreButton = [root firstChildWithXPath:@"//button[contains(@class, 'load-more-button')]"];
@@ -2104,7 +2370,7 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
                 //turn all of these variables into an nsdictionary by separating elements by =
                 NSDictionary *vars = [self parseFlashVars:body];
                 
-                //  NSLog(@"vars: %@", vars);
+                NSLog(@"vars: %@", vars);
                 
                 if ([[vars allKeys] containsObject:@"status"])
                 {
@@ -2320,10 +2586,256 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
  
  */
 
+- (NSString *)searchURL {
+    return @"https://www.youtube.com/youtubei/v1/search?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8";
+}
+
+- (NSString *)playerURL {
+    return @"https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8";
+}
+
+// '{ videoId = xpVfcZ0ZcFM, contentCheckOk = True, racyCheckOk = True, context = { client = { clientName = ANDROID, clientScreen = , clientVersion = 16.46.37, hl = en, gl = US, utcOffsetMinutes = 0 }, thirdParty = { embedUrl = https://www.youtube.com } } }'
+
+- (NSDictionary *)paramsForVideo:(NSString *)videoID {
+    return @{ @"videoId": videoID,
+              @"contentCheckOk": @"true",
+              @"racyCheckOk": @"true",
+              @"context":  @{ @"client":
+                                  @{ @"clientName": @"ANDROID",
+                                     @"clientVersion": @"16.46.37",
+                                     @"hl": @"en",
+                                     @"gl": @"US",
+                                     @"utcOffsetMinutes": @0 },
+                              @"thirdParty": @{ @"embedUrl": @"https://www.youtube.com" } } };
+}
+
+- (NSDictionary *)paramsForSearch:(NSString *)query {
+    return @{ @"query": query,
+              @"context":  @{ @"client":
+                                  @{ @"clientName": @"WEB",
+                                     @"clientVersion": @"2.20210408.08.00",
+                                     @"hl": @"en",
+                                     @"gl": @"US",
+                                     @"utcOffsetMinutes": @0 } } };
+}
+
+- (NSDictionary *)oldparamsForVideo:(NSString *)videoID {
+    return @{@"context":@{@"client":
+                              @{@"hl":@"en",
+                                @"clientName": @"WEB",
+                                @"clientVersion": @"2.20210721.00.00",
+                                @"clientFormFactor": @"UNKNOWN_FORM_FACTOR",
+                                @"clientScreen": @"EMBED",
+                                @"mainAppWebInfo": @{
+                                        @"graftUrl": @"/watch?v=UF8uR6Z6KLc",}
+                              },
+                          @"user": @{@"lockedSafetyMode": @"false"},
+                          @"request": @{@"useSsl": @"true",
+                                        @"internalExperimentFlags": @[],
+                                        @"consistencyTokenJars": @[]  }},
+             @"videoId": videoID,
+             @"playbackContext": @{
+                     @"contentPlaybackContext":@{@"vis": @0,
+                                                 @"splay": @"false",
+                                                 @"autoCaptionsDefaultOn": @"false",
+                                                 @"autonavState": @"STATE_NONE",
+                                                 @"html5Preference": @"HTML5_PREF_WANTS",
+                                                 @"lactMilliseconds": @"-1"
+                                                 
+                                                 
+                                                 
+                     }},
+             @"racyCheckOk": @"false",
+             @"contentCheckOk": @"false"
+    };
+}
+
+/*
+ curl 'https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8' -H 'Content-Type: application/json' --data '
+ "request": {      "useSsl": true,      "internalExperimentFlags": [],      "consistencyTokenJars": []  }  },
+ "videoId": "6pxRHBw-k8M",
+ "playbackContext": {    "contentPlaybackContext": {        "vis": 0,      "splay": false,      "autoCaptionsDefaultOn": false,      "autonavState": "STATE_NONE",      "html5Preference": "HTML5_PREF_WANTS",      "lactMilliseconds": "-1"    }  },
+ "racyCheckOk": false,  "contentCheckOk": false}'
+ */
+
+//ytInitialPlayerResponse\s\=\s([{$ _A-Za-z0-9\/\.\s\S]+)\}\;
+//https://www.youtube.com/watch?v=%@
+//            NSString *url = [NSString stringWithFormat:@"https://www.youtube.com/get_video_info?&video_id=%@&%@&sts=%@", videoID, @"eurl=http%3A%2F%2Fwww%2Eyoutube%2Ecom%2F", self.yttimestamp]
+
+- (void)apiSearch:(NSString *)search
+  completionBlock:(void(^)(NSArray <KBYTSearchResult *> * searchDetails))completionBlock
+     failureBlock:(void(^)(NSString* error))failureBlock {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+        
+        @autoreleasepool {
+            NSString *errorString = nil;
+            NSString *url = [self searchURL];
+            NSLog(@"url: %@", url);
+            //get the post body from the url above, gets the initial raw info we work with
+            NSDictionary *params = [self paramsForSearch:search];
+            NSString *body = [self stringFromPostRequest:url withParams:params];
+            NSData *jsonData = [body dataUsingEncoding:NSUTF8StringEncoding];
+            id jsonDict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingAllowFragments|NSJSONReadingMutableLeaves error:nil];
+            //NSLog(@"body: %@ for: %@ %@", jsonDict, url, params);
+            [jsonDict writeToFile:[NSHomeDirectory() stringByAppendingPathComponent:@"search.plist"] atomically:true];
+            __block NSMutableArray *searchResults = [NSMutableArray new];
+            NSArray *found = [jsonDict recursiveObjectsForKey:@"videoRenderer"];
+            [found enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                NSDictionary *current = obj[@"videoRenderer"];
+                NSString *lengthText = current[@"lengthText"][@"simpleText"];
+                NSDictionary *title = current[@"title"];
+                NSString *vid = current[@"videoId"];
+                NSString *viewCountText = current[@"viewCountText"][@"simpleText"];
+                NSArray *thumbnails = current[@"thumbnail"][@"thumbnails"];
+                NSDictionary *longBylineText = current[@"longBylineText"];
+                NSDictionary *ownerText = current[@"ownerText"];
+                KBYTSearchResult *searchItem = [KBYTSearchResult new];
+                searchItem.details = [longBylineText recursiveObjectForKey:@"text"];
+                searchItem.author = [ownerText recursiveObjectForKey:@"text"];
+                searchItem.title = [title recursiveObjectForKey:@"text"];
+                searchItem.duration = lengthText;
+                searchItem.videoId = vid;
+                searchItem.views = viewCountText;
+                searchItem.age = current[@"publishedTimeText"][@"simpleText"];
+                searchItem.imagePath = thumbnails.lastObject[@"url"];
+                [searchResults addObject:searchItem];
+            }];
+            
+            //NSLog(@"thumbs: %@", thumbnails);
+            //[self enumerateJSONToFindKeys:jsonDict forKeyNamed:@"videoRenderer"];
+            //NSLog(@"found test object?: %@", testObject);
+            //NSLog(@"keys: %@", [jsonDict allKeys]);
+            //NSLog(@"root info: %@", rootInfo);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                if(searchResults != nil)
+                {
+                    completionBlock(searchResults);
+                } else {
+                    failureBlock(errorString);
+                }
+            });
+        }
+    });
+    //
+}
 
 - (void)getVideoDetailsForID:(NSString*)videoID
              completionBlock:(void(^)(KBYTMedia* videoDetails))completionBlock
                 failureBlock:(void(^)(NSString* error))failureBlock
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+        
+        @autoreleasepool {
+            KBYTMedia *rootInfo = nil;
+            NSString *errorString = nil;
+            NSString *url = [self playerURL];
+            NSLog(@"url: %@", url);
+            //get the post body from the url above, gets the initial raw info we work with
+            NSDictionary *params = [self paramsForVideo:videoID];
+            NSString *body = [self stringFromPostRequest:url withParams:params];
+            NSData *jsonData = [body dataUsingEncoding:NSUTF8StringEncoding];
+            NSDictionary *jsonDict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingAllowFragments|NSJSONReadingMutableLeaves error:nil];
+            //NSLog(@"body: %@ for: %@ %@", jsonDict, url, params);
+            [jsonDict writeToFile:[NSHomeDirectory() stringByAppendingPathComponent:@"file2.plist"] atomically:true];
+            
+            rootInfo = [[KBYTMedia alloc] initWithJSON:jsonDict];
+            //NSLog(@"root info: %@", rootInfo);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                if(rootInfo != nil)
+                {
+                    completionBlock(rootInfo);
+                } else {
+                    failureBlock(errorString);
+                }
+            });
+        }
+    });
+    
+}
+
+- (void)trygetVideoDetailsForID:(NSString*)videoID
+                completionBlock:(void(^)(KBYTMedia* videoDetails))completionBlock
+                   failureBlock:(void(^)(NSString* error))failureBlock
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+        
+        @autoreleasepool {
+            KBYTMedia *rootInfo = nil;
+            //NSMutableDictionary *rootInfo = [NSMutableDictionary new];
+            NSString *errorString = nil;
+            
+            //if we already have the timestamp and key theres no reason to fetch them again, should make additional calls quicker.
+            if (self.yttimestamp.length == 0 && self.ytkey.length == 0)
+            {
+                //get the time stamp and cipher key in case we need to decode the signature.
+                [self getTimeStampAndKey:videoID];
+            }
+            
+            //a fallback just in case the jsbody is changed and we cant automatically grab current signatures
+            //old ciphers generally continue to work at least temporarily.
+            
+            if (self.yttimestamp.length == 0 || self.ytkey.length == 0)
+            {
+                errorString = @"Failed to decode signature cipher javascript.";
+                self.yttimestamp = hardcodedTimestamp;
+                self.ytkey = hardcodedCipher;
+                
+            }
+            
+            //the url we use to call get_video_info
+            //ytInitialPlayerResponse([{$ _A-Za-z0-9\/\.\s\S]+)\}\;
+            NSString *url = [NSString stringWithFormat:@"https://www.youtube.com/watch?v=%@&sts=%@", videoID, self.yttimestamp];
+            NSLog(@"url: %@", url);
+            //get the post body from the url above, gets the initial raw info we work with
+            NSString *body = [self stringFromRequest:url];
+            //NSLog(@"body: %@ for: %@", body, url);
+            NSLog(@"writing to file : %@", [NSHomeDirectory() stringByAppendingPathComponent:@"file.html"]);
+            [body writeToFile:[NSHomeDirectory() stringByAppendingPathComponent:@"file.html"] atomically:true encoding:NSUTF8StringEncoding error:nil];
+            
+            //ytInitialPlayerResponse\s\=\s([{$ _A-Za-z0-9\/\.\s\S]+)\}\;
+            NSString *jsonString = [[self matchesForString:body withRegex:@"ytInitialPlayerResponse([\\s\\S]+)" allRanges:true] firstObject];
+            NSLog(@"jsonString: %@", jsonString);
+            //turn all of these variables into an nsdictionary by separating elements by =
+            /*
+             NSDictionary *vars = [self parseFlashVars:body];
+             
+             NSLog(@"vars: %@", vars);
+             
+             if ([[vars allKeys] containsObject:@"status"])
+             {
+             if ([[vars objectForKey:@"status"] isEqualToString:@"ok"])
+             {
+             //the call was successful, create our root object.
+             rootInfo = [[KBYTMedia alloc] initWithDictionary:vars];
+             NSLog(@"root info: %@", rootInfo);
+             } else {
+             errorString = [[[vars valueForKey:@"reason"] stringByReplacingOccurrencesOfString:@"+" withString:@" "] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+             }
+             } else {
+             
+             errorString = @"get_video_info failed.";
+             
+             }
+             */
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                if(rootInfo != nil)
+                {
+                    completionBlock(rootInfo);
+                } else {
+                    failureBlock(errorString);
+                }
+            });
+        }
+    });
+    
+}
+
+- (void)oldgetVideoDetailsForID:(NSString*)videoID
+                completionBlock:(void(^)(KBYTMedia* videoDetails))completionBlock
+                   failureBlock:(void(^)(NSString* error))failureBlock
 {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         
@@ -2356,11 +2868,11 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
             
             //get the post body from the url above, gets the initial raw info we work with
             NSString *body = [self stringFromRequest:url];
-            //NSLog(@"body: %@", body);
+            NSLog(@"body: %@ for: %@", body, url);
             //turn all of these variables into an nsdictionary by separating elements by =
             NSDictionary *vars = [self parseFlashVars:body];
             
-            // NSLog(@"vars: %@", vars);
+            NSLog(@"vars: %@", vars);
             
             if ([[vars allKeys] containsObject:@"status"])
             {
@@ -2368,6 +2880,9 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
                 {
                     //the call was successful, create our root object.
                     rootInfo = [[KBYTMedia alloc] initWithDictionary:vars];
+                    //NSLog(@"root info: %@", rootInfo);
+                } else {
+                    errorString = [[[vars valueForKey:@"reason"] stringByReplacingOccurrencesOfString:@"+" withString:@" "] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
                 }
             } else {
                 
@@ -2400,7 +2915,7 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
         
         @autoreleasepool {
             NSTask *afcTask = [NSTask new];
-            [afcTask setLaunchPath:[[NSBundle mainBundle] pathForResource:@"mux" ofType:@""]];
+            [afcTask setLaunchPath:[[NSBundle mainBundle] pathForResource:@"ffmpeg" ofType:@"" inDirectory:@"mux"]];
             //iOS change to /usr/bin/ffmpeg and make sure to depend upon com.nin9tyfour.ffmpeg
             [afcTask setStandardError:[NSFileHandle fileHandleWithNullDevice]];
             [afcTask setStandardOutput:[NSFileHandle fileHandleWithNullDevice]];
@@ -2499,34 +3014,51 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
         case 299: dict = @{@"format": @"1080p HFR M4V", @"height": @1080, @"extension": @"m4v", @"quality": @"adaptive"}; break;
         case 140: dict = @{@"format": @"128K AAC M4A", @"height": @0, @"extension": @"aac", @"quality": @"adaptive"}; break;
         case 141: dict = @{@"format": @"256K AAC M4A", @"height": @0, @"extension": @"aac", @"quality": @"adaptive"}; break;
-            /*
-             //adaptive
-             
-             case 133: dict = @{@"format": @"240p MP4", @"height": @240, @"extension": @"mp4", @"quality": @"adaptive"}; break;
-             case 134: dict = @{@"format": @"360p MP4", @"height": @360, @"extension": @"mp4", @"quality": @"adaptive"}; break;
-             case 135: dict = @{@"format": @"480p MP4", @"height": @480, @"extension": @"mp4", @"quality": @"adaptive"}; break;
-             case 136: dict = @{@"format": @"720p MP4", @"height": @720, @"extension": @"mp4", @"quality": @"adaptive"}; break;
-             case 160: dict = @{@"format": @"144p MP4", @"height": @144, @"extension": @"mp4", @"quality": @"adaptive"}; break;
-             
-             case 242: dict = @{@"format": @"240p WebM", @"height": @240, @"extension": @"WebM", @"quality": @"adaptive"}; break;
-             case 243: dict = @{@"format": @"360p WebM", @"height": @360, @"extension": @"WebM", @"quality": @"adaptive"}; break;
-             case 244: dict = @{@"format": @"480p WebM", @"height": @480, @"extension": @"WebM", @"quality": @"adaptive"}; break;
-             case 247: dict = @{@"format": @"720p WebM", @"height": @720, @"extension": @"WebM", @"quality": @"adaptive"}; break;
-             case 278: dict = @{@"format": @"144p WebM", @"height": @144, @"extension": @"WebM", @"quality": @"adaptive"}; break;
-             
-             case 298: dict = @{@"format": @"720p HFR MP4", @"height": @720, @"extension": @"mp4", @"quality": @"adaptive"}; break;
-             
-             
-             case 302: dict = @{@"format": @"720p HFR WebM", @"height": @720, @"extension": @"WebM", @"quality": @"adaptive"}; break;
-             case 303: dict = @{@"format": @"1080p HFR WebM", @"height": @1080, @"extension": @"WebM", @"quality": @"adaptive"}; break;
-             
-             //audio
-             
-             case 171: dict = @{@"format": @"128K Vorbis WebM", @"height": @0, @"extension": @"WebMa", @"quality": @"adaptive"}; break;
-             case 249: dict = @{@"format": @"48K Opus WebM", @"height": @0, @"extension": @"WebMa", @"quality": @"adaptive"}; break;
-             case 250: dict = @{@"format": @"64K Opus WebM", @"height": @0, @"extension": @"WebMa", @"quality": @"adaptive"}; break;
-             case 251: dict = @{@"format": @"160K Opus WebM", @"height": @0, @"extension": @"WebMa", @"quality": @"adaptive"}; break;
-             */
+            
+            //adaptive
+            
+        case 133: dict = @{@"format": @"240p MP4", @"height": @240, @"extension": @"mp4", @"quality": @"adaptive"}; break;
+        case 134: dict = @{@"format": @"360p MP4", @"height": @360, @"extension": @"mp4", @"quality": @"adaptive"}; break;
+        case 135: dict = @{@"format": @"480p MP4", @"height": @480, @"extension": @"mp4", @"quality": @"adaptive"}; break;
+        case 136: dict = @{@"format": @"720p MP4", @"height": @720, @"extension": @"mp4", @"quality": @"adaptive"}; break;
+        case 160: dict = @{@"format": @"144p MP4", @"height": @144, @"extension": @"mp4", @"quality": @"adaptive"}; break;
+            
+        case 242: dict = @{@"format": @"240p WebM", @"height": @240, @"extension": @"WebM", @"quality": @"adaptive"}; break;
+        case 243: dict = @{@"format": @"360p WebM", @"height": @360, @"extension": @"WebM", @"quality": @"adaptive"}; break;
+        case 244: dict = @{@"format": @"480p WebM", @"height": @480, @"extension": @"WebM", @"quality": @"adaptive"}; break;
+        case 247: dict = @{@"format": @"720p WebM", @"height": @720, @"extension": @"WebM", @"quality": @"adaptive"}; break;
+        case 278: dict = @{@"format": @"144p WebM", @"height": @144, @"extension": @"WebM", @"quality": @"adaptive"}; break;
+            
+        case 298: dict = @{@"format": @"720p HFR MP4", @"height": @720, @"extension": @"mp4", @"quality": @"adaptive"}; break;
+            
+            
+        case 302: dict = @{@"format": @"720p HFR WebM", @"height": @720, @"extension": @"WebM", @"quality": @"adaptive"}; break;
+        case 303: dict = @{@"format": @"1080p HFR WebM", @"height": @1080, @"extension": @"WebM", @"quality": @"adaptive"}; break;
+            
+            //audio
+            
+        case 171: dict = @{@"format": @"128K Vorbis WebM", @"height": @0, @"extension": @"WebMa", @"quality": @"adaptive"}; break;
+        case 249: dict = @{@"format": @"48K Opus WebM", @"height": @0, @"extension": @"WebMa", @"quality": @"adaptive"}; break;
+        case 250: dict = @{@"format": @"64K Opus WebM", @"height": @0, @"extension": @"WebMa", @"quality": @"adaptive"}; break;
+        case 251: dict = @{@"format": @"160K Opus WebM", @"height": @0, @"extension": @"WebMa", @"quality": @"adaptive"}; break;
+        case 248: return @{@"format":@"VP9/V_VP9/1920x1080/29.97fps WebM",@"height":@1080,@"extension":@"WebM",@"quality":@"adaptive"};
+        case 271: return @{@"format":@"VP9/V_VP9/2560x1440/29.97fps WebM",@"height":@1440,@"extension":@"WebM",@"quality":@"adaptive"};
+        case 272: return @{@"format":@"VP9/V_VP9/GREATERTHAN4K/59.88fps WebM",@"height":@2880,@"extension":@"WebM",@"quality":@"adaptive"};
+        case 308: return @{@"format":@"VP9/V_VP9/2560x1440/59.88fps WebM",@"height":@1440,@"extension":@"WebM",@"quality":@"adaptive"};
+        case 313: return @{@"format":@"VP9/V_VP9/3840x2160/29.97fps WebM",@"height":@2160,@"extension":@"WebM",@"quality":@"adaptive"};
+        case 315: return @{@"format":@"VP9/V_VP9/3840x2160/59.94fps WebM",@"height":@2160,@"extension":@"WebM",@"quality":@"adaptive"};
+        case 330: return @{@"format":@"VP9/V_VP9/256x144/59.88fps WebM",@"height":@144,@"extension":@"WebM",@"quality":@"adaptive"};
+        case 331: return @{@"format":@"VP9/V_VP9/426x240/59.88fps WebM",@"height":@240,@"extension":@"WebM",@"quality":@"adaptive"};
+        case 332: return @{@"format":@"VP9/V_VP9/640x360/59.88fps WebM",@"height":@360,@"extension":@"WebM",@"quality":@"adaptive"};
+        case 333: return @{@"format":@"VP9/V_VP9/854x480/59.88fps WebM",@"height":@480,@"extension":@"WebM",@"quality":@"adaptive"};
+        case 334: return @{@"format":@"VP9/V_VP9/1280x720/59.88fps WebM",@"height":@720,@"extension":@"WebM",@"quality":@"adaptive"};
+        case 335: return @{@"format":@"VP9/V_VP9/1920x1080/59.88fps WebM",@"height":@1080,@"extension":@"WebM",@"quality":@"adaptive"};
+        case 336: return @{@"format":@"VP9/V_VP9/2560x1440/59.88fps WebM",@"height":@1440,@"extension":@"WebM",@"quality":@"adaptive"};
+        case 337: return @{@"format":@"VP9/V_VP9/3840x2160/59.88fps WebM",@"height":@2160,@"extension":@"WebM",@"quality":@"adaptive"};
+        case 398: return @{@"format":@"720p MP4", @"height": @480, @"extension": @"m4v", @"quality": @"adaptive"};
+        case 399: return @{@"format":@"1080p MP4", @"height": @720, @"extension": @"m4v", @"quality": @"adaptive"};
+        case 400: return @{@"format":@"1440p MP4", @"height": @1080, @"extension": @"m4v", @"quality": @"adaptive"};
+        case 401: return @{@"format":@"2160p MP4", @"height": @1440, @"extension": @"m4v", @"quality": @"adaptive"};
             /*
              136=720p MP4
              247=720p WebM
@@ -2568,7 +3100,7 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
         
         @autoreleasepool {
             NSTask *afcTask = [NSTask new];
-            [afcTask setLaunchPath:[[NSBundle mainBundle] pathForResource:@"mux" ofType:@""]];
+            [afcTask setLaunchPath:[[NSBundle mainBundle] pathForResource:@"ffmpeg" ofType:@"" inDirectory:@"mux"]];
             [afcTask setStandardError:[NSFileHandle fileHandleWithNullDevice]];
             [afcTask setStandardOutput:[NSFileHandle fileHandleWithNullDevice]];
             NSMutableArray *args = [NSMutableArray new];
@@ -2581,7 +3113,7 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
             
             [args addObject:outputFile];
             [afcTask setArguments:args];
-            // NSLog(@"mux %@", [args componentsJoinedByString:@" "]);
+            NSLog(@"mux %@", [args componentsJoinedByString:@" "]);
             [afcTask launch];
             [afcTask waitUntilExit];
         }
@@ -2667,26 +3199,44 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
 {
     NSString *url = [NSString stringWithFormat:@"https://www.youtube.com/embed/%@", videoID];
     NSString *body = [self stringFromRequest:url];
-    
+    //NSLog(@"body: %@", body);
+    if (!body) {
+        return;
+    }
     //the timestamp that is needed for signature deciphering
     
-    self.yttimestamp = [[[[self matchesForString:body withRegex:@"\"sts\":(\\d*)"] lastObject] componentsSeparatedByString:@":"] lastObject];
-    
+    //self.yttimestamp = [[[[self matchesForString:body withRegex:@"\"sts\":(\\d*)"] lastObject] componentsSeparatedByString:@":"] lastObject];
+    //\"jsUrl\":\"([$_A-Za-z0-9\/\.]+)
     //isolate the base.js file that we need to extract the signature from
     
-    NSString *baseJS = [NSString stringWithFormat:@"https://youtube.com%@", [[[[[self matchesForString:body withRegex:@"\"js\":\"([^\"]*)\""] lastObject] componentsSeparatedByString:@":"] lastObject] stringByReplacingOccurrencesOfString:@"\\/" withString:@"/"]];
+    NSString *baseJSRegex = @"\"jsUrl\":\"([$_A-Za-z0-9\\/\\.]+)";
+    
+    NSString *match = [[self matchesForString:body withRegex:baseJSRegex allRanges:true] lastObject];
+    
+    NSLog(@"match: %@", match);
+    //return;
+    
+    NSString *baseJS = [NSString stringWithFormat:@"https://youtube.com%@", match];
+    
+    NSLog(@"baseJS: %@", baseJS);
+    
+    //NSString *baseJS = [NSString stringWithFormat:@"https://youtube.com%@", [[[[[self matchesForString:body withRegex:@"\"js\":\"([^\"]*)\""] lastObject] componentsSeparatedByString:@":"] lastObject] stringByReplacingOccurrencesOfString:@"\\/" withString:@"/"]];
     
     //get the raw js source of the decoder file that we need to get the signature cipher from
     
     NSString *jsBody = [self stringFromRequest:[baseJS stringByReplacingOccurrencesOfString:@"\"" withString:@""]];
     
+    //NSLog(@"jsBody: %@", jsBody);
     //crazy convoluted regex to get a signature section similiar to this
     //cr.Ww(a,13);cr.W9(a,69);cr.Gz(a,3);cr.Ww(a,2);cr.W9(a,79);cr.Gz(a,3);cr.Ww(a,36);return a.join(
-    
+    //sx.Aw(a,65);sx.Aw(a,31);sx.g0(a,33);sx.UG(a,2);sx.g0(a,65);return a.join(
     //#### IGNORE THE WARNING, if the extra escape is added as expected the regex doesnt work!
+    ///function[ $_A-Za-z0-9]*\(a\)\{a=a(?:\.split|\[[$_A-Za-z0-9]+\])\(\"\"\);\s*([^"]*)/
+    NSString *keyMatch = [[self matchesForString:jsBody withRegex:@"function[ $_A-Za-z0-9]*\\(a\\)\\{a=a(?:\.split|\\[[$_A-Za-z0-9]+\\])\\(\"\"\\);\\s*([^\"]*)" allRanges:false] lastObject];
     
-    NSString *keyMatch = [[self matchesForString:jsBody withRegex:@"function[ $_A-Za-z0-9]*\\(a\\)\\{a=a(?:\.split|\\[[$_A-Za-z0-9]+\\])\\(\"\"\\);\\s*([^\"]*)"] lastObject];
+    NSLog(@"keyMatch: %@", keyMatch);
     
+    self.yttimestamp = [[[[self matchesForString:jsBody withRegex:@"sts:(\\d*)"] firstObject] componentsSeparatedByString:@":"] lastObject];
     
     if ([keyMatch rangeOfString:@"function"].location != NSNotFound)
     {
@@ -2700,22 +3250,27 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
     
     NSString *fnNameMatch = [NSString stringWithFormat:@";var %@={", [[self matchesForString:keyMatch withRegex:@"^[$_A-Za-z0-9]+"] lastObject]];
     
+    //NSLog(@"fnNameMatch: %@", fnNameMatch);
+    
     //the index to start the new string range from for said optimization above
     
-  //  DLog(@"jsbody: %@", jsBody);
+    //  DLog(@"jsbody: %@", jsBody);
     
     NSUInteger index = [jsBody rangeOfString:fnNameMatch].location;
-    
+    //NSLog(@"index: %lu", index);
     //smaller string for searching for reverse / splice function names
     NSString *x = jsBody;
     if (index != NSNotFound)
     {
         x = [jsBody substringFromIndex:index];
+        //NSLog(@"x: %@", x);
     }
     NSString *a, *tmp, *r, *s = nil;
     
     //next baffling regex used to cycle through which functions names from the match above are linked to reversing and splicing
     NSArray *matches = [self matchesForString:x withRegex:@"([$_A-Za-z0-9]+):|reverse|splice"];
+    //NSLog(@"matches: %@", matches);
+    
     int i = 0;
     
     /*
@@ -2738,9 +3293,11 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
         }
         if([a isEqualToString:@"reverse"])
         {
+            NSLog(@"reverse = %@", tmp);
             r = tmp;
         } else if ([a isEqualToString:@"splice"])
         {
+            NSLog(@"splice = %@", tmp);
             s = tmp;
         } else {
             tmp = [a stringByReplacingOccurrencesOfString:@":" withString:@""];
@@ -2768,7 +3325,8 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
         NSString *importantSection = [[theMatch componentsSeparatedByString:@"."] lastObject];
         NSString *numberValue = [[[importantSection componentsSeparatedByString:@","] lastObject] stringByReplacingOccurrencesOfString:@")" withString:@""]; //13
         NSString *fnName = [[importantSection componentsSeparatedByString:@"("] objectAtIndex:0]; // Ww
-        
+        NSLog(@"theMath: %@", theMatch);
+        NSLog(@"importantSection: %@ number: %@ fn: %@", importantSection, numberValue, fnName);
         if ([fnName isEqualToString:r]) //reverse
         {
             [keys addObject:@"0"]; //0 in our signature key means reverse the string
