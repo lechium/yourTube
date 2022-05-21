@@ -883,6 +883,21 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
     
 }
 
+- (void)testSearch {
+    __block NSMutableArray *results = [NSMutableArray new];
+    [[KBYourTube sharedInstance] apiSearch:@"science" type:KBYTSearchTypeAll continuation:nil completionBlock:^(KBYTSearchResults *result) {
+        [results addObject:result];
+        [[KBYourTube sharedInstance] apiSearch:@"science" type:KBYTSearchTypeAll continuation:result.continuationToken completionBlock:^(KBYTSearchResults *result) {
+            [results addObject:result];
+            NSLog(@"results: %@", results);
+        } failureBlock:^(NSString *error) {
+            
+        }];
+    } failureBlock:^(NSString *error) {
+        
+    }];
+}
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
     [AppDelegate setDefaultPrefs];
@@ -892,9 +907,7 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
     [self.window setDelegate:self];
     [self addProgressObserver];
     
-    NSString *ffmpegPath = [[NSBundle mainBundle] pathForResource:@"ffmpeg" ofType:@"" inDirectory:@"mux"];
-    NSLog(@"ffmpegPath: %@", ffmpegPath);
-    
+    [self testSearch];
     //NSData *rawRequestResult = [NSData dataWithContentsOfFile:[NSHomeDirectory() stringByAppendingPathComponent:@"Desktop/science2.html"]];
     
     //NSString *jsonValue = [[NSJSONSerialization JSONObjectWithData:rawRequestResult options:NSJSONReadingAllowFragments error:nil] valueForKey:@"load_more_widget_html"];

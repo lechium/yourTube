@@ -16,6 +16,14 @@ typedef NS_ENUM(NSUInteger, kYTSearchResultType) {
     kYTSearchResultTypeChannel,
 };
 
+typedef NS_ENUM(NSUInteger, KBYTSearchType) {
+    KBYTSearchTypeAll,
+    KBYTSearchTypeVideos,
+    KBYTSearchTypeChannels,
+    KBYTSearchTypePlaylists,
+};
+
+
 @interface KBYTSearchResult: NSObject
 
 @property (nonatomic, strong) NSString *title;
@@ -26,9 +34,20 @@ typedef NS_ENUM(NSUInteger, kYTSearchResultType) {
 @property (nonatomic, strong) NSString *age;
 @property (nonatomic, strong) NSString *views;
 @property (nonatomic, strong) NSString *details;
+@property (nonatomic, strong) NSString *continuationToken;
 @property (readwrite, assign) kYTSearchResultType resultType;
 
 - (id)initWithDictionary:(NSDictionary *)resultDict;
+
+@end
+
+@interface KBYTSearchResults: NSObject
+
+@property (nonatomic, strong) NSString *continuationToken;
+@property (nonatomic, strong) NSArray <KBYTSearchResult *> *videos;
+@property (nonatomic, strong) NSArray <KBYTSearchResult *> *playlists;
+@property (nonatomic, strong) NSArray <KBYTSearchResult *> *channels;
+- (void)processJSON:(NSDictionary *)jsonData;
 
 @end
 
@@ -113,7 +132,9 @@ typedef NS_ENUM(NSUInteger, kYTSearchResultType) {
 @property (nonatomic, strong) NSString *ytkey;
 
 - (void)apiSearch:(NSString *)search
-  completionBlock:(void(^)(NSArray <KBYTSearchResult *> * searchDetails))completionBlock
+             type:(KBYTSearchType)type
+     continuation:(NSString *)continuation
+  completionBlock:(void(^)(KBYTSearchResults *result))completionBlock
      failureBlock:(void(^)(NSString* error))failureBlock;
 - (NSArray *)channelArrayFromUserName:(NSString *)userName;
 - (NSString *)videoDescription:(NSString *)videoID;
