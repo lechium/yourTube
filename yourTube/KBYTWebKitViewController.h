@@ -21,4 +21,5 @@
 @property (nonatomic, assign) IBOutlet NSWindow *webWindow;
 
 - (IBAction)showWebWindow:(id)sender;
+- (void)loadPageForInnerHTML:(NSString *)thePage completion:(void(^)(NSString *innerHTML))completionBlock;
 @end

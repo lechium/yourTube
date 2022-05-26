@@ -34,6 +34,12 @@
 
 @end
 
+@interface KBYTWebKitViewController()
+
+@property (nonatomic, copy) void (^loadBlock)(NSString *innerHTML);
+
+@end
+
 @implementation KBYTWebKitViewController
 
 @synthesize ourWebView;
@@ -43,6 +49,14 @@
     self = [super init];
    
     return self;
+}
+
+- (void)loadPageForInnerHTML:(NSString *)thePage completion:(void(^)(NSString *innerHTML))completionBlock {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.loadBlock = completionBlock;
+        
+        [[ourWebView mainFrame] loadHTMLString:thePage baseURL:nil];
+    });
 }
 
 - (IBAction)showWebWindow:(id)sender
@@ -61,6 +75,15 @@
 - (void)webView:(WebView *)webView decidePolicyForMIMEType:(NSString *)type request:(NSURLRequest *)request frame:(WebFrame *)frame decisionListener:(id<WebPolicyDecisionListener>)listener
 {
 
+}
+
+- (void)webView:(WebView *)sender didFinishLoadForFrame:(WebFrame *)frame {
+    LOG_SELF;
+    if (self.loadBlock) {
+        NSString *innerHTML = [sender stringByEvaluatingJavaScriptFromString:@"document.documentElement.innerHTML;"];
+        self.loadBlock(innerHTML);
+        self.loadBlock = nil;
+    }
 }
 
 //only way i could find to process video links being selected

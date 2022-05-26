@@ -41,6 +41,28 @@ typedef NS_ENUM(NSUInteger, KBYTSearchType) {
 
 @end
 
+@interface KBYTChannel: NSObject
+
+@property (nonatomic, strong) NSString *title;
+@property (nonatomic, strong) NSString *owner;
+@property (nonatomic, strong) NSString *url;
+@property (nonatomic, strong) NSString *image;
+@property (nonatomic, strong) NSString *channelID;
+@property (nonatomic, strong) NSArray <KBYTSearchResult *> *videos;
+
+@end
+
+@interface KBYTPlaylist: NSObject
+
+@property (nonatomic, strong) NSString *title;
+@property (nonatomic, strong) NSString *owner;
+@property (nonatomic, strong) NSString *url;
+@property (nonatomic, strong) NSString *image;
+@property (nonatomic, strong) NSString *playlistID;
+@property (nonatomic, strong) NSArray <KBYTSearchResult *> *videos;
+
+@end
+
 @interface KBYTSearchResults: NSObject
 
 @property (nonatomic, strong) NSString *continuationToken;
@@ -153,7 +175,7 @@ typedef NS_ENUM(NSUInteger, KBYTSearchType) {
                   failureBlock:(void(^)(NSString *error))failureBlock;
 
 - (void)getPlaylistVideos:(NSString *)listID
-          completionBlock:(void(^)(NSDictionary * playlistDictionary))completionBlock
+          completionBlock:(void(^)(KBYTPlaylist *playlist))completionBlock
              failureBlock:(void(^)(NSString *error))failureBlock;
 
 - (void)loadMorePlaylistVideosFromHREF:(NSString *)loadMoreLink
@@ -183,7 +205,7 @@ typedef NS_ENUM(NSUInteger, KBYTSearchType) {
 - (NSString *)videoInfoPage:(NSString *)html;
 
 - (void)getChannelVideos:(NSString *)channelID
-         completionBlock:(void(^)(NSDictionary *searchDetails))completionBlock
+         completionBlock:(void(^)(KBYTChannel *channel))completionBlock
             failureBlock:(void(^)(NSString *error))failureBlock;
 
 - (void)getFeaturedVideosWithCompletionBlock:(void(^)(NSDictionary* searchDetails))completionBlock

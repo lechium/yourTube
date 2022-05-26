@@ -883,11 +883,29 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
     
 }
 
+- (void)testChannel {
+    //UCiKG0sqt203-klnmcdkRozQ
+    [[KBYourTube sharedInstance] getChannelVideos:@"UCByOQJjav0CUDwxCk-jVNRQ" completionBlock:^(KBYTChannel *channel) {
+        NSLog(@"channel: %@", channel);
+    } failureBlock:^(NSString *error) {
+        
+    }];
+}
+
+- (void)testPL {
+    [[KBYourTube sharedInstance] getPlaylistVideos:@"PLVn8xgiXFmUFjK_hhnBBy1vo6TWeabkuv" completionBlock:^(KBYTPlaylist *playlist) {
+        NSLog(@"videos: %@, owner: %@ title: %@", playlist.videos, playlist.owner, playlist.title);
+        //[playlistDictionary writeToFile:[NSHomeDirectory() stringByAppendingPathComponent:@"playlist.plist"] atomically:true];
+    } failureBlock:^(NSString *error) {
+        
+    }];
+}
+
 - (void)testSearch {
     __block NSMutableArray *results = [NSMutableArray new];
-    [[KBYourTube sharedInstance] apiSearch:@"drake" type:KBYTSearchTypeAll continuation:nil completionBlock:^(KBYTSearchResults *result) {
+    [[KBYourTube sharedInstance] apiSearch:@"drake" type:KBYTSearchTypeChannels continuation:nil completionBlock:^(KBYTSearchResults *result) {
         [results addObject:result];
-        [[KBYourTube sharedInstance] apiSearch:@"drake" type:KBYTSearchTypeAll continuation:result.continuationToken completionBlock:^(KBYTSearchResults *result) {
+        [[KBYourTube sharedInstance] apiSearch:@"drake" type:KBYTSearchTypeChannels continuation:result.continuationToken completionBlock:^(KBYTSearchResults *result) {
             [results addObject:result];
             //NSLog(@"results: %@", results);
         } failureBlock:^(NSString *error) {
@@ -907,7 +925,7 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
     [self.window setDelegate:self];
     [self addProgressObserver];
     
-    [self testSearch];
+    [self testChannel];
     //NSData *rawRequestResult = [NSData dataWithContentsOfFile:[NSHomeDirectory() stringByAppendingPathComponent:@"Desktop/science2.html"]];
     
     //NSString *jsonValue = [[NSJSONSerialization JSONObjectWithData:rawRequestResult options:NSJSONReadingAllowFragments error:nil] valueForKey:@"load_more_widget_html"];
@@ -987,6 +1005,7 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
 //called from webkit window when a link is clicked
 - (void)showVideoAtURL:(NSString *)url
 {
+    NSLog(@"url: %@", url);
     self.youtubeLink.stringValue = url;
     [self getResults:nil];
     [[NSUserDefaults standardUserDefaults] setObject:url forKey:@"lastDownloadLink"];
@@ -1040,91 +1059,91 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
 //get video details
 - (IBAction)getResults:(id)sender
 {
-    NSString *videoID = [[NSURL URLWithString:self.youtubeLink.stringValue] parameterDictionary][@"v"];
-    NSLog(@"videoID: %@", videoID);
     
-    if ([videoID length] > 0)
-    {
-        self.playlistFolder = nil;
-        [[KBYourTube sharedInstance] getVideoDetailsForID:videoID completionBlock:^(KBYTMedia *videoDetails) {
-            
-            //NSLog(@"got details successfully: %@", videoDetails);
-            
-            self.titleField.stringValue = videoDetails.title;
-            self.userField.stringValue = videoDetails.author;
-            self.lengthField.stringValue = videoDetails.duration;
-            self.viewsField.stringValue = videoDetails.views;
-            
-            self.imageView.image = [[NSImage alloc] initWithContentsOfURL:[NSURL URLWithString:videoDetails.images[@"high"]]];
-            
-            self.currentMedia = videoDetails;
-            self.streamArray = videoDetails.streams;
-            self.streamController.selectsInsertedObjects = true;
-            
-            [[self window] orderFrontRegardless];
-            
-        } failureBlock:^(NSString *error) {
-            
-            NSLog(@"fail!: %@", error);
-            
-            NSAlert *alert = [NSAlert alertWithMessageText:@"An error occured" defaultButton:@"OK" alternateButton:nil otherButton:nil informativeTextWithFormat:error];
-            [alert runModal];
-            
-            
-        }];
-    } else {
+    NSString *plID = [[NSURL URLWithString:self.youtubeLink.stringValue] parameterDictionary][@"list"];
+    NSLog(@"plID: %@", plID);
+    if ([plID length] > 0){
+        return; //for now disable playlist downloading..
+        NSMutableArray *fullIDs = [NSMutableArray new];
         
-        NSString *plID = [[NSURL URLWithString:self.youtubeLink.stringValue] parameterDictionary][@"list"];
-        NSLog(@"plID: %@", plID);
-        
-        if (plID.length > 0){
-            
-            NSMutableArray *fullIDs = [NSMutableArray new];
-            
-            [[KBYourTube sharedInstance] getPlaylistVideos:plID completionBlock:^(NSDictionary *playlistDictionary) {
-                DLog(@"pld: %@", playlistDictionary);
-                self.userField.stringValue = playlistDictionary[@"playlistAuthor"];
-                self.playlistFolder = playlistDictionary[@"title"];
-                self.titleField.stringValue = self.playlistFolder;
-                NSArray <KBYTMedia *> *results = playlistDictionary[@"results"];
-                [results enumerateObjectsUsingBlock:^(KBYTMedia  *obj, NSUInteger idx, BOOL *  stop) {
-                    
-                    [fullIDs addObject:obj.videoId];
-                    
-                    //[[KBYourTube sharedInstance] getVi]
-                    
-                    
-                }];
+        [[KBYourTube sharedInstance] getPlaylistVideos:plID completionBlock:^(KBYTPlaylist *playlist) {
+            //DLog(@"pld: %@", playlistDictionary);
+            self.userField.stringValue = playlist.owner;
+            self.playlistFolder = playlist.title;
+            self.titleField.stringValue = self.playlistFolder;
+            //NSArray <KBYTMedia *> *results = playlistDictionary[@"results"];
+            [playlist.videos enumerateObjectsUsingBlock:^(KBYTSearchResult  *obj, NSUInteger idx, BOOL *  stop) {
                 
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self setDownloadProgress:0];
-                    self.progressLabel.stringValue = @"Downloading playlist...";
-                });
+                [fullIDs addObject:obj.videoId];
                 
+                //[[KBYourTube sharedInstance] getVi]
                 
-                
-                [[KBYourTube sharedInstance] getVideoDetailsForIDs:fullIDs completionBlock:^(NSArray *videoArray) {
-                    //NSLog(@"video array: %@", videoArray);
-                    
-                    [videoArray enumerateObjectsUsingBlock:^(KBYTMedia *  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                        
-                        [self downloadMedia:obj];
-                        
-                    }];
-                    
-                } failureBlock:^(NSString *error) {
-                    DLog(@"error: %@", error);
-                }];
-                
-                
-            } failureBlock:^(NSString *error) {
-                
-                DLog(@"error: %@", error);
                 
             }];
             
-        }
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self setDownloadProgress:0];
+                self.progressLabel.stringValue = @"Downloading playlist...";
+            });
+            
+            
+            
+            [[KBYourTube sharedInstance] getVideoDetailsForIDs:fullIDs completionBlock:^(NSArray *videoArray) {
+                //NSLog(@"video array: %@", videoArray);
+                
+                [videoArray enumerateObjectsUsingBlock:^(KBYTMedia *  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                    
+                    [self downloadMedia:obj];
+                    
+                }];
+                
+            } failureBlock:^(NSString *error) {
+                DLog(@"error: %@", error);
+            }];
+            
+            
+        } failureBlock:^(NSString *error) {
+            
+            DLog(@"error: %@", error);
+            
+        }];
         
+    } else {
+        NSString *videoID = [[NSURL URLWithString:self.youtubeLink.stringValue] parameterDictionary][@"v"];
+        NSLog(@"videoID: %@", videoID);
+        
+        if ([videoID length] > 0)
+        {
+            self.playlistFolder = nil;
+            [[KBYourTube sharedInstance] getVideoDetailsForID:videoID completionBlock:^(KBYTMedia *videoDetails) {
+                
+                //NSLog(@"got details successfully: %@", videoDetails);
+                
+                self.titleField.stringValue = videoDetails.title;
+                self.userField.stringValue = videoDetails.author;
+                self.lengthField.stringValue = videoDetails.duration;
+                self.viewsField.stringValue = videoDetails.views;
+                
+                self.imageView.image = [[NSImage alloc] initWithContentsOfURL:[NSURL URLWithString:videoDetails.images[@"high"]]];
+                
+                self.currentMedia = videoDetails;
+                self.streamArray = videoDetails.streams;
+                self.streamController.selectsInsertedObjects = true;
+                
+                [[self window] orderFrontRegardless];
+                
+            } failureBlock:^(NSString *error) {
+                
+                NSLog(@"fail!: %@", error);
+                
+                NSAlert *alert = [NSAlert alertWithMessageText:@"An error occured" defaultButton:@"OK" alternateButton:nil otherButton:nil informativeTextWithFormat:error];
+                [alert runModal];
+                
+                
+            }];
+        }
+    }
+
         
         /*
          
@@ -1134,7 +1153,7 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
         
     }
     
-}
+
 
 - (void)downloadFailed:(NSString *)theDownload
 {
@@ -1199,8 +1218,10 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
     self.downloading = true;
     
     //get the stream we want to download
-    KBYTStream *selectedObject = media.streams[0];
-    [self downloadStream:selectedObject];
+    KBYTStream *selectedObject = [media.streams firstObject];
+    if (selectedObject){
+        [self downloadStream:selectedObject];
+    }
     return;
     
     [downloadFile downloadStream:selectedObject progress:^(double percentComplete, NSString *status) {
