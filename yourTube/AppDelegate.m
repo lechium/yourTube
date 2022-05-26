@@ -729,7 +729,7 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
                                        failureBlock:(void(^)(NSString *error))failureBlock
 {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-       
+        
         @autoreleasepool {
             
             BOOL signedIn = [self isSignedIn];
@@ -752,7 +752,7 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
             }
             
             dispatch_async(dispatch_get_main_queue(), ^{
-               
+                
                 if (returnDict != nil)
                 {
                     completionBlock(returnDict);
@@ -803,13 +803,13 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
     [bannerScanner scanUpToString:@");" intoString:&desiredValue];
     NSString *headerBanner = [[desiredValue componentsSeparatedByString:@"//"] lastObject];
     NSLog(@"https://%@", headerBanner);
-
-  /*
-    NSString *header = ONOXPathFromCSS(@"#c4-header-bg-container");
-    NSLog(@"header: %@", header);
-    NSArray *headerObjects = [(NSEnumerator *)[root XPath:header] allObjects];
-    NSLog(@"headerObjects: %@", headerObjects);
-   */
+    
+    /*
+     NSString *header = ONOXPathFromCSS(@"#c4-header-bg-container");
+     NSLog(@"header: %@", header);
+     NSArray *headerObjects = [(NSEnumerator *)[root XPath:header] allObjects];
+     NSLog(@"headerObjects: %@", headerObjects);
+     */
 }
 
 - (NSDictionary *)channelIDAndWatchLaterCount
@@ -818,7 +818,7 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
     ONOXMLElement *root = [xmlDoc rootElement];
     //#c4-header-bg-container
     NSArray *itemCounts = [(NSEnumerator *)[root XPath:@".//span[contains(@class, 'yt-valign-container guide-count-value')]"] allObjects];
-     NSString *watchLaterCount = [[itemCounts objectAtIndex:1] stringValue];
+    NSString *watchLaterCount = [[itemCounts objectAtIndex:1] stringValue];
     NSLog(@"watchLaterCount: %@", watchLaterCount);
     ONOXMLElement *guideSection = [root firstChildWithXPath:@"//li[contains(@class, 'guide-section')]"];
     NSArray *allObjects = [(NSEnumerator *)[guideSection XPath:@".//a[contains(@class, 'guide-item')]"] allObjects];
@@ -827,7 +827,7 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
         ONOXMLElement *channelElement = [allObjects objectAtIndex:1];
         return @{@"channelID": [[channelElement valueForAttribute:@"href"] lastPathComponent], @"wlCount": watchLaterCount};
     }
-   
+    
     //<span class="yt-valign-container guide-count-value">4</span>
     return nil;
 }
@@ -885,11 +885,11 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
 
 - (void)testSearch {
     __block NSMutableArray *results = [NSMutableArray new];
-    [[KBYourTube sharedInstance] apiSearch:@"science" type:KBYTSearchTypeAll continuation:nil completionBlock:^(KBYTSearchResults *result) {
+    [[KBYourTube sharedInstance] apiSearch:@"drake" type:KBYTSearchTypeAll continuation:nil completionBlock:^(KBYTSearchResults *result) {
         [results addObject:result];
-        [[KBYourTube sharedInstance] apiSearch:@"science" type:KBYTSearchTypeAll continuation:result.continuationToken completionBlock:^(KBYTSearchResults *result) {
+        [[KBYourTube sharedInstance] apiSearch:@"drake" type:KBYTSearchTypeAll continuation:result.continuationToken completionBlock:^(KBYTSearchResults *result) {
             [results addObject:result];
-            NSLog(@"results: %@", results);
+            //NSLog(@"results: %@", results);
         } failureBlock:^(NSString *error) {
             
         }];
@@ -932,7 +932,7 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
     //news = UCYfdidRxbB8Qhf0Nx7ioOYw
     //live = UC4R8DWoMoI7CAwX8_LjQHig
     //360 = UCzuqhhs6NWbgTzMuM09WKDQ
-
+    
     
     //  NSDictionary *loadMoreVids = [self loadMoreDictionary:channelVids[@"loadMoreREF"]];
     // NSLog(@"\n\nloadMoreVids: %@\n\n", loadMoreVids);
@@ -1048,13 +1048,13 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
         self.playlistFolder = nil;
         [[KBYourTube sharedInstance] getVideoDetailsForID:videoID completionBlock:^(KBYTMedia *videoDetails) {
             
-              NSLog(@"got details successfully: %@", videoDetails);
+            //NSLog(@"got details successfully: %@", videoDetails);
             
             self.titleField.stringValue = videoDetails.title;
             self.userField.stringValue = videoDetails.author;
             self.lengthField.stringValue = videoDetails.duration;
             self.viewsField.stringValue = videoDetails.views;
-             
+            
             self.imageView.image = [[NSImage alloc] initWithContentsOfURL:[NSURL URLWithString:videoDetails.images[@"high"]]];
             
             self.currentMedia = videoDetails;
@@ -1088,37 +1088,37 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
                 self.titleField.stringValue = self.playlistFolder;
                 NSArray <KBYTMedia *> *results = playlistDictionary[@"results"];
                 [results enumerateObjectsUsingBlock:^(KBYTMedia  *obj, NSUInteger idx, BOOL *  stop) {
-                   
+                    
                     [fullIDs addObject:obj.videoId];
                     
                     //[[KBYourTube sharedInstance] getVi]
                     
                     
                 }];
-              
+                
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self setDownloadProgress:0];
                     self.progressLabel.stringValue = @"Downloading playlist...";
                 });
-       
+                
                 
                 
                 [[KBYourTube sharedInstance] getVideoDetailsForIDs:fullIDs completionBlock:^(NSArray *videoArray) {
                     //NSLog(@"video array: %@", videoArray);
                     
                     [videoArray enumerateObjectsUsingBlock:^(KBYTMedia *  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                       
+                        
                         [self downloadMedia:obj];
                         
                     }];
                     
                 } failureBlock:^(NSString *error) {
-                     DLog(@"error: %@", error);
+                    DLog(@"error: %@", error);
                 }];
                 
                 
             } failureBlock:^(NSString *error) {
-               
+                
                 DLog(@"error: %@", error);
                 
             }];
@@ -1144,14 +1144,14 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
 - (void)downloadStream:(KBYTStream *)stream
 {
     NSMutableDictionary *streamDict = [[stream dictionaryValue] mutableCopy];
-/*
-    streamDict[@"duration"] = self.ytMedia.duration;
-    streamDict[@"author"] = self.ytMedia.author;
-    streamDict[@"images"] = self.ytMedia.images;
-    streamDict[@"inProgress"] = [NSNumber numberWithBool:true];
-    streamDict[@"videoId"] = self.ytMedia.videoId;
-    streamDict[@"views"]= self.ytMedia.views;
- */
+    /*
+     streamDict[@"duration"] = self.ytMedia.duration;
+     streamDict[@"author"] = self.ytMedia.author;
+     streamDict[@"images"] = self.ytMedia.images;
+     streamDict[@"inProgress"] = [NSNumber numberWithBool:true];
+     streamDict[@"videoId"] = self.ytMedia.videoId;
+     streamDict[@"views"]= self.ytMedia.views;
+     */
     if (self.playlistFolder.length > 0) {
         
         streamDict[@"downloadFolder"] = self.playlistFolder;
@@ -1159,8 +1159,8 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
     }
     NSString *stringURL = [[stream url] absoluteString];
     streamDict[@"url"] = stringURL;
-   // [self updateDownloadsDictionary:streamDict];
-        [[KBYTDownloadManager sharedInstance] addDownloadToQueue:streamDict];
+    // [self updateDownloadsDictionary:streamDict];
+    [[KBYTDownloadManager sharedInstance] addDownloadToQueue:streamDict];
 }
 
 - (void)gotProgressNotification:(NSNotification *)n {
@@ -1172,7 +1172,7 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
 - (void)updateProgress:(NSDictionary *)progress {
     
     dispatch_async(dispatch_get_main_queue(), ^{
-       
+        
         double percentComplete = [progress[@"percentComplete"] doubleValue];
         NSString *status = progress[@"status"];
         if (percentComplete == -1){
