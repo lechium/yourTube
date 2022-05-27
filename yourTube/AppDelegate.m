@@ -882,11 +882,16 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(gotProgressNotification:) name:@"updateProgressNote" object:nil];
     
 }
-
+//
 - (void)testChannel {
-    //UCiKG0sqt203-klnmcdkRozQ
-    [[KBYourTube sharedInstance] getChannelVideos:@"UCByOQJjav0CUDwxCk-jVNRQ" completionBlock:^(KBYTChannel *channel) {
-        NSLog(@"channel: %@", channel);
+    //UCByOQJjav0CUDwxCk-jVNRQ
+    
+    //UCF0pVplsI8R5kcAqgtoRqoA - popular
+    //UCEgdi0XIXXZ-qJOFPf4JSKw - sports
+    //UC-9-kyTW8ZkZNDHQJ6FgpwQ - music
+    
+    [[KBYourTube sharedInstance] getChannelVideosAlt:KBYTPopularChannelID completionBlock:^(KBYTChannel *channel) {
+        DLog(@"channel: %@", channel);
     } failureBlock:^(NSString *error) {
         
     }];
