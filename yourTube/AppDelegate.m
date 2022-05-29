@@ -890,7 +890,7 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
     //UCEgdi0XIXXZ-qJOFPf4JSKw - sports
     //UC-9-kyTW8ZkZNDHQJ6FgpwQ - music
     
-    [[KBYourTube sharedInstance] getChannelVideosAlt:KBYTPopularChannelID completionBlock:^(KBYTChannel *channel) {
+    [[KBYourTube sharedInstance] getChannelVideosAlt:KBYTMusicChannelID completionBlock:^(KBYTChannel *channel) {
         DLog(@"channel: %@", channel);
     } failureBlock:^(NSString *error) {
         
@@ -898,7 +898,11 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
 }
 
 - (void)testPL {
-    [[KBYourTube sharedInstance] getPlaylistVideos:@"PLVn8xgiXFmUFjK_hhnBBy1vo6TWeabkuv" completionBlock:^(KBYTPlaylist *playlist) {
+    
+    //PLFgquLnL59ampo3SyfL95RBPrT6Q3a84N
+    //PLVn8xgiXFmUFjK_hhnBBy1vo6TWeabkuv
+    //RDCLAK5uy_kYgQNqvsOO3uC2rwbkCNEvEpIoJV-VkX8
+    [[KBYourTube sharedInstance] getPlaylistVideos:@"RDCLAK5uy_kYgQNqvsOO3uC2rwbkCNEvEpIoJV-VkX8" completionBlock:^(KBYTPlaylist *playlist) {
         NSLog(@"videos: %@, owner: %@ title: %@", playlist.videos, playlist.owner, playlist.title);
         //[playlistDictionary writeToFile:[NSHomeDirectory() stringByAppendingPathComponent:@"playlist.plist"] atomically:true];
     } failureBlock:^(NSString *error) {

@@ -13,7 +13,8 @@ static NSString *const KBYTPopularChannelID =  @"UCF0pVplsI8R5kcAqgtoRqoA";
 static NSString *const KBYTSportsChannelID  =  @"UCEgdi0XIXXZ-qJOFPf4JSKw";
 static NSString *const KBYTGamingChannelID  =  @"UCOpNcN46UbXVtpKMrmU4Abg";
 static NSString *const KBYT360ChannelID     =  @"UCzuqhhs6NWbgTzMuM09WKDQ";
-static NSString *const KBYTFashionAndBeauty =  @"UCrpQ4p1Ql_hG8rKXIKM1MOQ";
+static NSString *const KBYTFashionAndBeautyID =  @"UCrpQ4p1Ql_hG8rKXIKM1MOQ";
+static NSString *const KBYTSpotlightChannelID = @"UCBR8-60-B28hp2BmDPdntcQ";
 
 typedef NS_ENUM(NSUInteger, kYTSearchResultType) {
     
@@ -58,6 +59,7 @@ typedef NS_ENUM(NSUInteger, KBYTSearchType) {
 @property (nonatomic, strong) NSString *channelID;
 @property (nonatomic, strong) NSString *continuationToken;
 @property (nonatomic, strong) NSArray <KBYTSearchResult *> *videos;
+@property (nonatomic, strong) NSArray <KBYTSearchResult *> *playlists;
 
 @end
 
@@ -125,6 +127,8 @@ typedef NS_ENUM(NSUInteger, KBYTSearchType) {
 
 @interface NSObject  (convenience)
 
+- (void)recursiveInspectObjectLikeKey:(NSString *)desiredKey saving:(NSMutableArray *)array;
+- (void)recursiveInspectObjectForKey:(NSString *)desiredKey saving:(NSMutableArray *)array;
 - (id)recursiveObjectsLikeKey:(NSString *)desiredKey;
 - (id)recursiveObjectLikeKey:(NSString *)desiredKey;
 - (id)recursiveObjectForKey:(NSString *)desiredKey;
@@ -190,6 +194,11 @@ typedef NS_ENUM(NSUInteger, KBYTSearchType) {
           completionBlock:(void(^)(KBYTPlaylist *playlist))completionBlock
              failureBlock:(void(^)(NSString *error))failureBlock;
 
+- (void)getPlaylistVideos:(NSString *)listID
+             continuation:(NSString *)continuationToken
+          completionBlock:(void(^)(KBYTPlaylist *playlist))completionBlock
+             failureBlock:(void(^)(NSString *error))failureBlock;
+
 - (void)loadMorePlaylistVideosFromHREF:(NSString *)loadMoreLink
                        completionBlock:(void(^)(NSDictionary *outputResults))completionBlock
                           failureBlock:(void(^)(NSString *error))failureBlock;
@@ -222,6 +231,16 @@ typedef NS_ENUM(NSUInteger, KBYTSearchType) {
 - (void)getChannelVideosAlt:(NSString *)channelID
           completionBlock:(void(^)(KBYTChannel *channel))completionBlock
                failureBlock:(void(^)(NSString *error))failureBlock;
+
+- (void)getChannelVideosAlt:(NSString *)channelID
+               continuation:(NSString *)continuationToken
+          completionBlock:(void(^)(KBYTChannel *channel))completionBlock
+               failureBlock:(void(^)(NSString *error))failureBlock;
+
+- (void)getChannelVideos:(NSString *)channelID
+            continuation:(NSString *)continuationToken
+         completionBlock:(void (^)(KBYTChannel *))completionBlock
+            failureBlock:(void (^)(NSString *))failureBlock;
 
 - (void)getChannelVideos:(NSString *)channelID
          completionBlock:(void(^)(KBYTChannel *channel))completionBlock
