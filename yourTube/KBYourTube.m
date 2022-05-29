@@ -78,6 +78,9 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
     [ourVideos enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         KBYTSearchResult *searchItem = [[KBYourTube sharedInstance] searchResultFromVideoRenderer:obj];
         [searchResults addObject:searchItem];
+        if (!searchItem.videoId){
+            NSLog(@"no video id: %@", obj);
+        }
     }];
     NSArray *playlists = [jsonDict recursiveObjectsForKey:@"playlistRenderer"];
     NSArray *channels = [jsonDict recursiveObjectsForKey:@"channelRenderer"];
@@ -1396,7 +1399,7 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
     if (!fullTitle) {
         fullTitle = [title recursiveObjectForKey:@"simpleText"];
     }
-    NSString *vid = current[@"videoId"];
+    NSString *vid = [current recursiveObjectForKey:@"videoId"];//current[@"videoId"];
     NSString *viewCountText = current[@"viewCountText"][@"simpleText"];
     NSArray *thumbnails = current[@"thumbnail"][@"thumbnails"];
     NSDictionary *longBylineText = current[@"longBylineText"];
