@@ -170,13 +170,13 @@ typedef NS_ENUM(NSUInteger, KBYTSearchType) {
 @property (nonatomic, strong) NSString *yttimestamp;
 @property (nonatomic, strong) NSString *ytkey;
 
+- (KBYTSearchResult *)searchResultFromVideoRenderer:(NSDictionary *)current;
 - (void)apiSearch:(NSString *)search
              type:(KBYTSearchType)type
      continuation:(NSString *)continuation
   completionBlock:(void(^)(KBYTSearchResults *result))completionBlock
      failureBlock:(void(^)(NSString* error))failureBlock;
 - (NSArray *)channelArrayFromUserName:(NSString *)userName;
-- (NSString *)videoDescription:(NSString *)videoID;
 - (NSString *)stringFromRequest:(NSString *)url;
 + (id)sharedInstance;
 - (NSString *)rawYTFromHTML:(NSString *)html;
@@ -186,9 +186,6 @@ typedef NS_ENUM(NSUInteger, KBYTSearchType) {
 - (void)getUserDetailsDictionaryWithCompletionBlock:(void(^)(NSDictionary *outputResults))completionBlock
                                        failureBlock:(void(^)(NSString *error))failureBlock;
 
-- (void)loadMoreVideosFromHREF:(NSString *)loadMoreLink
-               completionBlock:(void(^)(NSDictionary *outputResults))completionBlock
-                  failureBlock:(void(^)(NSString *error))failureBlock;
 
 - (void)getPlaylistVideos:(NSString *)listID
           completionBlock:(void(^)(KBYTPlaylist *playlist))completionBlock
@@ -198,35 +195,6 @@ typedef NS_ENUM(NSUInteger, KBYTSearchType) {
              continuation:(NSString *)continuationToken
           completionBlock:(void(^)(KBYTPlaylist *playlist))completionBlock
              failureBlock:(void(^)(NSString *error))failureBlock;
-
-- (void)loadMorePlaylistVideosFromHREF:(NSString *)loadMoreLink
-                       completionBlock:(void(^)(NSDictionary *outputResults))completionBlock
-                          failureBlock:(void(^)(NSString *error))failureBlock;
-
-/**
- 
- searchQuery is just a basic unescaped search string, this will return a dictionary with
- results, pageCount, resultCount. Beware this is super fragile, if youtube website changes
- this will almost definitely break. that being said its MUCH quicker then getSearchResults
- 
- */
-
-- (void)youTubeSearch:(NSString *)searchQuery
-           pageNumber:(NSInteger)page
-      completionBlock:(void(^)(NSDictionary* searchDetails))completionBlock
-         failureBlock:(void(^)(NSString* error))failureBlock;
-
-- (void)youTubeSearch2:(NSString *)searchQuery
-            pageNumber:(NSInteger)page
-   includeAllResults:(BOOL)includeAll
-       completionBlock:(void(^)(NSDictionary* searchDetails))completionBlock
-          failureBlock:(void(^)(NSString* error))failureBlock;
-
-- (void)getOrganizedChannelData:(NSString *)channelID
-                       completionBlock:(void(^)(NSDictionary* searchDetails))completionBlock
-                   failureBlock:(void(^)(NSString* error))failureBlock;
-
-- (NSString *)videoInfoPage:(NSString *)html;
 
 - (void)getChannelVideosAlt:(NSString *)channelID
           completionBlock:(void(^)(KBYTChannel *channel))completionBlock
@@ -246,8 +214,6 @@ typedef NS_ENUM(NSUInteger, KBYTSearchType) {
          completionBlock:(void(^)(KBYTChannel *channel))completionBlock
             failureBlock:(void(^)(NSString *error))failureBlock;
 
-- (void)getFeaturedVideosWithCompletionBlock:(void(^)(NSDictionary* searchDetails))completionBlock
-                                failureBlock:(void(^)(NSString* error))failureBlock;
 
 - (void)getVideoDetailsForIDs:(NSArray*)videoIDs
              completionBlock:(void(^)(NSArray* videoArray))completionBlock

@@ -369,122 +369,6 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
     return outputDict;
 }
 
-- (void)loadMoreVideosFromHREF:(NSString *)loadMoreLink
-               completionBlock:(void(^)(NSDictionary *outputResults))completionBlock
-                  failureBlock:(void(^)(NSString *error))failureBlock
-{
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-        
-        
-        @autoreleasepool {
-            
-            NSString *requestString = [@"https://m.youtube.com" stringByAppendingPathComponent:loadMoreLink];
-            NSString *rawRequestResult = [self stringFromRequest:requestString];
-            NSData *JSONData = [rawRequestResult dataUsingEncoding:NSUTF8StringEncoding];
-            NSDictionary *jsonDict = [NSJSONSerialization JSONObjectWithData:JSONData options:NSJSONReadingAllowFragments error:nil];
-            
-            NSString *rawHTML = jsonDict[@"content_html"];
-            NSString *loadMoreHTML = jsonDict[@"load_more_widget_html"];
-            ONOXMLDocument *loadMoreDoc = [ONOXMLDocument HTMLDocumentWithString:loadMoreHTML encoding:NSUTF8StringEncoding error:nil];
-            ONOXMLDocument *xmlDoc = [ONOXMLDocument HTMLDocumentWithString:rawHTML encoding:NSUTF8StringEncoding error:nil];
-            ONOXMLElement *root = [xmlDoc rootElement];
-            ONOXMLElement *videosElement = [root firstChildWithXPath:@"//ol[contains(@class, 'item-section')]"];
-            if (videosElement == nil)
-            {
-                videosElement = root;
-            }
-            id videoEnum = [videosElement XPath:@"//div[contains(@class, 'yt-lockup-video')]"];
-            ONOXMLElement *currentElement = nil;
-            NSMutableArray *finalArray = [NSMutableArray new];
-            NSMutableDictionary *outputDict = [NSMutableDictionary new];
-            while (currentElement = [videoEnum nextObject])
-            {
-                KBYTSearchResult *result = [KBYTSearchResult new];
-                NSString *videoID = [currentElement valueForAttribute:@"data-context-item-id"];
-                if (videoID != nil)
-                {
-                    result.videoId = videoID;
-                }
-                ONOXMLElement *thumbNailElement = [[[currentElement firstChildWithXPath:@".//*[contains(@class, 'yt-thumb-simple')]"] children] firstObject];
-                ONOXMLElement *lengthElement = [currentElement firstChildWithXPath:@".//*[contains(@class, 'video-time')]"];
-                ONOXMLElement *titleElement = [currentElement firstChildWithXPath:@".//*[contains(@class, 'yt-lockup-title')]"];
-                ;
-                ONOXMLElement *descElement = [currentElement firstChildWithXPath:@".//*[contains(@class, 'yt-lockup-description')]"];
-                ONOXMLElement *authorElement = [[[currentElement firstChildWithXPath:@".//*[contains(@class, 'yt-lockup-byline')]"] children] firstObject];
-                ONOXMLElement *ageAndViewsElement = [currentElement firstChildWithXPath:@".//*[contains(@class, 'yt-lockup-meta-info')]"];//yt-lockup-meta-info
-                NSString *imagePath = [thumbNailElement valueForAttribute:@"data-thumb"];
-                if (imagePath == nil)
-                {
-                    imagePath = [thumbNailElement valueForAttribute:@"src"];
-                }
-                if (imagePath != nil)
-                {
-                    result.imagePath = [@"https:" stringByAppendingString:imagePath];
-                }
-                if (lengthElement != nil)
-                    result.duration = lengthElement.stringValue;
-                
-                if (titleElement != nil)
-                    result.title = [[titleElement stringValue] stringByReplacingOccurrencesOfString:@"\"" withString:@""];
-                
-                NSString *vdesc = [[descElement stringValue] stringByReplacingOccurrencesOfString:@"\"" withString:@""];
-                if (vdesc != nil)
-                {
-                    result.details = [vdesc stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-                }
-                
-                if (authorElement != nil)
-                {
-                    result.author = [authorElement stringValue];
-                }
-                for (ONOXMLElement *currentElement in [ageAndViewsElement children])
-                {
-                    NSString *currentValue = [currentElement stringValue];
-                    if ([currentValue containsString:@"ago"]) //age
-                    {
-                        result.age = currentValue;
-                    } else if ([currentValue containsString:@"views"])
-                    {
-                        result.views = [[currentValue componentsSeparatedByString:@" "] firstObject];
-                    }
-                }
-                
-                if (result.videoId.length > 0 && ![[[result author] lowercaseString] isEqualToString:@"ad"])
-                {
-                    //NSLog(@"result: %@", result);
-                    [finalArray addObject:result];
-                } else {
-                    result = nil;
-                }
-                
-            }
-            if ([finalArray count] > 0)
-            {
-                //load-more-button
-                ONOXMLElement *loadMoreButton = [[loadMoreDoc rootElement] firstChildWithXPath:@"//button[contains(@class, 'load-more-button')]"];
-                NSString *loadMoreHREF = [loadMoreButton valueForAttribute:@"data-uix-load-more-href"];
-                if (loadMoreHREF != nil){
-                    outputDict[@"loadMoreREF"] = loadMoreHREF;
-                }
-                outputDict[@"results"] = finalArray;
-            }
-            dispatch_async(dispatch_get_main_queue(), ^{
-                
-                if ([outputDict[@"results"] count] > 0)
-                {
-                    completionBlock(outputDict);
-                } else {
-                    failureBlock([NSString stringWithFormat:@"error loading href: %@", loadMoreLink]);
-                }
-                
-            });
-            
-        }
-    });
-}
-
-
-
 - (NSDictionary *)loadMoreDictionary:(NSString *)hrefString
 {
     NSString *requestString = [@"https://m.youtube.com" stringByAppendingPathComponent:hrefString];
@@ -912,9 +796,9 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
 
 - (void)testSearch {
     __block NSMutableArray *results = [NSMutableArray new];
-    [[KBYourTube sharedInstance] apiSearch:@"drake" type:KBYTSearchTypeChannels continuation:nil completionBlock:^(KBYTSearchResults *result) {
+    [[KBYourTube sharedInstance] apiSearch:@"drake" type:KBYTSearchTypeAll continuation:nil completionBlock:^(KBYTSearchResults *result) {
         [results addObject:result];
-        [[KBYourTube sharedInstance] apiSearch:@"drake" type:KBYTSearchTypeChannels continuation:result.continuationToken completionBlock:^(KBYTSearchResults *result) {
+        [[KBYourTube sharedInstance] apiSearch:@"drake" type:KBYTSearchTypeAll continuation:result.continuationToken completionBlock:^(KBYTSearchResults *result) {
             [results addObject:result];
             //NSLog(@"results: %@", results);
         } failureBlock:^(NSString *error) {
@@ -934,7 +818,9 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
     [self.window setDelegate:self];
     [self addProgressObserver];
     
-    [self testChannel];
+    [self testSearch];
+    //[self testChannel];
+    //[self testPL];
     //NSData *rawRequestResult = [NSData dataWithContentsOfFile:[NSHomeDirectory() stringByAppendingPathComponent:@"Desktop/science2.html"]];
     
     //NSString *jsonValue = [[NSJSONSerialization JSONObjectWithData:rawRequestResult options:NSJSONReadingAllowFragments error:nil] valueForKey:@"load_more_widget_html"];
