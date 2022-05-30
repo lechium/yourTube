@@ -9,6 +9,7 @@
 #import "AppDelegate.h"
 #import "KBYourTube.h"
 #import "KBYTDownloadManager.h"
+#import <OCTotallyLazyMac/OCTotallyLazy.h>
 extern NSString * ONOXPathFromCSS(NSString *CSS);
 
 @interface AppDelegate ()
@@ -774,8 +775,8 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
     //UCEgdi0XIXXZ-qJOFPf4JSKw - sports
     //UC-9-kyTW8ZkZNDHQJ6FgpwQ - music
     
-    [[KBYourTube sharedInstance] getChannelVideosAlt:KBYTMusicChannelID completionBlock:^(KBYTChannel *channel) {
-        DLog(@"channel: %@", channel);
+    [[KBYourTube sharedInstance] getChannelVideosAlt:@"UCByOQJjav0CUDwxCk-jVNRQ" completionBlock:^(KBYTChannel *channel) {
+        DLog(@"channel: %@", channel.allSectionItems);
     } failureBlock:^(NSString *error) {
         
     }];
@@ -798,12 +799,14 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
     __block NSMutableArray *results = [NSMutableArray new];
     [[KBYourTube sharedInstance] apiSearch:@"drake" type:KBYTSearchTypeAll continuation:nil completionBlock:^(KBYTSearchResults *result) {
         [results addObject:result];
-        [[KBYourTube sharedInstance] apiSearch:@"drake" type:KBYTSearchTypeAll continuation:result.continuationToken completionBlock:^(KBYTSearchResults *result) {
+        NSLog(@"channels: %@", result.channels);
+        /*[[KBYourTube sharedInstance] apiSearch:@"drake" type:KBYTSearchTypeAll continuation:result.continuationToken completionBlock:^(KBYTSearchResults *result) {
             [results addObject:result];
             //NSLog(@"results: %@", results);
+            NSLog(@"channels: %@", result.channels);
         } failureBlock:^(NSString *error) {
             
-        }];
+        }];*/
     } failureBlock:^(NSString *error) {
         
     }];
@@ -817,9 +820,10 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
     //[[self webkitController] showWebWindow:nil];
     [self.window setDelegate:self];
     [self addProgressObserver];
+
     
-    [self testSearch];
-    //[self testChannel];
+    //[self testSearch];
+    [self testChannel];
     //[self testPL];
     //NSData *rawRequestResult = [NSData dataWithContentsOfFile:[NSHomeDirectory() stringByAppendingPathComponent:@"Desktop/science2.html"]];
     

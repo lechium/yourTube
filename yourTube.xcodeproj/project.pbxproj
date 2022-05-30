@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		32198ED2284536B8003C8A0E /* OCTotallyLazyMac.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32198ECF284536B1003C8A0E /* OCTotallyLazyMac.framework */; };
+		32198ED3284536B8003C8A0E /* OCTotallyLazyMac.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 32198ECF284536B1003C8A0E /* OCTotallyLazyMac.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		322D147B28370E4F004B46AB /* mux in Resources */ = {isa = PBXBuildFile; fileRef = 8922B2CF1C2FB97600A6D2E7 /* mux */; };
 		32528D9121BB53B900D73A72 /* KBYTDownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32528D8E21BB539E00D73A72 /* KBYTDownloadManager.m */; };
 		32528D9221BB53BC00D73A72 /* KBYTDownloadOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 32528D9021BB539E00D73A72 /* KBYTDownloadOperation.m */; };
@@ -30,7 +32,22 @@
 		89A0EB8A1C2F273500255773 /* KBYTDownloadStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 89A0EB891C2F273500255773 /* KBYTDownloadStream.m */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		32198ED4284536B8003C8A0E /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				32198ED3284536B8003C8A0E /* OCTotallyLazyMac.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		32198ECF284536B1003C8A0E /* OCTotallyLazyMac.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OCTotallyLazyMac.framework; path = yourTube/OCTotallyLazyMac.framework; sourceTree = "<group>"; };
 		32528D8D21BB539E00D73A72 /* KBYTDownloadManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KBYTDownloadManager.h; sourceTree = "<group>"; };
 		32528D8E21BB539E00D73A72 /* KBYTDownloadManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KBYTDownloadManager.m; sourceTree = "<group>"; };
 		32528D8F21BB539E00D73A72 /* KBYTDownloadOperation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KBYTDownloadOperation.h; sourceTree = "<group>"; };
@@ -77,6 +94,7 @@
 				8912FA4D1C6DB39A00FB6D67 /* libxml2.dylib in Frameworks */,
 				8922B2D81C30C87C00A6D2E7 /* WebKit.framework in Frameworks */,
 				8922B2C91C2F788500A6D2E7 /* AVFoundation.framework in Frameworks */,
+				32198ED2284536B8003C8A0E /* OCTotallyLazyMac.framework in Frameworks */,
 				89A0EB871C2F236E00255773 /* AVKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -133,6 +151,7 @@
 		8922B2D91C30C88300A6D2E7 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				32198ECF284536B1003C8A0E /* OCTotallyLazyMac.framework */,
 				8922B2D71C30C87C00A6D2E7 /* WebKit.framework */,
 				8922B2C81C2F788500A6D2E7 /* AVFoundation.framework */,
 				89A0EB861C2F236E00255773 /* AVKit.framework */,
@@ -209,6 +228,7 @@
 				89A0EB6A1C28CF0F00255773 /* Sources */,
 				89A0EB6B1C28CF0F00255773 /* Frameworks */,
 				89A0EB6C1C28CF0F00255773 /* Resources */,
+				32198ED4284536B8003C8A0E /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -384,6 +404,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/yourTube",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = yourTube/yt.pch;
 				HEADER_SEARCH_PATHS = /usr/include/libxml2;
@@ -399,6 +423,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/yourTube",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = yourTube/yt.pch;
 				HEADER_SEARCH_PATHS = /usr/include/libxml2;
