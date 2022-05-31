@@ -778,7 +778,7 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
     [[KBYourTube sharedInstance] getChannelVideosAlt:KBYTSportsChannelID completionBlock:^(KBYTChannel *channel) {
         NSArray *all = channel.allSectionItems;
         
-        //DLog(@"channel: %@ count: %lu", all, all.count);
+        DLog(@"channel: %@ count: %lu", all, all.count);
     } failureBlock:^(NSString *error) {
         
     }];
