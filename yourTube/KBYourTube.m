@@ -56,7 +56,7 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
 
 - (NSString *)description {
     NSString *desc = [super description];
-    return [NSString stringWithFormat:@"%@ title: %@ ID: %@ subtitle: %@ videos: %@ playlists: %@", desc,_title, _channelID, _subtitle, _videos, _playlists];
+    return [NSString stringWithFormat:@"%@ title: %@ ID: %@ subtitle: %@ subscribers: %@ videos: %@ playlists: %@", desc,_title, _channelID, _subtitle, _subscribers, _videos, _playlists];
 }
 
 - (void)mergeChannelVideos:(KBYTChannel *)channel {
@@ -1427,6 +1427,14 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
     return finalArray;
 }
 
+- (NSString *)hiRestChannelImageFromDict:(NSDictionary *)dict {
+    NSInteger height = [dict[@"height"] integerValue];
+    NSString *findString = [NSString stringWithFormat:@"=s%lu", height];
+    NSString *replaceString = @"=s480";
+    NSString *origURL = dict[@"url"];
+    return [origURL stringByReplacingOccurrencesOfString:findString withString:replaceString];
+}
+
 
 - (KBYTSearchResult *)searchResultFromVideoRenderer:(NSDictionary *)current {
     NSString *lengthText = current[@"lengthText"][@"simpleText"];
@@ -1516,6 +1524,8 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
                 details = [jsonDict recursiveObjectForKey:@"channelMetadataRenderer"];
                 //DLog(@"details: %@", details);
             }
+            NSDictionary *subscriberCount = [jsonDict recursiveObjectForKey:@"subscriberCountText"];
+            NSLog(@"subscriber count: %@", subscriberCount);
             NSDictionary *title = [details recursiveObjectForKey:@"title"];
             NSDictionary *subtitle = [details recursiveObjectForKey:@"subtitle"];
             NSArray *thumbnails = [details recursiveObjectForKey:@"thumbnails"];
@@ -1530,6 +1540,7 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
             } else {
                 channel.subtitle = subtitle[@"simpleText"];
             }
+            channel.subscribers = subscriberCount[@"simpleText"];
             channel.image = thumbnails.lastObject[@"url"];
             channel.url = [details recursiveObjectForKey:@"navigationEndpoint"][@"browseEndpoint"][@"canonicalBaseUrl"];
             channel.continuationToken = cc[@"token"];
@@ -1636,6 +1647,7 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
                                     searchItem.resultType = kYTSearchResultTypePlaylist;
                                     searchItem.details = [desc recursiveObjectForKey:@"simpleText"];
                                     [content addObject:searchItem];
+                                    NSLog(@"playlist: %@", searchItem);
                                 }];
                                 
                             } else {
@@ -1645,19 +1657,32 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
                                     [stations enumerateObjectsUsingBlock:^(id  _Nonnull channelObj, NSUInteger idx, BOOL * _Nonnull stop) {
                                         NSString *firstKey = [[channelObj allKeys] firstObject];
                                         NSDictionary *channel = channelObj[firstKey];
-                                        NSDictionary *title = [channel recursiveObjectForKey:@"title"];
+                                        
+                                        NSDictionary *title = channel[@"title"];//[channel recursiveObjectForKey:@"title"];
                                         NSString *cis = channel[@"channelId"];
                                         NSArray *thumbnails = channel[@"thumbnail"][@"thumbnails"];
                                         NSDictionary *longBylineText = channel[@"longBylineText"];
+                                        NSDictionary *thumb = thumbnails.lastObject;
+                                        NSString *imagePath = thumb[@"url"];
+                                        
+                                        NSInteger width = [thumb[@"height"] integerValue];
+                                        if (width < 400){
+                                            NSLog(@"generate thumb manually!");
+                                            imagePath = [self hiRestChannelImageFromDict:thumb];
+                                        }
+                                        if (![imagePath containsString:@"https:"]){
+                                            imagePath = [NSString stringWithFormat:@"https:%@", imagePath];
+                                        }
                                         KBYTSearchResult *searchItem = [KBYTSearchResult new];
                                         searchItem.author = [longBylineText recursiveObjectForKey:@"text"];
                                         searchItem.title = title[@"simpleText"];
                                         searchItem.author = title[@"simpleText"];
                                         searchItem.duration = [channel[@"videoCountText"] recursiveObjectForKey:@"text"];
                                         searchItem.videoId = cis;
-                                        searchItem.imagePath = thumbnails.lastObject[@"url"];
+                                        searchItem.imagePath = imagePath;
                                         searchItem.resultType = kYTSearchResultTypeChannel;
                                         searchItem.details = [channel recursiveObjectForKey:@"navigationEndpoint"][@"browseEndpoint"][@"canonicalBaseUrl"];
+                                        NSLog(@"channel: %@ keys: %@", searchItem, channel.allKeys);
                                         [content addObject:searchItem];
                                     }];
                                     
