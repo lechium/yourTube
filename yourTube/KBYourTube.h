@@ -53,6 +53,7 @@ typedef NS_ENUM(NSUInteger, KBYTSearchType) {
 @property (nonatomic, strong) NSString *title;
 @property (nonatomic, strong) NSString *subtitle;
 @property (nonatomic, strong) NSArray <KBYTSearchResult *> *content;
+- (void)addResult:(KBYTSearchResult *)result;
 @end
 
 @interface KBYTChannel: NSObject
@@ -72,8 +73,6 @@ typedef NS_ENUM(NSUInteger, KBYTSearchType) {
 - (NSArray <KBYTSearchResult *>*)allSortedItems; //legacy
 - (void)mergeChannelVideos:(KBYTChannel *)channel;
 @end
-
-
 
 @interface KBYTPlaylist: NSObject
 
@@ -154,6 +153,9 @@ typedef NS_ENUM(NSUInteger, KBYTSearchType) {
 - (NSArray *)matchesForString:(NSString *)string withRegex:(NSString *)pattern;
 - (NSArray *)matchesForString:(NSString *)string withRegex:(NSString *)pattern allRanges:(BOOL)includeAllRanges;
 - (NSMutableDictionary *)dictionaryFromString:(NSString *)string withRegex:(NSString *)pattern;
+
+#define recursiveObjectsLike(key, object, array) NSMutableArray *array = [NSMutableArray new]; [object recursiveInspectObjectLikeKey:key saving:array]
+#define recursiveObjectsFor(key, object, array) NSMutableArray *array = [NSMutableArray new]; [object recursiveInspectObjectForKey:key saving:array]
 
 @end
 
