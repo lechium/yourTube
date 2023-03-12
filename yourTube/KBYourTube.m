@@ -442,7 +442,13 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
     
     NSDictionary *streamingData = jsonDict[@"streamingData"];
     NSDictionary *videoDetails = jsonDict[@"videoDetails"];
-    NSLog(@"videoDetails: %@", jsonDict.allKeys);
+    NSDictionary *playabilityStatus = jsonDict[@"playabilityStatus"];
+    NSString *status = playabilityStatus[@"status"];
+    if (![[status lowercaseString] isEqualToString:@"ok"]){
+        NSLog(@"reason: %@", playabilityStatus[@"reason"]);
+        return false;
+    }
+    //NSLog(@"videoDetails: %@", jsonDict.allKeys);
     self.author = videoDetails[@"author"];
     self.title = videoDetails[@"title"];
     self.videoId = videoDetails[@"videoId"];
@@ -2358,7 +2364,7 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
         
         @autoreleasepool {
             KBYTMedia *rootInfo = nil;
-            NSString *errorString = nil;
+            NSString *errorString = @"";
             NSString *url = [self playerURL];
             //NSLog(@"url: %@", url);
             //get the post body from the url above, gets the initial raw info we work with

@@ -825,7 +825,7 @@ extern NSString * ONOXPathFromCSS(NSString *CSS);
 
     
     //[self testSearch];
-    [self testChannel];
+    //[self testChannel];
     //[self testPL];
     //NSData *rawRequestResult = [NSData dataWithContentsOfFile:[NSHomeDirectory() stringByAppendingPathComponent:@"Desktop/science2.html"]];
     
