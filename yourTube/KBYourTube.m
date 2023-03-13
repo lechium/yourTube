@@ -11,6 +11,7 @@
 #import "ONOXMLDocument.h"
 #import "AppDelegate.h"
 #import <OCTotallyLazyMac/OCTotallyLazy.h>
+#import <objc/runtime.h>
 
 static NSString * const hardcodedTimestamp = @"16864";
 static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
@@ -109,65 +110,105 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
     return [NSString stringWithFormat:@"%@ videos: %@ playlists: %@ channels: %@ cc: %@ results count: %lu", desc, _videos, _playlists, _channels, _continuationToken, _estimatedResults];
 }
 
-- (void)processJSON:(NSDictionary *)jsonDict {
-    __block NSMutableArray *searchResults = [NSMutableArray new];
-    __block NSMutableArray *playlistResults = [NSMutableArray new];
-    __block NSMutableArray *channelResults = [NSMutableArray new];
-    NSMutableArray *ourVideos = [NSMutableArray new];
-    [jsonDict recursiveInspectObjectLikeKey:@"videoRenderer" saving:ourVideos];
-    [ourVideos enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        KBYTSearchResult *searchItem = [[KBYourTube sharedInstance] searchResultFromVideoRenderer:obj];
-        [searchResults addObject:searchItem];
-        if (!searchItem.videoId){
-            NSLog(@"no video id: %@", obj);
-        }
-    }];
-    NSArray *playlists = [jsonDict recursiveObjectsForKey:@"playlistRenderer"];
-    NSArray *channels = [jsonDict recursiveObjectsForKey:@"channelRenderer"];
+- (void)processJSON:(NSDictionary *)jsonData {
+    [self processJSON:jsonData filter:KBYTSearchTypeAll];
+}
+
+- (void)processJSON:(NSDictionary *)jsonDict filter:(KBYTSearchType)filter {
+    
     NSInteger estimatedResults = [[jsonDict recursiveObjectForKey:@"estimatedResults"] integerValue];
-    //NSLog(@"playlists: %@", playlists);
-    //NSLog(@"channels: %@", channels);
-    NSLog(@"estimated results: %lu", estimatedResults);
+    self.estimatedResults = estimatedResults;
     id cc = [jsonDict recursiveObjectForKey:@"continuationCommand"];
     self.continuationToken = cc[@"token"];
     //NSLog(@"cc: %@", cc);
+    if (filter == KBYTSearchTypeAll) {
+        __block NSMutableArray *videoResults = [NSMutableArray new];
+        recursiveObjectsLike(@"videoRenderer", jsonDict, videos);
+        [videos enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            KBYTSearchResult *searchItem = [[KBYourTube sharedInstance] searchResultFromVideoRenderer:obj];
+            if (searchItem.title.length > 0 && searchItem.videoId.length > 0){
+                [videoResults addObject:searchItem];
+            }
+        }];
+        self.videos = videoResults;
+    }
     
-    self.videos = searchResults;
-    [playlists enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        NSDictionary *current = obj[@"playlistRenderer"];
-        NSDictionary *title = [current recursiveObjectForKey:@"title"];
-        NSString *pis = current[@"playlistId"];
-        NSArray *thumbnails = current[@"thumbnail"][@"thumbnails"];
-        NSDictionary *longBylineText = current[@"longBylineText"];
-        KBYTSearchResult *searchItem = [KBYTSearchResult new];
-        searchItem.author = [longBylineText recursiveObjectForKey:@"text"];
-        searchItem.title = title[@"simpleText"];
-        searchItem.videoId = pis;
-        searchItem.imagePath = thumbnails.lastObject[@"url"];
-        searchItem.resultType = kYTSearchResultTypePlaylist;
-        searchItem.details = [current recursiveObjectForKey:@"navigationEndpoint"][@"browseEndpoint"][@"browseId"];
-        [playlistResults addObject:searchItem];
-    }];
-    self.playlists = playlistResults;
-    [channels enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        NSDictionary *current = obj[@"channelRenderer"];
-        if (current) {
+    //TLog(@"playlist count: %lu", playlists.count);
+    if (filter == KBYTSearchTypeAll || filter == KBYTSearchTypePlaylists) {
+        __block NSMutableArray *playlistResults = [NSMutableArray new];
+        recursiveObjectsFor(@"playlistRenderer", jsonDict, playlists);
+        [playlists enumerateObjectsUsingBlock:^(id  _Nonnull current, NSUInteger idx, BOOL * _Nonnull stop) {
+            //NSDictionary *current = obj[@"playlistRenderer"];
+            NSDictionary *title = [current recursiveObjectForKey:@"title"];
+            NSString *pis = current[@"playlistId"];
+            NSArray *thumbnails = [current recursiveObjectForKey:@"thumbnail"][@"thumbnails"];
+            NSString *imagePath = thumbnails.lastObject[@"url"];
+            if (![imagePath containsString:@"https:"]){
+                imagePath = [NSString stringWithFormat:@"https:%@", imagePath];
+            }
+            NSDictionary *longBylineText = current[@"longBylineText"];
+            KBYTSearchResult *searchItem = [KBYTSearchResult new];
+            searchItem.author = [longBylineText recursiveObjectForKey:@"text"];
+            searchItem.title = title[@"simpleText"];
+            searchItem.videoId = pis;
+            searchItem.imagePath = imagePath;
+            searchItem.resultType = kYTSearchResultTypePlaylist;
+            searchItem.details = [current recursiveObjectForKey:@"navigationEndpoint"][@"browseEndpoint"][@"browseId"];
+            NSArray *itemDesc = [current recursiveObjectForKey:@"descriptionSnippet"][@"runs"];
+            searchItem.itemDescription = [itemDesc runsToString];
+            if (!title){
+                //TLog(@"weird pl item: %@", current);
+                //TLog(@"pl item: %@", searchItem);
+            }
+            /*
+             NSString *outputFile = [[NSHomeDirectory() stringByAppendingPathComponent:searchItem.title] stringByAppendingPathExtension:@"plist"];
+             [current writeToFile:outputFile atomically:true];
+             TLog(@"writing playlist: %@", outputFile);
+             */
+            [playlistResults addObject:searchItem];
+        }];
+        self.playlists = playlistResults;
+    }
+    if (filter == KBYTSearchTypeAll || filter == KBYTSearchTypeChannels) {
+        __block NSMutableArray *channelResults = [NSMutableArray new];
+        recursiveObjectsFor(@"channelRenderer", jsonDict, channels);
+        [channels enumerateObjectsUsingBlock:^(id  _Nonnull current, NSUInteger idx, BOOL * _Nonnull stop) {
             NSDictionary *title = [current recursiveObjectForKey:@"title"];
             NSString *cis = current[@"channelId"];
-            NSArray *thumbnails = current[@"thumbnail"][@"thumbnails"];
+            NSArray *thumbnails = [current recursiveObjectForKey:@"thumbnail"][@"thumbnails"];//current[@"thumbnail"][@"thumbnails"];
+            NSString *imagePath = thumbnails.lastObject[@"url"];
+            if (![imagePath containsString:@"https:"]){
+                imagePath = [NSString stringWithFormat:@"https:%@", imagePath];
+            }
             NSDictionary *longBylineText = current[@"longBylineText"];
             KBYTSearchResult *searchItem = [KBYTSearchResult new];
             searchItem.author = [longBylineText recursiveObjectForKey:@"text"];
             searchItem.title = title[@"simpleText"];
             searchItem.videoId = cis;
-            searchItem.imagePath = thumbnails.lastObject[@"url"];
+            searchItem.imagePath = imagePath;
             searchItem.resultType = kYTSearchResultTypeChannel;
             searchItem.details = [current recursiveObjectForKey:@"navigationEndpoint"][@"browseEndpoint"][@"canonicalBaseUrl"];
+            NSArray *itemDesc = [current recursiveObjectForKey:@"descriptionSnippet"][@"runs"];
+            searchItem.itemDescription = [itemDesc runsToString];
+            if (!title){
+                //TLog(@"weird channel item: %@", current);
+            }
+            /*
+             NSString *outputFile = [[NSHomeDirectory() stringByAppendingPathComponent:searchItem.title] stringByAppendingPathExtension:@"plist"];
+             [current writeToFile:outputFile atomically:true];
+             TLog(@"writing channel: %@", outputFile);*/
             [channelResults addObject:searchItem];
-        }
-    }];
-    self.channels = channelResults;
-    self.estimatedResults = estimatedResults;
+        }];
+        self.channels = channelResults;
+    }
+}
+
+- (NSArray <KBYTSearchResult *> *)allItems {
+    NSMutableArray *_allItems = [self.videos mutableCopy];
+    if (!_allItems) _allItems = [NSMutableArray new];
+    [_allItems addObjectsFromArray:self.channels];
+    [_allItems addObjectsFromArray:self.playlists];
+    return _allItems;
 }
 
 @end
@@ -633,6 +674,103 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
 
 @implementation NSObject (convenience)
 
+- (NSArray *)propertiesForClass:(Class)clazz {
+    u_int count;
+    objc_property_t* properties = class_copyPropertyList(clazz, &count);
+    NSMutableArray* propArray = [NSMutableArray arrayWithCapacity:count];
+    for (int i = 0; i < count ; i++) {
+        const char* propertyName = property_getName(properties[i]);
+        NSString *propName = [NSString  stringWithCString:propertyName encoding:NSUTF8StringEncoding];
+        [propArray addObject:propName];
+    }
+    free(properties);
+    return propArray;
+}
+
+- (NSArray *)properties {
+    u_int count;
+    objc_property_t* properties = class_copyPropertyList(self.class, &count);
+    NSMutableArray* propArray = [NSMutableArray arrayWithCapacity:count];
+    for (int i = 0; i < count ; i++) {
+        const char* propertyName = property_getName(properties[i]);
+        NSString *propName = [NSString  stringWithCString:propertyName encoding:NSUTF8StringEncoding];
+        [propArray addObject:propName];
+    }
+    free(properties);
+    return propArray;
+}
+
++ (id)objectFromDictionary:(NSDictionary *)dictionary {
+    NSString *className = dictionary[@"___className"];
+    if (!className) {
+        className = [self valueForKey:@"className"];
+    }
+    Class cls = NSClassFromString(className);
+    id object = [cls new];
+    [dictionary enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        if ([object respondsToSelector:NSSelectorFromString(key)]){
+            if ([obj isKindOfClass:NSArray.class]) {
+                NSMutableArray *newArray = [NSMutableArray new];
+                [obj enumerateObjectsUsingBlock:^(id  _Nonnull arrayObj, NSUInteger arrayIdx, BOOL * _Nonnull arrayStop) {
+                    if ([arrayObj isKindOfClass:NSDictionary.class]){
+                        id newObj = [self objectFromDictionary:arrayObj];
+                        [newArray addObject:newObj];
+                    }
+                }];
+                [object setValue:newArray forKey:key];
+            } else if ([obj isKindOfClass:NSDictionary.class]){
+                id newObject = [self objectFromDictionary:obj];
+                [object setValue:newObject forKey:key];
+            } else {
+                
+                [object setValue:obj forKey:key];
+            }
+        } else {
+            //TLog(@"object does NOT respond to: %@", key);
+        }
+    }];
+    return object;
+}
+
+//we'll never care about an items delegate details when saving a dict rep, this prevents an inifinite loop/crash on some classes.
+- (NSDictionary *)dictionaryRepresentation {
+    return [self dictionaryRepresentationExcludingProperties:@[@"delegate"]];
+}
+
+- (NSDictionary *)dictionaryRepresentationExcludingProperties:(NSArray *)excluding {
+    __block NSMutableDictionary *dict = [NSMutableDictionary new];
+    Class cls = NSClassFromString([self valueForKey:@"className"]); //this is how we hone in our the properties /just/ for our specific class rather than NSObject's properties.
+    NSArray *props = [self propertiesForClass:cls];
+    //TLog(@"props: %@ for %@", props, self);
+    dict[@"___className"] = [self valueForKey:@"className"];
+    [props enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        //get the value of the particular property
+        id val = [self valueForKey:obj];
+        if ([val isKindOfClass:NSString.class] || [val isKindOfClass:NSNumber.class]) { //add numbers and strings as is
+            [dict setValue:val forKey:obj];
+        } else { //not a string or a number
+            if ([val isKindOfClass:NSArray.class]) {
+                //TLog(@"processing: %@ for %@", obj, [self valueForKey:@"className"]);
+                __block NSMutableArray *_newArray = [NSMutableArray new]; //new array will hold the dictionary reps of each item inside said array.
+                [val enumerateObjectsUsingBlock:^(id  _Nonnull arrayObj, NSUInteger arrayIdx, BOOL * _Nonnull arrayStop) {
+                    [_newArray addObject:[arrayObj dictionaryRepresentation]]; //call ourselves again, but with the current subarray object.
+                }];
+                [dict setValue:_newArray forKey:obj];
+            } else if ([val isKindOfClass:NSDictionary.class]) {
+                [dict setValue:val forKey:obj];
+            } else { //not an NSString, NSNumber of NSArray, try setting its dict rep for the key.
+                //NSString* class = NSStringFromClass(self.class);
+                if (val && ![[self valueForKey:@"className"] isEqualToString:@"NSObject"] && !([excluding containsObject:obj])) {
+                    //TLog(@"processing: %@ for %@", val, obj);
+                    [dict setValue:[val dictionaryRepresentation] forKey:obj];
+                }
+            }
+        }
+    }];
+    return dict;
+}
+
+
 - (id)recursiveObjectsForKey:(NSString *)desiredKey parent:(id)parent {
     if ([self isKindOfClass:NSDictionary.class]) {
         NSDictionary *dictSelf = (NSDictionary *)self;
@@ -1036,6 +1174,51 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
     NSInteger seconds = round(timeInt - minutes * 60);
     return [NSString stringWithFormat:@"%ld:%02ld", (long)minutes, (long)seconds];
     
+}
+
+@end
+
+@implementation NSArray (strings)
+
+- (NSString *)runsToString {
+    __block NSMutableString *newString = [NSMutableString new];
+    [self enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if ([obj isKindOfClass:NSDictionary.class]){
+            NSString *text = obj[@"text"];
+            if (text) {
+                [newString appendString:text];
+            }
+        }
+    }];
+    if (newString.length == 0 || newString == nil) {
+        DLog(@"aso: %@", self);
+    }
+    //TLog(@"newString: %@", newString);
+    return newString;
+}
+
+- (NSMutableArray *)convertArrayToObjects {
+    __block NSMutableArray *_newArray = [NSMutableArray new];
+    [self enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        id newOjb = [NSObject objectFromDictionary:obj];
+        [_newArray addObject:newOjb];
+    }];
+    return _newArray;
+}
+
+- (NSString *)stringFromArray {
+    NSString *error = nil;
+    NSData *xmlData = [NSPropertyListSerialization dataFromPropertyList:self format:NSPropertyListXMLFormat_v1_0 errorDescription:&error];
+    NSString *s=[[NSString alloc] initWithData:xmlData encoding: NSUTF8StringEncoding];
+    return s;
+}
+
+- (NSMutableArray *)convertArrayToDictionaries {
+    __block NSMutableArray *_newArray = [NSMutableArray new];
+    [self enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        [_newArray addObject:[obj dictionaryRepresentation]];
+    }];
+    return _newArray;
 }
 
 @end
@@ -2339,18 +2522,17 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
         @autoreleasepool {
             NSString *errorString = nil;
             NSString *url = [self searchURL];
-            //NSLog(@"url: %@", url);
+            NSLog(@"url: %@", url);
             //get the post body from the url above, gets the initial raw info we work with
             NSDictionary *params = [self paramsForSearch:search forType:type continuation:continuation];
             NSString *body = [self stringFromPostRequest:url withParams:params];
             NSData *jsonData = [body dataUsingEncoding:NSUTF8StringEncoding];
-            NSDictionary *jsonDict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingAllowFragments|NSJSONReadingMutableLeaves error:nil];
+            id jsonDict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingAllowFragments|NSJSONReadingMutableLeaves error:nil];
             //NSLog(@"body: %@ for: %@ %@", jsonDict, url, params);
-            [jsonDict writeToFile:[NSHomeDirectory() stringByAppendingPathComponent:@"search.plist"] atomically:true];
             KBYTSearchResults *results = [KBYTSearchResults new];
-            [results processJSON:jsonDict];
-            //[body writeToFile:[NSHomeDirectory() stringByAppendingPathComponent:@"search.json"] atomically:true encoding:NSUTF8StringEncoding error:nil];
-            //[jsonDict writeToFile:[NSHomeDirectory() stringByAppendingPathComponent:@"search.plist"] atomically:true];
+            [results processJSON:jsonDict filter:type];
+            NSLog(@"video count: %lu", results.allItems.count);
+            [jsonDict writeToFile:[NSHomeDirectory() stringByAppendingPathComponent:@"search.plist"] atomically:true];
             dispatch_async(dispatch_get_main_queue(), ^{
                 if(results != nil) {
                     completionBlock(results);

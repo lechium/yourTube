@@ -31,20 +31,42 @@ typedef NS_ENUM(NSUInteger, KBYTSearchType) {
     KBYTSearchTypePlaylists,
 };
 
+@interface KBYTMedia : NSObject
+
+@property (nonatomic, strong) NSString *title;
+@property (nonatomic, strong) NSString *author;
+@property (nonatomic, strong) NSString *keywords;
+@property (nonatomic, strong) NSString *videoId;
+@property (nonatomic, strong) NSString *views;
+@property (nonatomic, strong) NSString *duration;
+@property (nonatomic, strong) NSDictionary *images;
+@property (nonatomic, strong) NSArray *streams;
+@property (nonatomic, strong) NSString *details; //description
+@property (readwrite, assign) NSInteger expireTime;
+
+- (BOOL)isExpired;
+
+@end
 
 @interface KBYTSearchResult: NSObject
 
 @property (nonatomic, strong) NSString *title;
 @property (nonatomic, strong) NSString *author;
 @property (nonatomic, strong) NSString *videoId;
+@property (nonatomic, strong) NSString *channelPath; //what channel does video belong to
+@property (nonatomic, strong) NSString *channelId; //what channel does video belong to
+@property (nonatomic, strong) NSString *playlistId;
+@property (nonatomic, strong) NSString *stupidId; //youtube specific id to unsubscribe et al
 @property (nonatomic, strong) NSString *duration;
 @property (nonatomic, strong) NSString *imagePath;
 @property (nonatomic, strong) NSString *age;
 @property (nonatomic, strong) NSString *views;
 @property (nonatomic, strong) NSString *details;
+@property (nonatomic, strong) KBYTMedia *media;
 @property (nonatomic, strong) NSString *continuationToken;
+@property (nonatomic, strong) NSString *itemDescription;
 @property (readwrite, assign) kYTSearchResultType resultType;
-
+@property (nonatomic, strong) NSArray *items; //only relevant for channel list
 - (id)initWithDictionary:(NSDictionary *)resultDict;
 
 @end
@@ -98,25 +120,6 @@ typedef NS_ENUM(NSUInteger, KBYTSearchType) {
 
 @end
 
-
-
-@interface KBYTMedia : NSObject
-
-@property (nonatomic, strong) NSString *title;
-@property (nonatomic, strong) NSString *author;
-@property (nonatomic, strong) NSString *keywords;
-@property (nonatomic, strong) NSString *videoId;
-@property (nonatomic, strong) NSString *views;
-@property (nonatomic, strong) NSString *duration;
-@property (nonatomic, strong) NSDictionary *images;
-@property (nonatomic, strong) NSArray *streams;
-@property (nonatomic, strong) NSString *details; //description
-@property (readwrite, assign) NSInteger expireTime;
-
-- (BOOL)isExpired;
-
-@end
-
 @interface KBYTStream : NSObject
 
 @property (readwrite, assign) BOOL multiplexed;
@@ -140,7 +143,8 @@ typedef NS_ENUM(NSUInteger, KBYTSearchType) {
 @end
 
 @interface NSObject  (convenience)
-
++ (id)objectFromDictionary:(NSDictionary *)dictionary;
+- (NSDictionary *)dictionaryRepresentation;
 - (void)recursiveInspectObjectLikeKey:(NSString *)desiredKey saving:(NSMutableArray *)array;
 - (void)recursiveInspectObjectForKey:(NSString *)desiredKey saving:(NSMutableArray *)array;
 - (id)recursiveObjectsLikeKey:(NSString *)desiredKey;
@@ -159,6 +163,14 @@ typedef NS_ENUM(NSUInteger, KBYTSearchType) {
 #define recursiveObjectsFor(key, object, array) NSMutableArray *array = [NSMutableArray new]; [object recursiveInspectObjectForKey:key saving:array]
 
 @end
+
+@interface NSArray (strings)
+- (NSString *)runsToString;
+- (NSMutableArray *)convertArrayToObjects;
+- (NSString *)stringFromArray;
+- (NSMutableArray *)convertArrayToDictionaries;
+@end
+
 
 @interface NSString  (SplitString)
 
