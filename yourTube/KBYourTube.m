@@ -447,7 +447,9 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
     if (![[status lowercaseString] isEqualToString:@"ok"]){
         NSLog(@"reason: %@", playabilityStatus[@"reason"]);
         NSDictionary *dict = @{NSLocalizedDescriptionKey: playabilityStatus[@"reason"]};
-        *outError = [NSError errorWithDomain:NSCocoaErrorDomain code:42 userInfo:dict];
+        if (outError){
+            *outError = [NSError errorWithDomain:NSCocoaErrorDomain code:42 userInfo:dict];
+        }
         return false;
     }
     //NSLog(@"videoDetails: %@", jsonDict.allKeys);
@@ -2126,7 +2128,7 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
         @autoreleasepool {
             NSMutableArray *finalArray = [NSMutableArray new];
             //NSMutableDictionary *rootInfo = [NSMutableDictionary new];
-            NSString *errorString = nil;
+            __block NSString *errorString = @"";
             
             for (NSString *videoID in videoIDs) {
                 
@@ -2139,7 +2141,9 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
                 NSDictionary *jsonDict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingAllowFragments|NSJSONReadingMutableLeaves error:nil];
                 NSError *error = nil;
                 KBYTMedia *currentMedia = [[KBYTMedia alloc] initWithJSON:jsonDict error:&error];
-                [finalArray addObject:currentMedia];
+                if(currentMedia){
+                    [finalArray addObject:currentMedia];
+                }
              
             }
             
@@ -2199,9 +2203,9 @@ static NSString * const hardcodedCipher = @"42,0,14,-3,0,-1,0,-2";
 - (NSString *)paramForType:(KBYTSearchType)type {
     switch (type) {
         case KBYTSearchTypeAll: return @"";
-        case KBYTSearchTypeVideos: return @"EgIQAQ%3D%3D";
-        case KBYTSearchTypePlaylists: return @"EgIQAw%3D%3D";
-        case KBYTSearchTypeChannels: return @"EgIQAg%3D%3D";
+        case KBYTSearchTypeVideos: return @"EgIQAQ%3D%3D"; //EgIQAQ==
+        case KBYTSearchTypePlaylists: return @"EgIQAw%3D%3D"; //EgIQAw==
+        case KBYTSearchTypeChannels: return @"EgIQAg%3D%3D"; //EgIQAg==
         default:
             break;
     }
